@@ -46,7 +46,7 @@ struct ChatView: View {
                 Button { handleSend() } label: {
                     Image(systemName: "arrow.up.circle.fill")
                         .font(.title2)
-                        .foregroundStyle(canSend ? DS.Colors.accent : Color.secondary)
+                        .foregroundStyle(canSend ? DS.Colors.warmAccent : Color.secondary)
                 }
                 .disabled(!canSend)
             }

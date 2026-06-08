@@ -20,13 +20,13 @@ struct MessageBubble: View {
                 Text(message.content)
                     .padding(.horizontal, 12)
                     .padding(.vertical, 8)
-                    .background(message.role == .user ? DS.Colors.accent : DS.Colors.backgroundTertiary)
-                    .foregroundStyle(message.role == .user ? Color.white : DS.Colors.textPrimary)
+                    .background(message.role == .user ? DS.Colors.warmAccent : DS.Colors.warmLight)
+                    .foregroundStyle(message.role == .user ? Color.white : DS.Colors.warmDark)
                     .clipShape(RoundedRectangle(cornerRadius: 16))
 
                 Text(message.timestamp, style: .time)
                     .font(.caption2)
-                    .foregroundStyle(DS.Colors.textSecondary)
+                    .foregroundStyle(DS.Colors.textTertiary)
             }
 
             if message.role == .assistant { Spacer(minLength: 40) }

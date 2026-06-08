@@ -88,28 +88,34 @@ struct DayView: View {
         ForEach(dayEvents) { event in
             let yOff = yOffset(for: event.startTime)
             let h = max(24, eventHeight(start: event.startTime, end: event.endTime))
-            RoundedRectangle(cornerRadius: DS.Radius.chip)
-                .fill(DS.Colors.accent.opacity(0.9))
-                .overlay(alignment: .topLeading) {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(event.title)
-                            .font(.caption.weight(.medium))
-                            .foregroundStyle(DS.Colors.textPrimary)
-                            .lineLimit(h > 36 ? 2 : 1)
-                        if h > 48 {
-                            Text(event.startTime, format: .dateTime.hour().minute())
-                                .font(.caption2.monospacedDigit())
-                                .foregroundStyle(DS.Colors.textPrimary.opacity(0.7))
-                        }
+            ZStack(alignment: .topLeading) {
+                RoundedRectangle(cornerRadius: DS.Radius.chip)
+                    .fill(DS.Colors.backgroundSecondary)
+                Rectangle()
+                    .fill(DS.Colors.warmAccent)
+                    .frame(width: 3)
+                    .frame(maxHeight: .infinity)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(event.title)
+                        .font(.caption.weight(.medium))
+                        .foregroundStyle(DS.Colors.textPrimary)
+                        .lineLimit(h > 36 ? 2 : 1)
+                    if h > 48 {
+                        Text(event.startTime, format: .dateTime.hour().minute())
+                            .font(.caption2.monospacedDigit())
+                            .foregroundStyle(DS.Colors.textSecondary)
                     }
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 4)
                 }
-                .frame(maxWidth: .infinity)
-                .frame(height: h)
-                .offset(y: yOff)
-                .padding(.horizontal, 2)
-                .onTapGesture { selectedEvent = event }
+                .padding(.leading, 10)
+                .padding(.trailing, 6)
+                .padding(.vertical, 4)
+            }
+            .clipShape(RoundedRectangle(cornerRadius: DS.Radius.chip))
+            .frame(maxWidth: .infinity)
+            .frame(height: h)
+            .offset(y: yOff)
+            .padding(.horizontal, 2)
+            .onTapGesture { selectedEvent = event }
         }
     }
 
@@ -170,7 +176,7 @@ struct DayView: View {
         case .skipped:
             return DS.Colors.textTertiary.opacity(0.5)
         default:
-            guard let cat = occ.routine?.category else { return DS.Colors.accent.opacity(0.7) }
+            guard let cat = occ.routine?.category else { return DS.Colors.warmAccent.opacity(0.7) }
             return DS.Colors.category(cat).opacity(0.85)
         }
     }

@@ -84,6 +84,20 @@ struct EventCreationSheet: View {
 
     // MARK: - Date + Time chips
 
+    private var dateChipBg: Color {
+        showingDatePicker ? DS.Colors.warmAccent : DS.Colors.warmAccent.opacity(0.15)
+    }
+    private var dateChipFg: Color {
+        showingDatePicker ? .white : DS.Colors.warmAccent
+    }
+    private var timeChipBg: Color {
+        showingTimePicker ? DS.Colors.warmAccent : DS.Colors.backgroundSecondary
+    }
+    private var timeChipFg: Color {
+        if isAllDay { return DS.Colors.textTertiary }
+        return showingTimePicker ? .white : DS.Colors.textSecondary
+    }
+
     private var chipRow: some View {
         HStack(spacing: 10) {
             Button {
@@ -97,13 +111,10 @@ struct EventCreationSheet: View {
                     Text(displayDate, format: .dateTime.day().month().year())
                 }
                 .font(.subheadline.weight(.medium))
-                .foregroundStyle(DS.Colors.warmAccent)
+                .foregroundStyle(dateChipFg)
                 .padding(.horizontal, 14)
                 .padding(.vertical, 8)
-                .background(
-                    DS.Colors.warmAccent.opacity(0.15),
-                    in: RoundedRectangle(cornerRadius: DS.Radius.chip)
-                )
+                .background(dateChipBg, in: RoundedRectangle(cornerRadius: DS.Radius.chip))
             }
             .buttonStyle(.plain)
 
@@ -116,17 +127,14 @@ struct EventCreationSheet: View {
                 HStack(spacing: 4) {
                     Image(systemName: "clock")
                     Text(startTime, format: .dateTime.hour().minute())
-                    Text("–").foregroundStyle(DS.Colors.textTertiary)
+                    Text("–").opacity(0.5)
                     Text(endTime, format: .dateTime.hour().minute())
                 }
                 .font(.subheadline.weight(.medium))
-                .foregroundStyle(isAllDay ? DS.Colors.textTertiary : DS.Colors.textSecondary)
+                .foregroundStyle(timeChipFg)
                 .padding(.horizontal, 14)
                 .padding(.vertical, 8)
-                .background(
-                    DS.Colors.backgroundSecondary,
-                    in: RoundedRectangle(cornerRadius: DS.Radius.chip)
-                )
+                .background(timeChipBg, in: RoundedRectangle(cornerRadius: DS.Radius.chip))
             }
             .buttonStyle(.plain)
             .disabled(isAllDay)

@@ -58,14 +58,14 @@ struct CalendarView: View {
                 ToolbarItem(placement: .primaryAction) {
                     Button { showingCreationSheet = true } label: {
                         Image(systemName: "plus")
-                            .foregroundStyle(DS.Colors.accent)
+                            .foregroundStyle(DS.Colors.warmAccent)
                     }
                 }
                 ToolbarItem(placement: .secondaryAction) {
                     Button("Today") {
                         withAnimation(DS.animation) { selectedDate = .now }
                     }
-                    .foregroundStyle(DS.Colors.accent)
+                    .foregroundStyle(DS.Colors.warmAccent)
                 }
             }
             .sheet(isPresented: $showingCreationSheet) {
@@ -215,7 +215,7 @@ private struct WeekDayRow: View {
         VStack(alignment: .leading, spacing: 6) {
             Text(day, format: .dateTime.weekday(.wide).day().month(.abbreviated))
                 .font(.caption.weight(.semibold))
-                .foregroundStyle(isToday ? DS.Colors.accent : DS.Colors.textSecondary)
+                .foregroundStyle(isToday ? DS.Colors.warmAccent : DS.Colors.textSecondary)
 
             if events.isEmpty && occurrences.isEmpty {
                 Text("No events")
@@ -224,7 +224,7 @@ private struct WeekDayRow: View {
             } else {
                 ForEach(events) { event in
                     HStack(spacing: 6) {
-                        Circle().fill(DS.Colors.accent).frame(width: 6, height: 6)
+                        Circle().fill(DS.Colors.warmAccent).frame(width: 6, height: 6)
                         Text(event.title).font(.caption).foregroundStyle(DS.Colors.textPrimary)
                         Spacer()
                         Text(event.startTime, format: .dateTime.hour().minute())
@@ -249,7 +249,7 @@ private struct WeekDayRow: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal, DS.Spacing.horizontal)
         .padding(.vertical, 10)
-        .background(isToday ? DS.Colors.accent.opacity(0.06) : Color.clear)
+        .background(isToday ? DS.Colors.warmAccent.opacity(0.06) : Color.clear)
     }
 }
 
@@ -330,10 +330,10 @@ private struct MonthDayCell: View {
                 .font(.caption.monospacedDigit())
                 .foregroundStyle(isToday ? DS.Colors.backgroundPrimary : DS.Colors.textPrimary)
                 .frame(width: 28, height: 28)
-                .background(isToday ? DS.Colors.accent : Color.clear, in: Circle())
+                .background(isToday ? DS.Colors.warmAccent : Color.clear, in: Circle())
 
             Circle()
-                .fill(hasEvents ? DS.Colors.accent : Color.clear)
+                .fill(hasEvents ? DS.Colors.warmAccent : Color.clear)
                 .frame(width: 4, height: 4)
         }
         .frame(height: 44)

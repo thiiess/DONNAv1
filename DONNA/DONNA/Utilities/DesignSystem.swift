@@ -38,10 +38,10 @@ enum DS {
 
         static func priority(_ p: Priority) -> Color {
             switch p {
-            case .high:   return Color("Destructive")
+            case .high:   return DS.Colors.destructive
             case .medium: return Color(hex: "#FF9F0A")
-            case .low:    return Color("AccentColor")
-            case .none:   return Color("LineSeparator")
+            case .low:    return DS.Colors.success
+            case .none:   return DS.Colors.textSecondary
             }
         }
     }

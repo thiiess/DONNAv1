@@ -69,7 +69,7 @@ struct SettingsView: View {
             }
         } header: {
             Text("Lernprofil")
-                .foregroundStyle(DS.Colors.textTertiary)
+                .foregroundStyle(DS.Colors.warmAccent)
                 .font(.caption.weight(.semibold))
                 .textCase(nil)
         }
@@ -84,25 +84,25 @@ struct SettingsView: View {
                 Label("Sport", systemImage: "figure.run")
                     .foregroundStyle(DS.Colors.textPrimary)
             }
-            .tint(DS.Colors.accent)
+            .tint(DS.Colors.warmAccent)
             Toggle(isOn: $scienceSleep) {
                 Label("Schlaf", systemImage: "moon.zzz.fill")
                     .foregroundStyle(DS.Colors.textPrimary)
             }
-            .tint(DS.Colors.accent)
+            .tint(DS.Colors.warmAccent)
             Toggle(isOn: $scienceLearning) {
                 Label("Lernen", systemImage: "book.fill")
                     .foregroundStyle(DS.Colors.textPrimary)
             }
-            .tint(DS.Colors.accent)
+            .tint(DS.Colors.warmAccent)
             Toggle(isOn: $scienceGeneral) {
                 Label("Allgemein", systemImage: "checklist")
                     .foregroundStyle(DS.Colors.textPrimary)
             }
-            .tint(DS.Colors.accent)
+            .tint(DS.Colors.warmAccent)
         } header: {
             Text("Wissenschaftliche Regeln")
-                .foregroundStyle(DS.Colors.textTertiary)
+                .foregroundStyle(DS.Colors.warmAccent)
                 .font(.caption.weight(.semibold))
                 .textCase(nil)
         } footer: {
@@ -149,7 +149,7 @@ struct SettingsView: View {
                             .padding(.vertical, 8)
                             .background(
                                 RoundedRectangle(cornerRadius: DS.Radius.chip)
-                                    .fill(isActive ? DS.Colors.accent : DS.Colors.backgroundTertiary)
+                                    .fill(isActive ? DS.Colors.warmAccent : DS.Colors.backgroundTertiary)
                             )
                             .foregroundStyle(isActive ? .white : DS.Colors.textSecondary)
                     }
@@ -159,7 +159,7 @@ struct SettingsView: View {
             }
         } header: {
             Text("Kontextmodus")
-                .foregroundStyle(DS.Colors.textTertiary)
+                .foregroundStyle(DS.Colors.warmAccent)
                 .font(.caption.weight(.semibold))
                 .textCase(nil)
         } footer: {
@@ -201,7 +201,7 @@ struct SettingsView: View {
             }
         } header: {
             Text("Datenschutz")
-                .foregroundStyle(DS.Colors.textTertiary)
+                .foregroundStyle(DS.Colors.warmAccent)
                 .font(.caption.weight(.semibold))
                 .textCase(nil)
         } footer: {
@@ -223,14 +223,14 @@ struct SettingsView: View {
         Section {
             Toggle("Morgenbriefing aktivieren", isOn: $briefingEnabled)
                 .foregroundStyle(DS.Colors.textPrimary)
-                .tint(DS.Colors.accent)
+                .tint(DS.Colors.warmAccent)
             if briefingEnabled {
                 DatePicker("Uhrzeit", selection: briefingTime, displayedComponents: .hourAndMinute)
                     .foregroundStyle(DS.Colors.textPrimary)
             }
         } header: {
             Text("Morgenbriefing")
-                .foregroundStyle(DS.Colors.textTertiary)
+                .foregroundStyle(DS.Colors.warmAccent)
                 .font(.caption.weight(.semibold))
                 .textCase(nil)
         } footer: {
@@ -278,12 +278,12 @@ struct SettingsView: View {
                 #endif
 
             Button("Speichern") { saveKey() }
-                .foregroundStyle(DS.Colors.accent)
+                .foregroundStyle(DS.Colors.warmAccent)
                 .disabled(apiKeyDraft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
 
         } header: {
             Text("KI-Verbindung (Gemini)")
-                .foregroundStyle(DS.Colors.textTertiary)
+                .foregroundStyle(DS.Colors.warmAccent)
                 .font(.caption.weight(.semibold))
                 .textCase(nil)
         } footer: {

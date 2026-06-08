@@ -35,7 +35,10 @@ struct TaskListView: View {
                             Section {
                                 ForEach(tasks) { task in
                                     NavigationLink(destination: TaskDetailView(task: task)) {
-                                        TaskRow(task: task)
+                                        TaskRow(task: task, onComplete: {
+                                            _ = CommandHandler(modelContext: modelContext)
+                                                .execute(.completeTask(id: task.id))
+                                        })
                                     }
                                     .listRowBackground(Color.clear)
                                     .listRowSeparator(.hidden)
@@ -78,7 +81,7 @@ struct TaskListView: View {
                             } header: {
                                 Text(sectionTitle(for: priority))
                                     .font(.caption.weight(.semibold))
-                                    .foregroundStyle(DS.Colors.textTertiary)
+                                    .foregroundStyle(DS.Colors.warmAccent)
                                     .textCase(nil)
                             }
                         }
@@ -98,7 +101,7 @@ struct TaskListView: View {
                 ToolbarItem(placement: .primaryAction) {
                     Button { showingCreationSheet = true } label: {
                         Image(systemName: "plus")
-                            .foregroundStyle(DS.Colors.accent)
+                            .foregroundStyle(DS.Colors.warmAccent)
                     }
                 }
             }
@@ -118,37 +121,41 @@ struct TaskListView: View {
     }
 }
 
-// MARK: - Row (pure display, no gestures)
+// MARK: - Row
 
 private struct TaskRow: View {
     let task: Task
+    let onComplete: () -> Void
 
     var body: some View {
         HStack(spacing: 0) {
-            RoundedRectangle(cornerRadius: 1.5)
-                .fill(DS.Colors.priority(task.priority))
-                .frame(width: 3)
-
-            HStack(spacing: 12) {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(task.title)
-                        .font(DS.Typography.body)
-                        .foregroundStyle(DS.Colors.textPrimary)
-
-                    if let due = task.dueDate {
-                        HStack(spacing: 4) {
-                            Image(systemName: "calendar")
-                                .font(.caption2)
-                            Text(due, style: .date)
-                                .font(.caption.monospacedDigit())
-                        }
-                        .foregroundStyle(isOverdue(due) ? DS.Colors.destructive : DS.Colors.textSecondary)
-                    }
-                }
-                Spacer()
+            Button(action: onComplete) {
+                Circle()
+                    .stroke(DS.Colors.priority(task.priority), lineWidth: 2)
+                    .frame(width: 22, height: 22)
             }
-            .padding(.horizontal, DS.Spacing.horizontal)
+            .buttonStyle(.plain)
+            .padding(.leading, DS.Spacing.horizontal)
+            .padding(.trailing, 12)
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text(task.title)
+                    .font(DS.Typography.body)
+                    .foregroundStyle(DS.Colors.textPrimary)
+
+                if let due = task.dueDate {
+                    HStack(spacing: 4) {
+                        Image(systemName: "calendar")
+                            .font(.caption2)
+                        Text(due, style: .date)
+                            .font(.caption.monospacedDigit())
+                    }
+                    .foregroundStyle(isOverdue(due) ? DS.Colors.destructive : DS.Colors.textSecondary)
+                }
+            }
             .padding(.vertical, DS.Spacing.vertical)
+
+            Spacer()
         }
         .background(DS.Colors.backgroundSecondary)
         .clipShape(RoundedRectangle(cornerRadius: DS.Radius.card))

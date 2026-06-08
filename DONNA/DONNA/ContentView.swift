@@ -29,7 +29,7 @@ struct ContentView: View {
     @Query private var allMessages: [ChatMessage]
 
     #if os(macOS)
-    @State private var selectedTab: AppTab? = .calendar
+    @State private var selectedTab: AppTab = .calendar
     #endif
 
     private var unreadCount: Int {
@@ -51,15 +51,51 @@ struct ContentView: View {
             SettingsView()
                 .tabItem { Label("Settings", systemImage: "gear") }
         }
-        .tint(DS.Colors.accent)
+        .tint(DS.Colors.warmAccent)
         #else
         NavigationSplitView {
-            List(AppTab.allCases, id: \.self, selection: $selectedTab) { tab in
-                Label(tab.title, systemImage: tab.icon)
+            ScrollView {
+                VStack(spacing: 2) {
+                    ForEach(AppTab.allCases, id: \.self) { tab in
+                        Button {
+                            selectedTab = tab
+                        } label: {
+                            HStack(spacing: 10) {
+                                Image(systemName: tab.icon)
+                                    .frame(width: 20)
+                                Text(tab.title)
+                                Spacer()
+                                if tab == .donna && unreadCount > 0 {
+                                    Text("\(unreadCount)")
+                                        .font(.caption2.weight(.bold))
+                                        .padding(.horizontal, 6)
+                                        .padding(.vertical, 2)
+                                        .background(DS.Colors.warmAccent, in: Capsule())
+                                        .foregroundStyle(.white)
+                                }
+                            }
+                            .foregroundStyle(
+                                selectedTab == tab ? DS.Colors.warmAccent : DS.Colors.textSecondary
+                            )
+                            .font(.body.weight(selectedTab == tab ? .medium : .regular))
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 8)
+                            .background(
+                                selectedTab == tab
+                                    ? DS.Colors.warmAccent.opacity(0.15)
+                                    : Color.clear,
+                                in: RoundedRectangle(cornerRadius: 8)
+                            )
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+                .padding(.horizontal, 8)
+                .padding(.vertical, 8)
             }
             .navigationTitle("DONNA")
         } detail: {
-            switch selectedTab ?? .calendar {
+            switch selectedTab {
             case .calendar: CalendarView()
             case .tasks:    TaskListView()
             case .routines: RoutineListView()
@@ -67,7 +103,7 @@ struct ContentView: View {
             case .settings: SettingsView()
             }
         }
-        .tint(DS.Colors.accent)
+        .tint(DS.Colors.warmAccent)
         #endif
     }
 }
