@@ -34,11 +34,18 @@ User input → InteractionOrchestrator → CommandHandler → SwiftData models
 ---
 
 ## Known Bugs (V1 — outstanding)
-These issues exist and should be fixed before adding new features:
-1. **Proposal confirmation not executing** — DONNA proposes an action, user confirms, but CommandHandler does not execute
-2. **Task swipe-to-complete unreliable** — gesture sometimes fires, sometimes doesn't
-3. **DONNA requires multiple prompts to act** — orchestrator doesn't always pick up intent on first message
-4. **No edit/delete UI** for existing calendar events and tasks
+
+### ✅ Fixed (June 2026)
+1. **Proposal confirmation not executing** — FIXED. `confirm()` now guards on `pendingProposalJSON`, persists "Erledigt." on success, input blocked during `awaitingConsent` phase.
+2. **DONNA requires multiple prompts / loses context** — FIXED. `InternalAssistantClient` reconstructs tag prefixes in conversation history. `fail()` surfaces user-friendly German errors.
+3. **Raw API errors shown to user** — FIXED. 503/429/401 mapped to German strings, raw JSON body discarded. Retry logic added (3 attempts, 2s delay).
+
+### 🔴 Still open
+4. **Task swipe-to-complete unreliable** — gesture fires intermittently
+5. **No edit/delete UI** for existing calendar events and tasks
+
+### ⚠️ Untested (Gemini was down during fix session)
+1–3 above were fixed but not fully verified in the running app due to Gemini 503 outage. Test first when starting next session.
 
 ---
 
