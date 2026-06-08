@@ -164,6 +164,7 @@ private struct WeekView: View {
 
     @Query private var allEvents: [CalendarEvent]
     @Query private var allOccurrences: [RoutineOccurrence]
+    @State private var selectedEvent: CalendarEvent? = nil
 
     private var days: [Date] {
         (0..<7).compactMap { Calendar.current.date(byAdding: .day, value: $0, to: weekStart) }
@@ -175,7 +176,8 @@ private struct WeekView: View {
                 ForEach(days, id: \.self) { day in
                     WeekDayRow(day: day,
                                events: eventsOn(day),
-                               occurrences: occurrencesOn(day))
+                               occurrences: occurrencesOn(day),
+                               onEventTap: { selectedEvent = $0 })
                     Rectangle()
                         .fill(DS.Colors.separator)
                         .frame(height: 1)
@@ -183,6 +185,9 @@ private struct WeekView: View {
             }
         }
         .scrollIndicators(.hidden)
+        .sheet(item: $selectedEvent) { event in
+            NavigationStack { EventDetailView(event: event) }
+        }
     }
 
     private func eventsOn(_ day: Date) -> [CalendarEvent] {
@@ -202,6 +207,7 @@ private struct WeekDayRow: View {
     let day: Date
     let events: [CalendarEvent]
     let occurrences: [RoutineOccurrence]
+    let onEventTap: (CalendarEvent) -> Void
 
     private var isToday: Bool { Calendar.current.isDateInToday(day) }
 
@@ -225,6 +231,8 @@ private struct WeekDayRow: View {
                             .font(.caption2.monospacedDigit())
                             .foregroundStyle(DS.Colors.textSecondary)
                     }
+                    .contentShape(Rectangle())
+                    .onTapGesture { onEventTap(event) }
                 }
                 ForEach(occurrences) { occ in
                     HStack(spacing: 6) {

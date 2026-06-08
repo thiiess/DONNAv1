@@ -26,20 +26,21 @@ struct TaskDetailView: View {
     var body: some View {
         Form {
             Section {
-                TextField("Title", text: $title)
-                TextField("Notes", text: $notes, axis: .vertical)
+                TextField("Titel", text: $title)
+                TextField("Notizen", text: $notes, axis: .vertical)
                     .lineLimit(3...6)
             }
 
-            Section("Due Date") {
-                Toggle("Has Due Date", isOn: $hasDueDate.animation())
+            Section("Fälligkeitsdatum") {
+                Toggle("Fälligkeitsdatum", isOn: $hasDueDate.animation())
                 if hasDueDate {
-                    DatePicker("Date", selection: $dueDate, displayedComponents: .date)
+                    DatePicker("Datum", selection: $dueDate, displayedComponents: .date)
+                        .datePickerStyle(.compact)
                 }
             }
 
-            Section("Priority") {
-                Picker("Priority", selection: $priority) {
+            Section("Priorität") {
+                Picker("Priorität", selection: $priority) {
                     ForEach(Priority.allCases, id: \.self) { p in
                         Text(p.rawValue.capitalized).tag(p)
                     }
@@ -48,24 +49,24 @@ struct TaskDetailView: View {
             }
 
             Section {
-                Button("Delete Task", role: .destructive) {
+                Button("Aufgabe löschen", role: .destructive) {
                     showingDeleteConfirmation = true
                 }
             }
         }
-        .navigationTitle("Edit Task")
+        .navigationTitle("Aufgabe bearbeiten")
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif
         .toolbar {
             ToolbarItem(placement: .confirmationAction) {
-                Button("Save") { save() }
+                Button("Speichern") { save() }
                     .disabled(title.trimmingCharacters(in: .whitespaces).isEmpty)
             }
         }
-        .confirmationDialog("Delete this task?", isPresented: $showingDeleteConfirmation,
+        .confirmationDialog("Aufgabe löschen?", isPresented: $showingDeleteConfirmation,
                             titleVisibility: .visible) {
-            Button("Delete", role: .destructive) {
+            Button("Löschen", role: .destructive) {
                 _ = CommandHandler(modelContext: modelContext).execute(.deleteTask(id: task.id))
                 dismiss()
             }

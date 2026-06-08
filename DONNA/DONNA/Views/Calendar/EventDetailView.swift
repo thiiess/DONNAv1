@@ -27,22 +27,24 @@ struct EventDetailView: View {
     var body: some View {
         Form {
             Section {
-                TextField("Title", text: $title)
-                TextField("Notes", text: $notes, axis: .vertical)
+                TextField("Titel", text: $title)
+                TextField("Notizen", text: $notes, axis: .vertical)
                     .lineLimit(2...5)
             }
 
-            Section("Time") {
-                DatePicker("Start", selection: $startTime)
-                DatePicker("End", selection: $endTime)
+            Section("Zeit") {
+                DatePicker("Beginn", selection: $startTime)
+                    .datePickerStyle(.compact)
+                DatePicker("Ende", selection: $endTime)
+                    .datePickerStyle(.compact)
             }
 
             Section {
-                Toggle("Locked — cannot be moved", isOn: $isLocked)
+                Toggle("Gesperrt (nicht verschiebbar)", isOn: $isLocked)
             }
 
             Section {
-                Button("Delete Event", role: .destructive) {
+                Button("Termin löschen", role: .destructive) {
                     if event.isLocked {
                         showingLockedDeleteConfirmation = true
                     } else {
@@ -51,26 +53,26 @@ struct EventDetailView: View {
                 }
             }
         }
-        .navigationTitle("Edit Event")
+        .navigationTitle("Termin bearbeiten")
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif
         .toolbar {
             ToolbarItem(placement: .confirmationAction) {
-                Button("Save") { save() }
+                Button("Speichern") { save() }
                     .disabled(title.trimmingCharacters(in: .whitespaces).isEmpty
                               || endTime <= startTime)
             }
         }
-        .confirmationDialog("Delete this event?",
+        .confirmationDialog("Termin löschen?",
                             isPresented: $showingDeleteConfirmation,
                             titleVisibility: .visible) {
-            Button("Delete", role: .destructive) { deleteEvent() }
+            Button("Löschen", role: .destructive) { deleteEvent() }
         }
-        .confirmationDialog("This event is locked. Delete it anyway?",
+        .confirmationDialog("Termin ist gesperrt. Trotzdem löschen?",
                             isPresented: $showingLockedDeleteConfirmation,
                             titleVisibility: .visible) {
-            Button("Delete Locked Event", role: .destructive) { deleteEvent() }
+            Button("Gesperrten Termin löschen", role: .destructive) { deleteEvent() }
         }
     }
 

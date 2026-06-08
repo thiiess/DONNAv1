@@ -40,6 +40,7 @@ struct TaskListView: View {
                                     .listRowBackground(Color.clear)
                                     .listRowSeparator(.hidden)
                                     .listRowInsets(EdgeInsets(top: 4, leading: DS.Spacing.horizontal, bottom: 4, trailing: DS.Spacing.horizontal))
+                                    #if os(iOS)
                                     .swipeActions(edge: .leading, allowsFullSwipe: true) {
                                         Button {
                                             _ = CommandHandler(modelContext: modelContext)
@@ -50,6 +51,22 @@ struct TaskListView: View {
                                         .tint(DS.Colors.success)
                                     }
                                     .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                        Button(role: .destructive) {
+                                            _ = CommandHandler(modelContext: modelContext)
+                                                .execute(.deleteTask(id: task.id))
+                                        } label: {
+                                            Label("Delete", systemImage: "trash")
+                                        }
+                                    }
+                                    #endif
+                                    .contextMenu {
+                                        Button {
+                                            _ = CommandHandler(modelContext: modelContext)
+                                                .execute(.completeTask(id: task.id))
+                                        } label: {
+                                            Label("Mark as Complete", systemImage: "checkmark.circle")
+                                        }
+                                        Divider()
                                         Button(role: .destructive) {
                                             _ = CommandHandler(modelContext: modelContext)
                                                 .execute(.deleteTask(id: task.id))
