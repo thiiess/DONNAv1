@@ -1,0 +1,2807 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "" : {
+
+    },
+    "–" : {
+      "comment" : "Placeholder value for a streak that is not yet available."
+    },
+    "%lld" : {
+      "comment" : "Total number of data points in a user's profile."
+    },
+    "%lld day%@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld Tag%2$@"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld day%2$@"
+          }
+        }
+      }
+    },
+    "%lld Einträge" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld Einträge"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld entries"
+          }
+        }
+      }
+    },
+    "%lld min" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld min"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld min"
+          }
+        }
+      }
+    },
+    "%lld minutes" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld Minuten"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld minutes"
+          }
+        }
+      }
+    },
+    "%lld Monate" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld Monate"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld months"
+          }
+        }
+      }
+    },
+    "%lld:00 – %lld:00" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld:00 – %2$lld:00"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld:00 – %2$lld:00"
+          }
+        }
+      }
+    },
+    "Abend" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abend"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Evening"
+          }
+        }
+      }
+    },
+    "Ablehnen" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ablehnen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reject"
+          }
+        }
+      }
+    },
+    "Add" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hinzufügen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add"
+          }
+        }
+      }
+    },
+    "Add a routine to get started." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Füge eine Routine hinzu, um loszulegen."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add a routine to get started."
+          }
+        }
+      }
+    },
+    "Aktiver Modus" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aktiver Modus"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Active Mode"
+          }
+        }
+      }
+    },
+    "All tasks are completed." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alle Aufgaben erledigt."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All tasks are completed."
+          }
+        }
+      }
+    },
+    "Alle Chatnachrichten werden unwiderruflich gelöscht. DONNAs Lernprofil bleibt erhalten." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alle Chatnachrichten werden unwiderruflich gelöscht. DONNAs Lernprofil bleibt erhalten."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All chat messages will be permanently deleted. DONNA's learning profile is preserved."
+          }
+        }
+      }
+    },
+    "Allgemein" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Allgemein"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "General"
+          }
+        }
+      }
+    },
+    "Alltag" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alltag"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Daily"
+          }
+        }
+      }
+    },
+    "Alte Einträge werden komprimiert. Chat-Nachrichten älter als %lld Monate werden gelöscht. Dies kann nicht rückgängig gemacht werden." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alte Einträge werden komprimiert. Chat-Nachrichten älter als %lld Monate werden gelöscht. Dies kann nicht rückgängig gemacht werden."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Old entries will be compressed. Chat messages older than %lld months will be deleted. This cannot be undone."
+          }
+        }
+      }
+    },
+    "Ältere Einträge werden beim nächsten Bereinigen komprimiert oder gelöscht." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ältere Einträge werden beim nächsten Bereinigen komprimiert oder gelöscht."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Older entries will be compressed or deleted on the next cleanup."
+          }
+        }
+      }
+    },
+    "API-Schlüssel löschen?" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "API-Schlüssel löschen?"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete API Key?"
+          }
+        }
+      }
+    },
+    "Aufbewahrungsfristen" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aufbewahrungsfristen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Retention Settings"
+          }
+        }
+      }
+    },
+    "Aufgabe fällig" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aufgabe fällig"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Task Due"
+          }
+        }
+      }
+    },
+    "Aufstehen" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aufstehen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wake up"
+          }
+        }
+      }
+    },
+    "badge.clarification" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rückfrage"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clarification"
+          }
+        }
+      }
+    },
+    "badge.explanation" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erklärung"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Explanation"
+          }
+        }
+      }
+    },
+    "badge.interpretation" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Interpretation"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Interpretation"
+          }
+        }
+      }
+    },
+    "badge.proposal" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vorschlag"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Proposal"
+          }
+        }
+      }
+    },
+    "Beobachtete Präferenzen löschen" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Beobachtete Präferenzen löschen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete Observed Preferences"
+          }
+        }
+      }
+    },
+    "Beobachtete Präferenzen löschen?" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Beobachtete Präferenzen löschen?"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete Observed Preferences?"
+          }
+        }
+      }
+    },
+    "Bereinigen" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bereinigen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clean Up"
+          }
+        }
+      }
+    },
+    "Beruf" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Beruf"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Work"
+          }
+        }
+      }
+    },
+    "Bestätigen" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bestätigen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Confirm"
+          }
+        }
+      }
+    },
+    "Bestätigt %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bestätigt %@"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Confirmed %@"
+          }
+        }
+      }
+    },
+    "Bettzeit" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bettzeit"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bedtime"
+          }
+        }
+      }
+    },
+    "Calendar" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kalender"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Calendar"
+          }
+        }
+      }
+    },
+    "Cancel" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abbrechen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancel"
+          }
+        }
+      }
+    },
+    "Category" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kategorie"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Category"
+          }
+        }
+      }
+    },
+    "Chat-Verlauf" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chat-Verlauf"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chat History"
+          }
+        }
+      }
+    },
+    "Chat-Verlauf löschen" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chat-Verlauf löschen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clear Chat History"
+          }
+        }
+      }
+    },
+    "Chat-Verlauf löschen?" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chat-Verlauf löschen?"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clear Chat History?"
+          }
+        }
+      }
+    },
+    "Complete" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erledigen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Complete"
+          }
+        }
+      }
+    },
+    "Completed" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erledigt"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Completed"
+          }
+        }
+      }
+    },
+    "Completed %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erledigt %@"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Completed %@"
+          }
+        }
+      }
+    },
+    "Daily" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Täglich"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Daily"
+          }
+        }
+      }
+    },
+    "Date" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Datum"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Date"
+          }
+        }
+      }
+    },
+    "Datenpunkte" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Datenpunkte"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Data Points"
+          }
+        }
+      }
+    },
+    "Datenschutz" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Datenschutz"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Privacy"
+          }
+        }
+      }
+    },
+    "Deaktivierte Regeln werden von der ScienceEngine nicht mehr geprüft." : {
+      "comment" : "A footer for the setting of the scientific rules.",
+      "isCommentAutoGenerated" : true
+    },
+    "Deine Routine startet bald" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deine Routine startet bald"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your routine is about to start"
+          }
+        }
+      }
+    },
+    "Delete" : {
+      "comment" : "A label for a delete action.",
+      "isCommentAutoGenerated" : true
+    },
+    "Delete \"%@\"?" : {
+      "comment" : "A confirmation dialog that lets the user delete a routine.",
+      "isCommentAutoGenerated" : true
+    },
+    "Delete Event" : {
+      "comment" : "A button that deletes an event.",
+      "isCommentAutoGenerated" : true
+    },
+    "Delete Locked Event" : {
+      "comment" : "A button that deletes a locked event.",
+      "isCommentAutoGenerated" : true
+    },
+    "Delete Routine" : {
+      "comment" : "A destructive button that deletes a routine.",
+      "isCommentAutoGenerated" : true
+    },
+    "Delete Task" : {
+      "comment" : "A button that deletes a task.",
+      "isCommentAutoGenerated" : true
+    },
+    "Delete this event?" : {
+      "comment" : "A confirmation dialog asking the user to delete an event.",
+      "isCommentAutoGenerated" : true
+    },
+    "Delete this task?" : {
+      "comment" : "A confirmation dialog asking the user to delete a task.",
+      "isCommentAutoGenerated" : true
+    },
+    "Den kostenlosen API-Schlüssel erhältst du unter aistudio.google.com. Er wird ausschließlich sicher im Keychain des Geräts gespeichert – niemals in der App oder in der Cloud." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Den kostenlosen API-Schlüssel erhältst du unter aistudio.google.com. Er wird ausschließlich sicher im Keychain des Geräts gespeichert – niemals in der App oder in der Cloud."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Get your free API key at aistudio.google.com. It is stored exclusively and securely in the device Keychain — never in the app or in the cloud."
+          }
+        }
+      }
+    },
+    "Den kostenlosen API-Schlüssel erhältst du unter aistudio.google.com. Er wird ausschließlich sicher im Keychain des Geräts gespeichert." : {
+      "comment" : "A description of the API key.",
+      "isCommentAutoGenerated" : true
+    },
+    "Done" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fertig"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Done"
+          }
+        }
+      }
+    },
+    "DONNA" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DONNA"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DONNA"
+          }
+        }
+      }
+    },
+    "DONNA denkt …" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DONNA denkt …"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DONNA is thinking …"
+          }
+        }
+      }
+    },
+    "DONNA kann danach keine KI-Antworten mehr geben." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DONNA kann danach keine KI-Antworten mehr geben."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DONNA will no longer be able to provide AI responses."
+          }
+        }
+      }
+    },
+    "Due Date" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fälligkeitsdatum"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Due Date"
+          }
+        }
+      }
+    },
+    "Duration" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dauer"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Duration"
+          }
+        }
+      }
+    },
+    "Edit" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bearbeiten"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Edit"
+          }
+        }
+      }
+    },
+    "Edit Event" : {
+      "comment" : "A title for the screen that lets the user edit an event.",
+      "isCommentAutoGenerated" : true
+    },
+    "Edit Routine" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Routine bearbeiten"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Edit Routine"
+          }
+        }
+      }
+    },
+    "Edit Task" : {
+      "comment" : "A title for the screen that lets the user edit a task.",
+      "isCommentAutoGenerated" : true
+    },
+    "Ein geplanter Termin liegt in deinem Schlafschutzfenster." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein geplanter Termin liegt in deinem Schlafschutzfenster."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A scheduled event falls within your protected sleep window."
+          }
+        }
+      }
+    },
+    "Einstellungen" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Einstellungen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Settings"
+          }
+        }
+      }
+    },
+    "End" : {
+      "comment" : "A label for the end date picker.",
+      "isCommentAutoGenerated" : true
+    },
+    "Ends" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ende"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ends"
+          }
+        }
+      }
+    },
+    "Ernährung" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ernährung"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nutrition"
+          }
+        }
+      }
+    },
+    "error.apiKeyMissing" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kein API-Schlüssel hinterlegt. Bitte in den Einstellungen eintragen."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No API key found. Please add one in Settings."
+          }
+        }
+      }
+    },
+    "error.conflictDetected" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zeitkonflikt erkannt."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Time conflict detected."
+          }
+        }
+      }
+    },
+    "error.networkUnavailable" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keine Verbindung. Bitte prüfe deine Internetverbindung."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No connection. Please check your internet connection."
+          }
+        }
+      }
+    },
+    "error.notFound" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Objekt nicht gefunden."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Object not found."
+          }
+        }
+      }
+    },
+    "error.sleepWindowViolation" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diese Zeit liegt im Schlafschutzfenster."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This time falls within the protected sleep window."
+          }
+        }
+      }
+    },
+    "error.undoUnavailable" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kein Undo verfügbar."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Undo is not available."
+          }
+        }
+      }
+    },
+    "Erste Routinen" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erste Routinen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "First Routines"
+          }
+        }
+      }
+    },
+    "Event title" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Titel des Termins"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Event title"
+          }
+        }
+      }
+    },
+    "Frequency" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Häufigkeit"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Frequency"
+          }
+        }
+      }
+    },
+    "Gesamt (geschätzt)" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gesamt (geschätzt)"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Total (estimated)"
+          }
+        }
+      }
+    },
+    "Geschätzte Werte – tatsächliche Größen können abweichen." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geschätzte Werte – tatsächliche Größen können abweichen."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Estimated values — actual sizes may vary."
+          }
+        }
+      }
+    },
+    "Gespeicherte Präferenzen" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gespeicherte Präferenzen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saved Preferences"
+          }
+        }
+      }
+    },
+    "Has due date" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mit Fälligkeitsdatum"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Has due date"
+          }
+        }
+      }
+    },
+    "Has Due Date" : {
+      "comment" : "A toggle that lets the user indicate whether a task has a due date.",
+      "isCommentAutoGenerated" : true
+    },
+    "History" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verlauf"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "History"
+          }
+        }
+      }
+    },
+    "HOT-Zeitraum" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "HOT-Zeitraum"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "HOT Period"
+          }
+        }
+      }
+    },
+    "Jetzt bereinigen" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jetzt bereinigen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clean Up Now"
+          }
+        }
+      }
+    },
+    "Kategorien" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kategorien"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Categories"
+          }
+        }
+      }
+    },
+    "Kein Modus aktiv" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kein Modus aktiv"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No mode active"
+          }
+        }
+      }
+    },
+    "Keine offenen Vorschläge" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keine offenen Vorschläge"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No open proposals"
+          }
+        }
+      }
+    },
+    "Keine Präferenzen gespeichert." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keine Präferenzen gespeichert."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No preferences saved."
+          }
+        }
+      }
+    },
+    "KI-Verbindung (Gemini)" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "KI-Verbindung (Gemini)"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AI Connection (Gemini)"
+          }
+        }
+      }
+    },
+    "Kontextmodus" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kontextmodus"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Context Mode"
+          }
+        }
+      }
+    },
+    "Kostenlosen API-Schlüssel holen" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kostenlosen API-Schlüssel holen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Get a free API key"
+          }
+        }
+      }
+    },
+    "Lernen" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lernen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Learning"
+          }
+        }
+      }
+    },
+    "Lernprofil" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lernprofil"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Learning Profile"
+          }
+        }
+      }
+    },
+    "Locked — cannot be moved" : {
+      "comment" : "A toggle that lets you mark an event as locked.",
+      "isCommentAutoGenerated" : true
+    },
+    "Locked (cannot be moved)" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gesperrt (nicht verschiebbar)"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Locked (cannot be moved)"
+          }
+        }
+      }
+    },
+    "Loescht alle automatisch erkannten Praeferenzen (Quelle: „Beobachtet“) sowie Cooldown-Marker. Explizit eingegebene Einstellungen bleiben erhalten." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Löscht alle automatisch erkannten Präferenzen (Quelle: „Beobachtet“) sowie Cooldown-Marker. Explizit eingegebene Einstellungen bleiben erhalten."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deletes all automatically detected preferences (source: ‘Observed’) and cooldown markers. Explicitly entered settings are preserved."
+          }
+        }
+      }
+    },
+    "Löschen" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Löschen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete"
+          }
+        }
+      }
+    },
+    "Loslegen" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Loslegen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Get Started"
+          }
+        }
+      }
+    },
+    "Mittag" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mittag"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Midday"
+          }
+        }
+      }
+    },
+    "Morgen" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Morgen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Morning"
+          }
+        }
+      }
+    },
+    "Morgenbriefing" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Morgenbriefing"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Morning Briefing"
+          }
+        }
+      }
+    },
+    "Morgenbriefing aktivieren" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Morgenbriefing aktivieren"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enable Morning Briefing"
+          }
+        }
+      }
+    },
+    "Neuen API-Schlüssel eingeben" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Neuen API-Schlüssel eingeben"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enter new API key"
+          }
+        }
+      }
+    },
+    "New Event" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Neuer Termin"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "New Event"
+          }
+        }
+      }
+    },
+    "New Routine" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Neue Routine"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "New Routine"
+          }
+        }
+      }
+    },
+    "New Task" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Neue Aufgabe"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "New Task"
+          }
+        }
+      }
+    },
+    "No events" : {
+      "comment" : "A label displayed when a day has no events.",
+      "isCommentAutoGenerated" : true
+    },
+    "No occurrences yet." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Noch keine Einträge."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No occurrences yet."
+          }
+        }
+      }
+    },
+    "No Open Tasks" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keine offenen Aufgaben"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No Open Tasks"
+          }
+        }
+      }
+    },
+    "No Routines Today" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Heute keine Routinen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No Routines Today"
+          }
+        }
+      }
+    },
+    "Noch keine Daten gesammelt." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Noch keine Daten gesammelt."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No data collected yet."
+          }
+        }
+      }
+    },
+    "Normaler Alltag" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Normaler Alltag"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Everyday Life"
+          }
+        }
+      }
+    },
+    "Notes" : {
+      "comment" : "A label for the notes field.",
+      "isCommentAutoGenerated" : true
+    },
+    "Notes (optional)" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notizen (optional)"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notes (optional)"
+          }
+        }
+      }
+    },
+    "Nur anonymisierter Gesprächstext geht an die Gemini API. Kein Klarname, kein Ort, keine Kalender-ID." : {
+      "comment" : "A description of the data that is collected by the app.",
+      "isCommentAutoGenerated" : true
+    },
+    "Nur automatisch erkannte Präferenzen werden gelöscht. Explizit eingegebene Einstellungen bleiben erhalten." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nur automatisch erkannte Präferenzen werden gelöscht. Explizit eingegebene Einstellungen bleiben erhalten."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Only automatically detected preferences will be deleted. Explicitly entered settings are preserved."
+          }
+        }
+      }
+    },
+    "Ø Schlafdauer" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ø Schlafdauer"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avg. Sleep Duration"
+          }
+        }
+      }
+    },
+    "Ø Schlafenszeit" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ø Schlafenszeit"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avg. Bedtime"
+          }
+        }
+      }
+    },
+    "Ø Sport / Woche" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ø Sport / Woche"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avg. Sport / Week"
+          }
+        }
+      }
+    },
+    "Passt DONNAs Vorschläge und Prioritäten an deine aktuelle Lebensphase an." : {
+      "comment" : "A description of the context mode settings.",
+      "isCommentAutoGenerated" : true
+    },
+    "Preferred time" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bevorzugte Uhrzeit"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Preferred time"
+          }
+        }
+      }
+    },
+    "Priority" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Priorität"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Priority"
+          }
+        }
+      }
+    },
+    "Produktive Stunden" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Produktive Stunden"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Productive Hours"
+          }
+        }
+      }
+    },
+    "Produktive Zeit" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Produktive Zeit"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Productive Time"
+          }
+        }
+      }
+    },
+    "Profil zurücksetzen" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profil zurücksetzen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reset Profile"
+          }
+        }
+      }
+    },
+    "Routine title" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Titel der Routine"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Routine title"
+          }
+        }
+      }
+    },
+    "Routine-Erinnerung" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Routine-Erinnerung"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Routine Reminder"
+          }
+        }
+      }
+    },
+    "Routines" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Routinen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Routines"
+          }
+        }
+      }
+    },
+    "Save" : {
+      "comment" : "A button that saves changes to an event.",
+      "isCommentAutoGenerated" : true
+    },
+    "Schedule" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zeitplan"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schedule"
+          }
+        }
+      }
+    },
+    "Scheduled" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geplant"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scheduled"
+          }
+        }
+      }
+    },
+    "Schlaf" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schlaf"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sleep"
+          }
+        }
+      }
+    },
+    "Schlafenszeit" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schlafenszeit"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bedtime"
+          }
+        }
+      }
+    },
+    "Schlaftrend" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schlaftrend"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sleep Trend"
+          }
+        }
+      }
+    },
+    "Schlafwarnung" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schlafwarnung"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sleep Warning"
+          }
+        }
+      }
+    },
+    "Schlafzeiten" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schlafzeiten"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sleep Times"
+          }
+        }
+      }
+    },
+    "Schreib an DONNA …" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schreib an DONNA …"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Message DONNA …"
+          }
+        }
+      }
+    },
+    "science.general.noRecovery" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keine Erholungszeit – Sport, Lernen und Arbeit lückenlos geplant."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No recovery time — sport, learning, and work scheduled without gaps."
+          }
+        }
+      }
+    },
+    "science.general.overloaded" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mehr als 10 Stunden Aktivität an einem Tag geplant."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "More than 10 hours of activity scheduled for one day."
+          }
+        }
+      }
+    },
+    "science.learning.beforeSleep" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lernen direkt vor dem Schlafen (weniger als 30 Minuten)."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Learning immediately before sleep (less than 30 minutes)."
+          }
+        }
+      }
+    },
+    "science.learning.longBlockNoPause" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lernblock über 90 Minuten ohne geplante Pause."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Learning block over 90 minutes without a scheduled break."
+          }
+        }
+      }
+    },
+    "science.learning.noBlockSince3days" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keine Lerneinheit seit mehr als 3 Tagen – Lernroutine aktiv."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No learning session in over 3 days — learning routine is active."
+          }
+        }
+      }
+    },
+    "science.sleep.irregularTiming" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schlafzeit variiert um mehr als 90 Minuten im Wochendurchschnitt."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sleep timing varies by more than 90 minutes in the weekly average."
+          }
+        }
+      }
+    },
+    "science.sleep.lessThan6h" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Weniger als 6 Stunden Schlaf geplant."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Less than 6 hours of sleep scheduled."
+          }
+        }
+      }
+    },
+    "science.sleep.lessThan6h3days" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "3 Tage in Folge unter 6 Stunden Schlaf – kritischer Schlafmangel."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "3 consecutive days with less than 6 hours of sleep — critical sleep deprivation."
+          }
+        }
+      }
+    },
+    "science.sport.cardioStrengthSameDay" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ausdauer- und Krafttraining am gleichen Tag ohne Pause."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cardio and strength training on the same day without a break."
+          }
+        }
+      }
+    },
+    "science.sport.legDayAfterRun" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Beintraining nach Laufen/Fußball am Vortag."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leg training following running or football the day before."
+          }
+        }
+      }
+    },
+    "science.sport.sameGroup48h" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gleiche Muskelgruppe in den letzten 48 h trainiert."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Same muscle group trained within the last 48 hours."
+          }
+        }
+      }
+    },
+    "science.sport.tooManyPerWeek" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mehr als 6 Trainingseinheiten diese Woche – kein Ruhetag geplant."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "More than 6 training sessions this week — no rest day scheduled."
+          }
+        }
+      }
+    },
+    "Settings" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Einstellungen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Settings"
+          }
+        }
+      }
+    },
+    "Skincare" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skincare"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skincare"
+          }
+        }
+      }
+    },
+    "Skip" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Überspringen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skip"
+          }
+        }
+      }
+    },
+    "Skipped" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Übersprungen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skipped"
+          }
+        }
+      }
+    },
+    "Speicher" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Speicher"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Storage"
+          }
+        }
+      }
+    },
+    "Speicher bereinigen?" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Speicher bereinigen?"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clean Up Storage?"
+          }
+        }
+      }
+    },
+    "Speicher-Dashboard" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Speicher-Dashboard"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Storage Dashboard"
+          }
+        }
+      }
+    },
+    "Speichern" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Speichern"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Save"
+          }
+        }
+      }
+    },
+    "Sport" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sport"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sport"
+          }
+        }
+      }
+    },
+    "Sprache / Language" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sprache / Language"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sprache / Language"
+          }
+        }
+      }
+    },
+    "Start" : {
+      "comment" : "A label for the start date picker.",
+      "isCommentAutoGenerated" : true
+    },
+    "Starts" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Beginn"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Starts"
+          }
+        }
+      }
+    },
+    "Streak" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Streak"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Streak"
+          }
+        }
+      }
+    },
+    "Studium" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Studium"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Studies"
+          }
+        }
+      }
+    },
+    "Täglich eine kurze Zusammenfassung deines Tages. (Platzhalter – noch nicht aktiv)" : {
+      "comment" : "A description of the functionality of the morning briefing.",
+      "isCommentAutoGenerated" : true
+    },
+    "Task title" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Titel der Aufgabe"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Task title"
+          }
+        }
+      }
+    },
+    "Tasks" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aufgaben"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tasks"
+          }
+        }
+      }
+    },
+    "This event is locked. Delete it anyway?" : {
+      "comment" : "A confirmation dialog that asks if the user is sure they want to delete a locked event.",
+      "isCommentAutoGenerated" : true
+    },
+    "Time" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uhrzeit"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Time"
+          }
+        }
+      }
+    },
+    "Title" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Titel"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Title"
+          }
+        }
+      }
+    },
+    "Today" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Heute"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Today"
+          }
+        }
+      }
+    },
+    "Übersicht" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Übersicht"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Overview"
+          }
+        }
+      }
+    },
+    "Uhrzeit" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uhrzeit"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Time"
+          }
+        }
+      }
+    },
+    "Variabel" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Variabel"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Variable"
+          }
+        }
+      }
+    },
+    "View" : {
+      "comment" : "A label for a picker that lets the user select the calendar view mode.",
+      "isCommentAutoGenerated" : true
+    },
+    "Vorschlag" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vorschlag"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Proposal"
+          }
+        }
+      }
+    },
+    "Was DONNA über mich weiß" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Was DONNA über mich weiß"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "What DONNA knows about me"
+          }
+        }
+      }
+    },
+    "Was DONNA weiß" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Was DONNA weiß"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "What DONNA knows"
+          }
+        }
+      }
+    },
+    "Weekdays" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Werktags"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Weekdays"
+          }
+        }
+      }
+    },
+    "Weekly" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wöchentlich"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Weekly"
+          }
+        }
+      }
+    },
+    "Weiter" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Weiter"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Next"
+          }
+        }
+      }
+    },
+    "Wird bereinigt…" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wird bereinigt…"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cleaning up…"
+          }
+        }
+      }
+    },
+    "Wissenschaftliche Regeln" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wissenschaftliche Regeln"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Science Rules"
+          }
+        }
+      }
+    },
+    "Zuletzt aktualisiert" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zuletzt aktualisiert"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Last updated"
+          }
+        }
+      }
+    },
+    "Zuletzt bereinigt: %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zuletzt bereinigt: %@"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Last cleaned: %@"
+          }
+        }
+      }
+    },
+    "Zurück" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zurück"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Back"
+          }
+        }
+      }
+    },
+    "Zurücksetzen" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zurücksetzen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reset"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.1"
+}
