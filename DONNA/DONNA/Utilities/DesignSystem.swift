@@ -18,6 +18,13 @@ enum DS {
         static let success              = Color("Success")
         static let separator            = Color("LineSeparator")
 
+        // Warm brand palette
+        static let warmAccent     = Color(light: Color(hex: "#C4783C"), dark: Color(hex: "#E8A06A"))
+        static let warmLight      = Color(hex: "#F5E6D8")
+        static let warmDark       = Color(hex: "#6B3410")
+        static let darkBackground = Color(hex: "#2A2420")
+        static let darkSurface    = Color(hex: "#E8A06A")
+
         static func category(_ cat: RoutineCategory) -> Color {
             switch cat {
             case .sleep:     return Color(hex: "#5E5CE6")
@@ -89,6 +96,25 @@ extension Color {
                   green:   Double(g) / 255,
                   blue:    Double(b) / 255,
                   opacity: Double(a) / 255)
+    }
+}
+
+// MARK: - Adaptive color
+
+extension Color {
+    init(light: Color, dark: Color) {
+        #if os(iOS)
+        self.init(uiColor: UIColor { traits in
+            traits.userInterfaceStyle == .dark ? UIColor(dark) : UIColor(light)
+        })
+        #elseif os(macOS)
+        self.init(nsColor: NSColor(name: nil, dynamicProvider: { appearance in
+            switch appearance.bestMatch(from: [.aqua, .darkAqua]) {
+            case .darkAqua: return NSColor(dark)
+            default:        return NSColor(light)
+            }
+        }))
+        #endif
     }
 }
 

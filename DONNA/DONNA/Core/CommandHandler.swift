@@ -68,7 +68,7 @@ enum DONNACommand {
     case deleteTask(id: UUID)
 
     // Calendar
-    case createEvent(title: String, start: Date, end: Date, locked: Bool)
+    case createEvent(title: String, start: Date, end: Date, locked: Bool, notes: String?)
     case updateEvent(id: UUID, changes: EventChanges)
     case deleteEvent(id: UUID)
 
@@ -157,8 +157,8 @@ final class CommandHandler {
         case let .deleteTask(id):
             return handleDeleteTask(id: id)
 
-        case let .createEvent(title, start, end, locked):
-            return handleCreateEvent(title: title, start: start, end: end, locked: locked)
+        case let .createEvent(title, start, end, locked, notes):
+            return handleCreateEvent(title: title, start: start, end: end, locked: locked, notes: notes)
         case let .updateEvent(id, changes):
             return handleUpdateEvent(id: id, changes: changes)
         case let .deleteEvent(id):
@@ -250,8 +250,8 @@ final class CommandHandler {
 
     // MARK: - Calendar Handlers
 
-    private func handleCreateEvent(title: String, start: Date, end: Date, locked: Bool) -> CommandResult {
-        let event = CalendarEvent(title: title, startTime: start, endTime: end, isLocked: locked)
+    private func handleCreateEvent(title: String, start: Date, end: Date, locked: Bool, notes: String?) -> CommandResult {
+        let event = CalendarEvent(title: title, startTime: start, endTime: end, isLocked: locked, notes: notes)
         modelContext.insert(event)
         try? modelContext.save()
         return .success

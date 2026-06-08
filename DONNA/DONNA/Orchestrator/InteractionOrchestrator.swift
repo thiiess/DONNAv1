@@ -177,7 +177,7 @@ final class InteractionOrchestrator {
                   let start = cal.date(bySettingHour: startHour, minute: startMin, second: 0, of: base),
                   let end   = cal.date(bySettingHour: endHour,   minute: endMin,   second: 0, of: base)
             else { return nil }
-            return .createEvent(title: title, start: start, end: end, locked: false)
+            return .createEvent(title: title, start: start, end: end, locked: false, notes: nil)
 
         case "createTask":
             let title      = data["title"]    as? String ?? "Aufgabe"

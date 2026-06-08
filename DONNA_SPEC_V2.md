@@ -223,6 +223,15 @@ CalendarEvent bekommt kein volles Recurrence-Modell (zu komplex).
 Aber: DONNA merkt sich einmalige Termine und fragt nach ~11 Monaten:
 > *„Du warst letztes Jahr im März beim Zahnarzt. Soll ich dir helfen, einen Termin zu finden?"*
 
+### Wiederkehrende Termine (einfach)
+CalendarEvent bekommt optionale Recurrence:
+- `.weekly(weekday:)` — z.B. jeden Dienstag
+- `.biweekly(weekday:)` — alle zwei Wochen
+Kein RRFC-5545-Modell. Nur diese zwei Fälle.
+DONNA fragt nach 3× gleichem Wochentag: 
+„Du trägst Fußball jede Woche dienstags ein. 
+Soll ich das als Serientermin anlegen?"
+
 ---
 
 ## V2-S6b: EventKit Integration – Kalender-Import
