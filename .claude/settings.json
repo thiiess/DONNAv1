@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cp /tmp/donna_icon_1024.png \"/Users/thies/Developer/DONNAv1/DONNA/DONNA/Assets.xcassets/AppIcon.appiconset/AppIcon-1024.png\" *)",
+      "Bash(xcodebuild -scheme DONNA -destination 'platform=iOS Simulator,name=iPhone 16' -configuration Debug build)"
+    ],
+    "additionalDirectories": [
+      "/private/tmp"
+    ]
+  }
+}
