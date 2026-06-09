@@ -19,12 +19,31 @@ struct RoutineListView: View {
         NavigationStack {
             Group {
                 if todayOccurrences.isEmpty {
-                    ContentUnavailableView(
-                        "No Routines Today",
-                        systemImage: "arrow.clockwise",
-                        description: Text("Add a routine to get started.")
-                    )
-                    .background(DS.Colors.backgroundPrimary)
+                    VStack {
+                        Spacer()
+                        VStack(spacing: DS.Spacing.vertical) {
+                            Image(systemName: "arrow.clockwise")
+                                .font(.largeTitle)
+                                .foregroundStyle(DS.Colors.warmAccent)
+                            Text("Keine Routinen heute")
+                                .font(DS.Typography.subheading)
+                                .foregroundStyle(DS.Colors.textPrimary)
+                            Text("Routinen hinzufügen, um zu beginnen.")
+                                .font(DS.Typography.caption)
+                                .foregroundStyle(DS.Colors.textSecondary)
+                                .multilineTextAlignment(.center)
+                        }
+                        .padding(DS.Spacing.section)
+                        .background(DS.Colors.appBackground)
+                        .clipShape(RoundedRectangle(cornerRadius: DS.Radius.card))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: DS.Radius.card)
+                                .stroke(DS.Colors.separator, lineWidth: 1)
+                        )
+                        .padding(.horizontal, DS.Spacing.horizontal)
+                        Spacer()
+                    }
+                    .background(DS.Colors.appBackground)
                 } else {
                     List {
                         if !scheduled.isEmpty {
@@ -51,13 +70,13 @@ struct RoutineListView: View {
                     }
                     .listStyle(.plain)
                     .scrollContentBackground(.hidden)
-                    .background(DS.Colors.backgroundPrimary)
+                    .background(DS.Colors.appBackground)
                 }
             }
             .navigationTitle("Routines")
-            .background(DS.Colors.backgroundPrimary)
+            .background(DS.Colors.appBackground)
             #if os(iOS)
-            .toolbarBackground(DS.Colors.backgroundPrimary, for: .navigationBar)
+            .toolbarBackground(DS.Colors.appBackground, for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
             #endif
             .toolbar {

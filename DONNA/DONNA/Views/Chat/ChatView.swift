@@ -52,6 +52,7 @@ struct ChatView: View {
             }
             .padding()
         }
+        .background(DS.Colors.appBackground)
         .navigationTitle("DONNA")
         .task {
             if orchestrator == nil {

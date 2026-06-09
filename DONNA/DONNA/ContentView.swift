@@ -93,6 +93,8 @@ struct ContentView: View {
                 .padding(.horizontal, 8)
                 .padding(.vertical, 8)
             }
+            .background(DS.Colors.appBackground)
+            .navigationSplitViewColumnWidth(min: 180, ideal: 220, max: 280)
             .navigationTitle("DONNA")
         } detail: {
             switch selectedTab {

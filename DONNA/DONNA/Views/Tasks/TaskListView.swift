@@ -28,7 +28,7 @@ struct TaskListView: View {
                         systemImage: "checkmark.circle",
                         description: Text("All tasks are completed.")
                     )
-                    .background(DS.Colors.backgroundPrimary)
+                    .background(DS.Colors.appBackground)
                 } else {
                     List {
                         ForEach(groupedTasks, id: \.0) { priority, tasks in
@@ -88,13 +88,13 @@ struct TaskListView: View {
                     }
                     .listStyle(.plain)
                     .scrollContentBackground(.hidden)
-                    .background(DS.Colors.backgroundPrimary)
+                    .background(DS.Colors.appBackground)
                 }
             }
             .navigationTitle("Tasks")
-            .background(DS.Colors.backgroundPrimary)
+            .background(DS.Colors.appBackground)
             #if os(iOS)
-            .toolbarBackground(DS.Colors.backgroundPrimary, for: .navigationBar)
+            .toolbarBackground(DS.Colors.appBackground, for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
             #endif
             .toolbar {

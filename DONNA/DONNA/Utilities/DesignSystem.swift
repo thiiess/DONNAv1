@@ -25,6 +25,17 @@ enum DS {
         static let darkBackground = Color(hex: "#2A2420")
         static let darkSurface    = Color(hex: "#E8A06A")
 
+        static var appBackground: Color {
+            #if os(macOS)
+            Color(NSColor.windowBackgroundColor)
+            #else
+            Color(UIColor.systemBackground)
+            #endif
+        }
+
+        static let donnaBubbleBg = Color(light: Color(hex: "#F5E6D8"), dark: Color(hex: "#2E2420"))
+        static let donnaBubbleFg = Color(light: Color(hex: "#6B3410"), dark: Color(hex: "#E8A06A"))
+
         static func category(_ cat: RoutineCategory) -> Color {
             switch cat {
             case .sleep:     return Color(hex: "#5E5CE6")

@@ -27,7 +27,7 @@ struct CalendarView: View {
                 .pickerStyle(.segmented)
                 .padding(.horizontal, DS.Spacing.horizontal)
                 .padding(.vertical, 8)
-                .background(DS.Colors.backgroundPrimary)
+                .background(DS.Colors.appBackground)
 
                 navHeader
 
@@ -38,20 +38,20 @@ struct CalendarView: View {
                 switch calendarMode {
                 case .day:
                     DayView(date: selectedDate)
-                        .background(DS.Colors.backgroundPrimary)
+                        .background(DS.Colors.appBackground)
                 case .week:
                     WeekView(weekStart: weekStart)
-                        .background(DS.Colors.backgroundPrimary)
+                        .background(DS.Colors.appBackground)
                 case .month:
                     MonthView(month: selectedDate)
-                        .background(DS.Colors.backgroundPrimary)
+                        .background(DS.Colors.appBackground)
                 }
             }
-            .background(DS.Colors.backgroundPrimary)
+            .background(DS.Colors.appBackground)
             .navigationTitle("Calendar")
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
-            .toolbarBackground(DS.Colors.backgroundPrimary, for: .navigationBar)
+            .toolbarBackground(DS.Colors.appBackground, for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
             #endif
             .toolbar {
@@ -127,7 +127,7 @@ struct CalendarView: View {
         }
         .padding(.horizontal, DS.Spacing.horizontal)
         .padding(.vertical, 10)
-        .background(DS.Colors.backgroundPrimary)
+        .background(DS.Colors.appBackground)
     }
 
     // MARK: - Helpers
@@ -328,7 +328,7 @@ private struct MonthDayCell: View {
         VStack(spacing: 2) {
             Text(day, format: .dateTime.day())
                 .font(.caption.monospacedDigit())
-                .foregroundStyle(isToday ? DS.Colors.backgroundPrimary : DS.Colors.textPrimary)
+                .foregroundStyle(isToday ? DS.Colors.appBackground : DS.Colors.textPrimary)
                 .frame(width: 28, height: 28)
                 .background(isToday ? DS.Colors.warmAccent : Color.clear, in: Circle())
 

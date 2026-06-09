@@ -20,8 +20,8 @@ struct MessageBubble: View {
                 Text(message.content)
                     .padding(.horizontal, 12)
                     .padding(.vertical, 8)
-                    .background(message.role == .user ? DS.Colors.warmAccent : DS.Colors.warmLight)
-                    .foregroundStyle(message.role == .user ? Color.white : DS.Colors.warmDark)
+                    .background(message.role == .user ? DS.Colors.warmAccent : DS.Colors.donnaBubbleBg)
+                    .foregroundStyle(message.role == .user ? Color.white : DS.Colors.donnaBubbleFg)
                     .clipShape(RoundedRectangle(cornerRadius: 16))
 
                 Text(message.timestamp, style: .time)

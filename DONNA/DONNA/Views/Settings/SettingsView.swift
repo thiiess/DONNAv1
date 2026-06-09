@@ -41,10 +41,13 @@ struct SettingsView: View {
                 apiKeySection
             }
             .scrollContentBackground(.hidden)
-            .background(DS.Colors.backgroundPrimary)
+            .background(DS.Colors.appBackground)
+            #if os(macOS)
+            .padding(.trailing, DS.Spacing.horizontal)
+            #endif
             .navigationTitle("Einstellungen")
             #if os(iOS)
-            .toolbarBackground(DS.Colors.backgroundPrimary, for: .navigationBar)
+            .toolbarBackground(DS.Colors.appBackground, for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
             #endif
         }
@@ -85,21 +88,25 @@ struct SettingsView: View {
                     .foregroundStyle(DS.Colors.textPrimary)
             }
             .tint(DS.Colors.warmAccent)
+            .toggleStyle(.switch)
             Toggle(isOn: $scienceSleep) {
                 Label("Schlaf", systemImage: "moon.zzz.fill")
                     .foregroundStyle(DS.Colors.textPrimary)
             }
             .tint(DS.Colors.warmAccent)
+            .toggleStyle(.switch)
             Toggle(isOn: $scienceLearning) {
                 Label("Lernen", systemImage: "book.fill")
                     .foregroundStyle(DS.Colors.textPrimary)
             }
             .tint(DS.Colors.warmAccent)
+            .toggleStyle(.switch)
             Toggle(isOn: $scienceGeneral) {
                 Label("Allgemein", systemImage: "checklist")
                     .foregroundStyle(DS.Colors.textPrimary)
             }
             .tint(DS.Colors.warmAccent)
+            .toggleStyle(.switch)
         } header: {
             Text("Wissenschaftliche Regeln")
                 .foregroundStyle(DS.Colors.warmAccent)
