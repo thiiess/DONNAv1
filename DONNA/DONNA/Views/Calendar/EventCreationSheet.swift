@@ -91,11 +91,11 @@ struct EventCreationSheet: View {
         showingDatePicker ? .white : DS.Colors.warmAccent
     }
     private var timeChipBg: Color {
-        showingTimePicker ? DS.Colors.warmAccent : DS.Colors.backgroundSecondary
+        showingTimePicker ? DS.Colors.warmAccent : DS.Colors.warmAccent.opacity(0.15)
     }
     private var timeChipFg: Color {
-        if isAllDay { return DS.Colors.textTertiary }
-        return showingTimePicker ? .white : DS.Colors.textSecondary
+        if isAllDay { return DS.Colors.warmAccent.opacity(0.35) }
+        return showingTimePicker ? .white : DS.Colors.warmAccent
     }
 
     private var chipRow: some View {

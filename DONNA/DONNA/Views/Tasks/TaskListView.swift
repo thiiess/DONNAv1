@@ -5,6 +5,7 @@ struct TaskListView: View {
     @Query private var allTasks: [Task]
     @Environment(\.modelContext) private var modelContext
     @State private var showingCreationSheet = false
+    @State private var selectedTask: Task?
 
     private let priorityOrder: [Priority] = [.high, .medium, .low, .none]
 
@@ -34,12 +35,13 @@ struct TaskListView: View {
                         ForEach(groupedTasks, id: \.0) { priority, tasks in
                             Section {
                                 ForEach(tasks) { task in
-                                    NavigationLink(destination: TaskDetailView(task: task)) {
+                                    Button { selectedTask = task } label: {
                                         TaskRow(task: task, onComplete: {
                                             _ = CommandHandler(modelContext: modelContext)
                                                 .execute(.completeTask(id: task.id))
                                         })
                                     }
+                                    .buttonStyle(.plain)
                                     .listRowBackground(Color.clear)
                                     .listRowSeparator(.hidden)
                                     .listRowInsets(EdgeInsets(top: 4, leading: DS.Spacing.horizontal, bottom: 4, trailing: DS.Spacing.horizontal))
@@ -107,6 +109,9 @@ struct TaskListView: View {
             }
             .sheet(isPresented: $showingCreationSheet) {
                 TaskCreationSheet()
+            }
+            .sheet(item: $selectedTask) { task in
+                TaskDetailView(task: task)
             }
         }
     }

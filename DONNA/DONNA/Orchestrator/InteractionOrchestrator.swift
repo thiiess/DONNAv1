@@ -87,7 +87,15 @@ final class InteractionOrchestrator {
                 conversationHistory: conversationHistory
             )
         } catch {
-            fail(error.localizedDescription)
+            var msg = error.localizedDescription
+            #if DEBUG
+            if let ae = error as? AssistantError, case .apiError(let code, _) = ae {
+                msg += " [Debug: \(code) Gemini]"
+            } else {
+                msg += " [Debug: \(error)]"
+            }
+            #endif
+            fail(msg)
             return
         }
 
@@ -95,7 +103,11 @@ final class InteractionOrchestrator {
         do {
             parsed = try parser.parse(rawResponse)
         } catch {
-            fail("Das habe ich leider nicht verstanden. Bitte versuche es noch einmal.")
+            var msg = "Das habe ich leider nicht verstanden. Bitte versuche es noch einmal."
+            #if DEBUG
+            msg += " [Debug: parse error — \(error)]"
+            #endif
+            fail(msg)
             return
         }
 
