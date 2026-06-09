@@ -77,6 +77,7 @@ struct DONNAApp: App {
         #endif
     }
 
+    @MainActor
     private func deleteTestMessagesOnce() {
         guard !UserDefaults.standard.bool(forKey: "didCleanTestMessages3") else { return }
         let context = sharedModelContainer.mainContext

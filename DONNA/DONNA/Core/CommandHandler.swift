@@ -62,7 +62,7 @@ struct RoutineDefinition {
 
 enum DONNACommand {
     // Tasks
-    case createTask(title: String, dueDate: Date?, priority: Priority)
+    case createTask(title: String, dueDate: Date?, priority: Priority, notes: String? = nil)
     case updateTask(id: UUID, changes: TaskChanges)
     case completeTask(id: UUID)
     case deleteTask(id: UUID)
@@ -148,8 +148,8 @@ final class CommandHandler {
 
     private func dispatch(_ command: DONNACommand) -> CommandResult {
         switch command {
-        case let .createTask(title, dueDate, priority):
-            return handleCreateTask(title: title, dueDate: dueDate, priority: priority)
+        case let .createTask(title, dueDate, priority, notes):
+            return handleCreateTask(title: title, dueDate: dueDate, priority: priority, notes: notes)
         case let .updateTask(id, changes):
             return handleUpdateTask(id: id, changes: changes)
         case let .completeTask(id):
@@ -197,8 +197,8 @@ final class CommandHandler {
 
     // MARK: - Task Handlers
 
-    private func handleCreateTask(title: String, dueDate: Date?, priority: Priority) -> CommandResult {
-        let task = Task(title: title, dueDate: dueDate, priority: priority)
+    private func handleCreateTask(title: String, dueDate: Date?, priority: Priority, notes: String?) -> CommandResult {
+        let task = Task(title: title, notes: notes, dueDate: dueDate, priority: priority)
         modelContext.insert(task)
         try? modelContext.save()
         return .success

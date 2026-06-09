@@ -154,15 +154,14 @@ struct TaskCreationSheet: View {
         let trimmed = title.trimmingCharacters(in: .whitespaces)
         guard !trimmed.isEmpty else { return }
         let trimmedNotes = notes.trimmingCharacters(in: .whitespaces)
-        let task = Task(
-            title: trimmed,
-            notes: trimmedNotes.isEmpty ? nil : trimmedNotes,
-            dueDate: hasDueDate ? dueDate : nil,
-            dueTimeIncluded: false,
-            priority: priority
+        _ = CommandHandler(modelContext: modelContext).execute(
+            .createTask(
+                title: trimmed,
+                dueDate: hasDueDate ? dueDate : nil,
+                priority: priority,
+                notes: trimmedNotes.isEmpty ? nil : trimmedNotes
+            )
         )
-        modelContext.insert(task)
-        try? modelContext.save()
     }
 }
 

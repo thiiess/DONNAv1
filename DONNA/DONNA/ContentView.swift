@@ -80,12 +80,14 @@ struct ContentView: View {
                             .font(.body.weight(selectedTab == tab ? .medium : .regular))
                             .padding(.horizontal, 12)
                             .padding(.vertical, 8)
+                            .frame(maxWidth: .infinity, alignment: .leading)
                             .background(
                                 selectedTab == tab
                                     ? DS.Colors.warmAccent.opacity(0.15)
                                     : Color.clear,
                                 in: RoundedRectangle(cornerRadius: 8)
                             )
+                            .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
                     }

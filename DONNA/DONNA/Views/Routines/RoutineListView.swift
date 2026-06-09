@@ -3,6 +3,7 @@ import SwiftData
 
 struct RoutineListView: View {
     @Query private var allOccurrences: [RoutineOccurrence]
+    @Environment(\.modelContext) private var modelContext
     @State private var showingCreationSheet = false
 
     private var todayOccurrences: [RoutineOccurrence] {
@@ -116,8 +117,8 @@ struct RoutineListView: View {
                 if occ.status == .scheduled {
                     Button {
                         withAnimation(DS.animation) {
-                            occ.status = .completed
-                            occ.completedAt = .now
+                            _ = CommandHandler(modelContext: modelContext)
+                                .execute(.completeOccurrence(id: occ.id))
                         }
                     } label: {
                         Label("Complete", systemImage: "checkmark")
@@ -129,7 +130,8 @@ struct RoutineListView: View {
                 if occ.status == .scheduled {
                     Button {
                         withAnimation(DS.animation) {
-                            occ.status = .skipped
+                            _ = CommandHandler(modelContext: modelContext)
+                                .execute(.skipOccurrence(id: occ.id, reason: nil))
                         }
                     } label: {
                         Label("Skip", systemImage: "xmark")

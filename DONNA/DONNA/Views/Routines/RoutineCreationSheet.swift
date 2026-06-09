@@ -65,21 +65,16 @@ struct RoutineCreationSheet: View {
     }
 
     private func save() {
-        let routine = Routine(
-            title: title.trimmingCharacters(in: .whitespaces),
+        let trimmed = title.trimmingCharacters(in: .whitespaces)
+        guard !trimmed.isEmpty else { return }
+        let definition = RoutineDefinition(
+            title: trimmed,
             frequency: frequency,
             preferredTimeOfDay: hasPreferredTime ? preferredTime : nil,
             durationMinutes: durationMinutes,
             category: category
         )
-        modelContext.insert(routine)
-
-        let scheduler = RoutineScheduler()
-        let cal = Calendar.current
-        let start = cal.startOfDay(for: .now)
-        let end = cal.date(byAdding: .day, value: 30, to: start) ?? start
-        let occurrences = scheduler.generateOccurrences(for: routine, from: start, to: end)
-        for occ in occurrences { modelContext.insert(occ) }
+        _ = CommandHandler(modelContext: modelContext).execute(.createRoutine(definition: definition))
     }
 
     private func frequencyLabel(_ freq: RoutineFrequency) -> String {
