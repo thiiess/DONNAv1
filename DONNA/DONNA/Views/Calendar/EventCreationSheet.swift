@@ -11,6 +11,7 @@ struct EventCreationSheet: View {
     @State private var endTime: Date
     @State private var isAllDay = false
     @State private var isLocked = false
+    @State private var isAnnual = false
     @State private var notes = ""
     @State private var showingDatePicker = false
     @State private var showingTimePicker = false
@@ -196,16 +197,37 @@ struct EventCreationSheet: View {
         VStack(spacing: 0) {
             Toggle("Ganztägig", isOn: $isAllDay.animation())
                 .tint(DS.Colors.warmAccent)
-                .foregroundStyle(DS.Colors.textPrimary)
+                .foregroundStyle(isAnnual ? DS.Colors.textTertiary : DS.Colors.textPrimary)
                 .padding(.vertical, 12)
+                .disabled(isAnnual)
                 .onChange(of: isAllDay) { _, allDay in
                     if allDay { showingTimePicker = false }
                 }
             Divider()
             Toggle("Gesperrt (nicht verschiebbar)", isOn: $isLocked)
                 .tint(DS.Colors.warmAccent)
-                .foregroundStyle(DS.Colors.textPrimary)
+                .foregroundStyle(isAnnual ? DS.Colors.textTertiary : DS.Colors.textPrimary)
                 .padding(.vertical, 12)
+                .disabled(isAnnual)
+            Divider()
+            VStack(alignment: .leading, spacing: 0) {
+                Toggle("Jahrestag", isOn: $isAnnual.animation())
+                    .tint(DS.Colors.warmAccent)
+                    .foregroundStyle(DS.Colors.textPrimary)
+                    .padding(.top, 12)
+                    .onChange(of: isAnnual) { _, annual in
+                        if annual {
+                            isAllDay = true
+                            isLocked = true
+                            showingTimePicker = false
+                        }
+                    }
+                Text("Wiederholt sich jährlich")
+                    .font(.caption)
+                    .foregroundStyle(DS.Colors.textTertiary)
+                    .padding(.bottom, 12)
+                    .opacity(isAnnual ? 1 : 0)
+            }
         }
     }
 
@@ -272,11 +294,12 @@ struct EventCreationSheet: View {
 
         _ = CommandHandler(modelContext: modelContext).execute(
             .createEvent(
-                title:  trimmed,
-                start:  actualStart,
-                end:    actualEnd,
-                locked: isLocked,
-                notes:  notes.isEmpty ? nil : notes
+                title:    trimmed,
+                start:    actualStart,
+                end:      actualEnd,
+                locked:   isLocked,
+                notes:    notes.isEmpty ? nil : notes,
+                isAnnual: isAnnual
             )
         )
     }

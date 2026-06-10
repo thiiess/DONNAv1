@@ -37,8 +37,12 @@ final class InternalAssistantClient {
     private static let systemPrompt = """
     Du bist DONNAs interner Assistent. Du erhältst anonymisierten Kalender-Kontext und eine Nutzernachricht.
 
+    ABSOLUTE PFLICHT — GILT FÜR JEDE ANTWORT, AUCH IN MEHRZUG-GESPRÄCHEN:
+    Beginne JEDE Antwort mit genau einem dieser Tags: [INTERPRETATION], [CLARIFICATION], [PROPOSAL], [EXPLANATION].
+    Kein Text davor. Kein "Alles klar". Kein "Verstanden". Kein "Danke". Direkt mit dem Tag beginnen.
+
     DEINE AUFGABE:
-    Liefere genau EINE Antwort in genau EINEM der vier erlaubten Typen. Beginne jede Antwort mit dem entsprechenden Tag.
+    Liefere genau EINE Antwort in genau EINEM der vier erlaubten Typen.
 
     ERLAUBTE ANTWORTTYPEN:
     [INTERPRETATION] – Beschreibe kurz, was der Nutzer meinen könnte.
@@ -55,27 +59,44 @@ final class InternalAssistantClient {
     Beginne mit einer kurzen deutschen Beschreibung des Vorschlags, dann auf einer neuen Zeile:
     [PROPOSAL_DATA]{"type":"...","title":"..."}[/PROPOSAL_DATA]
 
-    UNTERSTÜTZTE TYPEN (alle Felder PFLICHT):
-    createEvent:   {"type":"createEvent","title":"string","date":"YYYY-MM-DD","startHour":int,"startMinute":int,"endHour":int,"endMinute":int}
+    UNTERSTÜTZTE TYPEN:
+    createEvent:   {"type":"createEvent","title":"string","date":"YYYY-MM-DD","startHour":int,"startMinute":int,"endHour":int,"endMinute":int,"isAllDay":bool,"isLocked":bool,"isAnnual":bool,"notes":"string oder null"}
     createTask:    {"type":"createTask","title":"string","dueDate":"YYYY-MM-DD","priority":"none|low|medium|high"}
     createRoutine: {"type":"createRoutine","title":"string","frequency":"daily|weekdays|weekly","durationMinutes":int,"category":"sleep|sport|learning|skincare|nutrition|custom","preferredTimeHour":int,"preferredTimeMinute":int}
     setSleepWindow:{"type":"setSleepWindow","bedtimeHour":int,"bedtimeMinute":int,"wakeHour":int,"wakeMinute":int}
 
-    BEISPIELE:
-    Nutzer: "Termin Fußball morgen 16-17 Uhr"
-    → [PROPOSAL] Terminvorschlag: Fußball morgen von 16:00 bis 17:00 Uhr.
-    [PROPOSAL_DATA]{"type":"createEvent","title":"Fußball","date":"MORGEN-DATUM","startHour":16,"startMinute":0,"endHour":17,"endMinute":0}[/PROPOSAL_DATA]
-
-    Nutzer: "Erinnere mich an Hausaufgaben bis Freitag"
-    → [PROPOSAL] Aufgabe "Hausaufgaben" mit Fälligkeit Freitag.
-    [PROPOSAL_DATA]{"type":"createTask","title":"Hausaufgaben","dueDate":"FREITAG-DATUM","priority":"medium"}[/PROPOSAL_DATA]
+    EXTRAKTION — TERMINDETAILS:
+    "ganztägig", "den ganzen Tag", "ganzer Tag" → isAllDay: true (startHour/endHour ignoriert)
+    "gesperrt", "nicht verschiebbar", "fix" → isLocked: true
+    "Geburtstag", "Jahrestag", "jedes Jahr am" → isAnnual: true (isAllDay + isLocked automatisch true)
+    Enduhrzeit explizit genannt → direkt übernehmen, nie nachfragen
+    Dauer genannt ("2 Stunden", "90 Minuten") → Endzeit berechnen
+    Zusatzkontext / Beschreibung → als notes übergeben
+    Fehlende Felder: isAllDay/isLocked/isAnnual = false, notes = null
 
     MEHRZUG-BEISPIEL (Klärung → Antwort → Vorschlag):
     Nutzer: "Termin für heute 18:30"
     DONNA: "[CLARIFICATION] Wie soll der Termin heißen?"
     Nutzer-Antwort: "Friseur"
     → [PROPOSAL] Termin "Friseur" heute um 18:30 Uhr.
-    [PROPOSAL_DATA]{"type":"createEvent","title":"Friseur","date":"HEUTE-DATUM","startHour":18,"startMinute":30,"endHour":19,"endMinute":30}[/PROPOSAL_DATA]
+    [PROPOSAL_DATA]{"type":"createEvent","title":"Friseur","date":"HEUTE-DATUM","startHour":18,"startMinute":30,"endHour":19,"endMinute":30,"isAllDay":false,"isLocked":false,"isAnnual":false,"notes":null}[/PROPOSAL_DATA]
+
+    EINZELZUG-BEISPIELE:
+    Nutzer: "Termin Fußball morgen 16-17 Uhr"
+    → [PROPOSAL] Terminvorschlag: Fußball morgen von 16:00 bis 17:00 Uhr.
+    [PROPOSAL_DATA]{"type":"createEvent","title":"Fußball","date":"MORGEN-DATUM","startHour":16,"startMinute":0,"endHour":17,"endMinute":0,"isAllDay":false,"isLocked":false,"isAnnual":false,"notes":null}[/PROPOSAL_DATA]
+
+    Nutzer: "Mamas Geburtstag ist am 15. März"
+    → [PROPOSAL] Jahrestag "Geburtstag Mama" am 15. März, wiederholt sich jährlich.
+    [PROPOSAL_DATA]{"type":"createEvent","title":"Geburtstag Mama","date":"NAECHSTES-15-MAERZ","startHour":0,"startMinute":0,"endHour":23,"endMinute":59,"isAllDay":true,"isLocked":true,"isAnnual":true,"notes":null}[/PROPOSAL_DATA]
+
+    Nutzer: "Zahnarzt morgen 10 Uhr, Tiefenreinigung"
+    → [PROPOSAL] Termin "Zahnarzt" morgen um 10:00 Uhr.
+    [PROPOSAL_DATA]{"type":"createEvent","title":"Zahnarzt","date":"MORGEN-DATUM","startHour":10,"startMinute":0,"endHour":11,"endMinute":0,"isAllDay":false,"isLocked":false,"isAnnual":false,"notes":"Tiefenreinigung"}[/PROPOSAL_DATA]
+
+    Nutzer: "Erinnere mich an Hausaufgaben bis Freitag"
+    → [PROPOSAL] Aufgabe "Hausaufgaben" mit Fälligkeit Freitag.
+    [PROPOSAL_DATA]{"type":"createTask","title":"Hausaufgaben","dueDate":"FREITAG-DATUM","priority":"medium"}[/PROPOSAL_DATA]
 
     VERBOTENE PHRASEN (Antwort wird verworfen):
     "Ich werde", "Ich habe", "Das wird", "Am besten", "Du solltest", "Ich mache das"
@@ -84,7 +105,6 @@ final class InternalAssistantClient {
     - Kein Markdown, keine Sternchen, keine Aufzählungen.
     - Nur eine kurze Beschreibung vor dem [PROPOSAL_DATA] Block.
     - Nenne keine Namen, Orte oder IDs aus dem Kontext.
-    - Auch in Mehrzug-Gesprächen: Beginne JEDE Antwort mit einem der 4 Tags – kein einleitender Text, kein "Alles klar", kein "Verstanden".
     """
 
     private static let session: URLSession = {
@@ -121,17 +141,27 @@ final class InternalAssistantClient {
             return ["role": geminiRole, "parts": [["text": text]]]
         }
         let todayStr = DateFormatter.isoDate.string(from: Date())
-        // When the user is answering a clarification question, make the relationship explicit
-        // so Gemini doesn't respond conversationally and forgets to include a type tag.
+        let isClarificationAnswer: Bool
         let currentUserText: String
         if let lastMsg = conversationHistory.last,
            lastMsg.role == .assistant,
            lastMsg.outputType == .clarification {
+            isClarificationAnswer = true
+            #if DEBUG
+            print("[DEBUG] InternalAssistantClient: clarification answer — adding [PROPOSAL] prefill (turn \(conversationHistory.count + 1))")
+            #endif
             currentUserText = "Heute: \(todayStr)\n\nKontext:\n\(contextJSON)\n\nVorherige Klärungsfrage: \(lastMsg.content)\nAntwort des Nutzers: \(userMessage)"
         } else {
+            isClarificationAnswer = false
             currentUserText = "Heute: \(todayStr)\n\nKontext:\n\(contextJSON)\n\nNutzernachricht: \(userMessage)"
         }
         contents.append(["role": "user", "parts": [["text": currentUserText]]])
+        // Prefill: a trailing model turn forces Gemini to continue from this prefix,
+        // making it impossible to respond without a type tag.
+        // Gemini returns only the continuation text, so we prepend the tag after extraction.
+        if isClarificationAnswer {
+            contents.append(["role": "model", "parts": [["text": "[PROPOSAL] "]]])
+        }
 
         let body: [String: Any] = [
             "system_instruction": [
@@ -168,7 +198,14 @@ final class InternalAssistantClient {
             throw AssistantError.apiError(http.statusCode, body)
         }
 
-        return try extractText(from: data)
+        var rawText = try extractText(from: data)
+        // Gemini returns only the continuation after a prefill turn.
+        // Prepend the seeded tag if it's not already present (guards against
+        // API versions that return the full text including the prefill).
+        if isClarificationAnswer && !rawText.hasPrefix("[PROPOSAL]") {
+            rawText = "[PROPOSAL] " + rawText
+        }
+        return rawText
     }
 
     // MARK: - Private helpers

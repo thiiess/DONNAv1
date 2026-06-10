@@ -24,6 +24,7 @@ struct EventChanges {
     var startTime: FieldChange<Date> = .unchanged
     var endTime: FieldChange<Date> = .unchanged
     var isLocked: FieldChange<Bool> = .unchanged
+    var isAnnual: FieldChange<Bool> = .unchanged
     var notes: FieldChange<String> = .unchanged
 }
 
@@ -68,7 +69,7 @@ enum DONNACommand {
     case deleteTask(id: UUID)
 
     // Calendar
-    case createEvent(title: String, start: Date, end: Date, locked: Bool, notes: String?)
+    case createEvent(title: String, start: Date, end: Date, locked: Bool, notes: String?, isAnnual: Bool = false)
     case updateEvent(id: UUID, changes: EventChanges)
     case deleteEvent(id: UUID)
 
@@ -157,8 +158,8 @@ final class CommandHandler {
         case let .deleteTask(id):
             return handleDeleteTask(id: id)
 
-        case let .createEvent(title, start, end, locked, notes):
-            return handleCreateEvent(title: title, start: start, end: end, locked: locked, notes: notes)
+        case let .createEvent(title, start, end, locked, notes, isAnnual):
+            return handleCreateEvent(title: title, start: start, end: end, locked: locked, notes: notes, isAnnual: isAnnual)
         case let .updateEvent(id, changes):
             return handleUpdateEvent(id: id, changes: changes)
         case let .deleteEvent(id):
@@ -250,8 +251,19 @@ final class CommandHandler {
 
     // MARK: - Calendar Handlers
 
-    private func handleCreateEvent(title: String, start: Date, end: Date, locked: Bool, notes: String?) -> CommandResult {
-        let event = CalendarEvent(title: title, startTime: start, endTime: end, isLocked: locked, notes: notes)
+    private func handleCreateEvent(title: String, start: Date, end: Date, locked: Bool, notes: String?, isAnnual: Bool = false) -> CommandResult {
+        let cal = Calendar.current
+        let actualLocked = locked || isAnnual
+        let actualStart: Date
+        let actualEnd: Date
+        if isAnnual {
+            actualStart = cal.startOfDay(for: start)
+            actualEnd   = cal.date(bySettingHour: 23, minute: 59, second: 0, of: start) ?? start
+        } else {
+            actualStart = start
+            actualEnd   = end
+        }
+        let event = CalendarEvent(title: title, startTime: actualStart, endTime: actualEnd, isLocked: actualLocked, isAnnual: isAnnual, notes: notes)
         modelContext.insert(event)
         try? modelContext.save()
         return .success
@@ -266,6 +278,7 @@ final class CommandHandler {
         if case .set(let v) = changes.startTime { event.startTime = v }
         if case .set(let v) = changes.endTime { event.endTime = v }
         if case .set(let v) = changes.isLocked { event.isLocked = v }
+        if case .set(let v) = changes.isAnnual { event.isAnnual = v }
         switch changes.notes {
         case .set(let v): event.notes = v
         case .clear:      event.notes = nil

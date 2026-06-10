@@ -179,17 +179,30 @@ final class InteractionOrchestrator {
 
         switch type {
         case "createEvent":
-            let title     = data["title"]       as? String ?? "Termin"
-            let dateStr   = data["date"]         as? String ?? ""
-            let startHour = data["startHour"]    as? Int ?? 9
-            let startMin  = data["startMinute"]  as? Int ?? 0
-            let endHour   = data["endHour"]      as? Int ?? 10
-            let endMin    = data["endMinute"]    as? Int ?? 0
-            guard let base  = DateFormatter.isoDate.date(from: dateStr),
-                  let start = cal.date(bySettingHour: startHour, minute: startMin, second: 0, of: base),
-                  let end   = cal.date(bySettingHour: endHour,   minute: endMin,   second: 0, of: base)
-            else { return nil }
-            return .createEvent(title: title, start: start, end: end, locked: false, notes: nil)
+            let title    = data["title"]    as? String ?? "Termin"
+            let dateStr  = data["date"]     as? String ?? ""
+            let isAllDay = data["isAllDay"] as? Bool ?? false
+            let isLocked = data["isLocked"] as? Bool ?? false
+            let isAnnual = data["isAnnual"] as? Bool ?? false
+            let notes    = data["notes"]    as? String
+            guard let base = DateFormatter.isoDate.date(from: dateStr) else { return nil }
+            let start: Date
+            let end: Date
+            if isAllDay || isAnnual {
+                start = cal.startOfDay(for: base)
+                end   = cal.date(bySettingHour: 23, minute: 59, second: 0, of: base) ?? base
+            } else {
+                let startHour = data["startHour"]   as? Int ?? 9
+                let startMin  = data["startMinute"] as? Int ?? 0
+                let endHour   = data["endHour"]     as? Int ?? 10
+                let endMin    = data["endMinute"]   as? Int ?? 0
+                guard let s = cal.date(bySettingHour: startHour, minute: startMin, second: 0, of: base),
+                      let e = cal.date(bySettingHour: endHour,   minute: endMin,   second: 0, of: base)
+                else { return nil }
+                start = s
+                end   = e
+            }
+            return .createEvent(title: title, start: start, end: end, locked: isLocked, notes: notes, isAnnual: isAnnual)
 
         case "createTask":
             let title      = data["title"]    as? String ?? "Aufgabe"

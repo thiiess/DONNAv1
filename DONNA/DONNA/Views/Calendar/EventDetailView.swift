@@ -14,6 +14,7 @@ struct EventDetailView: View {
     @State private var endTime: Date
     @State private var isAllDay: Bool
     @State private var isLocked: Bool
+    @State private var isAnnual: Bool
     @State private var showingDatePicker = false
     @State private var showingTimePicker = false
     @State private var showingDeleteConfirmation = false
@@ -27,6 +28,7 @@ struct EventDetailView: View {
         _startTime   = State(initialValue: event.startTime)
         _endTime     = State(initialValue: event.endTime)
         _isLocked    = State(initialValue: event.isLocked)
+        _isAnnual    = State(initialValue: event.isAnnual)
         let cal = Calendar.current
         let startIsDay = cal.startOfDay(for: event.startTime) == event.startTime
         let endComps = cal.dateComponents([.hour, .minute], from: event.endTime)
@@ -213,16 +215,37 @@ struct EventDetailView: View {
         VStack(spacing: 0) {
             Toggle("Ganztägig", isOn: $isAllDay.animation())
                 .tint(DS.Colors.warmAccent)
-                .foregroundStyle(DS.Colors.textPrimary)
+                .foregroundStyle(isAnnual ? DS.Colors.textTertiary : DS.Colors.textPrimary)
                 .padding(.vertical, 12)
+                .disabled(isAnnual)
                 .onChange(of: isAllDay) { _, allDay in
                     if allDay { showingTimePicker = false }
                 }
             Divider()
             Toggle("Gesperrt (nicht verschiebbar)", isOn: $isLocked)
                 .tint(DS.Colors.warmAccent)
-                .foregroundStyle(DS.Colors.textPrimary)
+                .foregroundStyle(isAnnual ? DS.Colors.textTertiary : DS.Colors.textPrimary)
                 .padding(.vertical, 12)
+                .disabled(isAnnual)
+            Divider()
+            VStack(alignment: .leading, spacing: 0) {
+                Toggle("Jahrestag", isOn: $isAnnual.animation())
+                    .tint(DS.Colors.warmAccent)
+                    .foregroundStyle(DS.Colors.textPrimary)
+                    .padding(.top, 12)
+                    .onChange(of: isAnnual) { _, annual in
+                        if annual {
+                            isAllDay = true
+                            isLocked = true
+                            showingTimePicker = false
+                        }
+                    }
+                Text("Wiederholt sich jährlich")
+                    .font(.caption)
+                    .foregroundStyle(DS.Colors.textTertiary)
+                    .padding(.bottom, 12)
+                    .opacity(isAnnual ? 1 : 0)
+            }
         }
     }
 
@@ -311,6 +334,7 @@ struct EventDetailView: View {
         changes.startTime = .set(actualStart)
         changes.endTime   = .set(actualEnd)
         changes.isLocked  = .set(isLocked)
+        changes.isAnnual  = .set(isAnnual)
         changes.notes     = notes.isEmpty ? .clear : .set(notes)
         _ = CommandHandler(modelContext: modelContext).execute(.updateEvent(id: event.id, changes: changes))
         dismiss()
