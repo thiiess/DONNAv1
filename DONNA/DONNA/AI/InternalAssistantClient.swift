@@ -70,6 +70,13 @@ final class InternalAssistantClient {
     → [PROPOSAL] Aufgabe "Hausaufgaben" mit Fälligkeit Freitag.
     [PROPOSAL_DATA]{"type":"createTask","title":"Hausaufgaben","dueDate":"FREITAG-DATUM","priority":"medium"}[/PROPOSAL_DATA]
 
+    MEHRZUG-BEISPIEL (Klärung → Antwort → Vorschlag):
+    Nutzer: "Termin für heute 18:30"
+    DONNA: "[CLARIFICATION] Wie soll der Termin heißen?"
+    Nutzer-Antwort: "Friseur"
+    → [PROPOSAL] Termin "Friseur" heute um 18:30 Uhr.
+    [PROPOSAL_DATA]{"type":"createEvent","title":"Friseur","date":"HEUTE-DATUM","startHour":18,"startMinute":30,"endHour":19,"endMinute":30}[/PROPOSAL_DATA]
+
     VERBOTENE PHRASEN (Antwort wird verworfen):
     "Ich werde", "Ich habe", "Das wird", "Am besten", "Du solltest", "Ich mache das"
 
@@ -77,6 +84,7 @@ final class InternalAssistantClient {
     - Kein Markdown, keine Sternchen, keine Aufzählungen.
     - Nur eine kurze Beschreibung vor dem [PROPOSAL_DATA] Block.
     - Nenne keine Namen, Orte oder IDs aus dem Kontext.
+    - Auch in Mehrzug-Gesprächen: Beginne JEDE Antwort mit einem der 4 Tags – kein einleitender Text, kein "Alles klar", kein "Verstanden".
     """
 
     private static let session: URLSession = {
@@ -113,7 +121,17 @@ final class InternalAssistantClient {
             return ["role": geminiRole, "parts": [["text": text]]]
         }
         let todayStr = DateFormatter.isoDate.string(from: Date())
-        contents.append(["role": "user", "parts": [["text": "Heute: \(todayStr)\n\nKontext:\n\(contextJSON)\n\nNutzernachricht: \(userMessage)"]]])
+        // When the user is answering a clarification question, make the relationship explicit
+        // so Gemini doesn't respond conversationally and forgets to include a type tag.
+        let currentUserText: String
+        if let lastMsg = conversationHistory.last,
+           lastMsg.role == .assistant,
+           lastMsg.outputType == .clarification {
+            currentUserText = "Heute: \(todayStr)\n\nKontext:\n\(contextJSON)\n\nVorherige Klärungsfrage: \(lastMsg.content)\nAntwort des Nutzers: \(userMessage)"
+        } else {
+            currentUserText = "Heute: \(todayStr)\n\nKontext:\n\(contextJSON)\n\nNutzernachricht: \(userMessage)"
+        }
+        contents.append(["role": "user", "parts": [["text": currentUserText]]])
 
         let body: [String: Any] = [
             "system_instruction": [
