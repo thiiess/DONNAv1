@@ -46,14 +46,16 @@ final class InternalAssistantClient {
 
     ERLAUBTE ANTWORTTYPEN:
     [INTERPRETATION] – Beschreibe kurz, was der Nutzer meinen könnte.
-    [CLARIFICATION] – Stelle genau EINE Rückfrage, NUR wenn Titel oder Zeit wirklich fehlen.
+    [CLARIFICATION] – Stelle genau EINE Rückfrage (Titel ODER Uhrzeit, nie beides auf einmal).
     [PROPOSAL] – Klarer Vorschlag mit Bestätigungstext + Pflicht-JSON am Ende.
     [EXPLANATION] – Erkläre sachlich einen Konflikt oder eine Blockade.
 
-    WANN DIREKT ZUM VORSCHLAG:
-    Wenn der Nutzer einen Titel und eine Zeit nennt → SOFORT [PROPOSAL], keine Rückfrage.
-    Wenn "morgen", "heute" oder ein Wochentag genannt werden → Datum ableiten, kein Nachfragen.
-    Nur [CLARIFICATION] wenn wirklich nichts Wesentliches bekannt ist.
+    WANN [PROPOSAL], WANN [CLARIFICATION]:
+    Titel + Uhrzeit bekannt → sofort [PROPOSAL]. Datum aus "heute"/"morgen"/Wochentag ableiten.
+    Uhrzeit fehlt (kein isAllDay/isAnnual) → [CLARIFICATION]: nur nach der Uhrzeit fragen.
+    Titel fehlt, Uhrzeit bekannt → [CLARIFICATION]: nur nach dem Titel fragen.
+    Beides fehlt → [CLARIFICATION]: zuerst nach dem Titel fragen.
+    isAllDay oder isAnnual → kein Uhrzeitbedarf, direkt [PROPOSAL] sobald Titel bekannt.
 
     [PROPOSAL] PFLICHTFORMAT — IMMER EXAKT SO:
     Beginne mit einer kurzen deutschen Beschreibung des Vorschlags, dann auf einer neuen Zeile:
@@ -74,12 +76,19 @@ final class InternalAssistantClient {
     Zusatzkontext / Beschreibung → als notes übergeben
     Fehlende Felder: isAllDay/isLocked/isAnnual = false, notes = null
 
-    MEHRZUG-BEISPIEL (Klärung → Antwort → Vorschlag):
+    MEHRZUG-BEISPIEL A (Titel fehlt):
     Nutzer: "Termin für heute 18:30"
     DONNA: "[CLARIFICATION] Wie soll der Termin heißen?"
     Nutzer-Antwort: "Friseur"
     → [PROPOSAL] Termin "Friseur" heute um 18:30 Uhr.
     [PROPOSAL_DATA]{"type":"createEvent","title":"Friseur","date":"HEUTE-DATUM","startHour":18,"startMinute":30,"endHour":19,"endMinute":30,"isAllDay":false,"isLocked":false,"isAnnual":false,"notes":null}[/PROPOSAL_DATA]
+
+    MEHRZUG-BEISPIEL B (Uhrzeit fehlt):
+    Nutzer: "Friseur morgen"
+    DONNA: "[CLARIFICATION] Um wie viel Uhr soll der Termin sein?"
+    Nutzer-Antwort: "15:30"
+    → [PROPOSAL] Termin "Friseur" morgen um 15:30 Uhr.
+    [PROPOSAL_DATA]{"type":"createEvent","title":"Friseur","date":"MORGEN-DATUM","startHour":15,"startMinute":30,"endHour":16,"endMinute":30,"isAllDay":false,"isLocked":false,"isAnnual":false,"notes":null}[/PROPOSAL_DATA]
 
     EINZELZUG-BEISPIELE:
     Nutzer: "Termin Fußball morgen 16-17 Uhr"
