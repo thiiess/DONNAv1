@@ -86,6 +86,7 @@ enum DONNACommand {
 
     // Preferences & Profile
     case confirmPreference(key: String, value: String)
+    case setExplicitPreference(key: String, value: String)
     case deleteLearnedItem(key: String)
 
     // Context
@@ -184,6 +185,8 @@ final class CommandHandler {
 
         case let .confirmPreference(key, value):
             return handleConfirmPreference(key: key, value: value)
+        case let .setExplicitPreference(key, value):
+            return handleSetExplicitPreference(key: key, value: value)
         case let .deleteLearnedItem(key):
             return handleDeleteLearnedItem(key: key)
 
@@ -200,14 +203,14 @@ final class CommandHandler {
     // MARK: - Task Handlers
 
     private func handleCreateTask(title: String, dueDate: Date?, priority: Priority, notes: String?) -> CommandResult {
-        let task = Task(title: title, notes: notes, dueDate: dueDate, priority: priority)
+        let task = DONNATask(title: title, notes: notes, dueDate: dueDate, priority: priority)
         modelContext.insert(task)
         try? modelContext.save()
         return .success
     }
 
     private func handleUpdateTask(id: UUID, changes: TaskChanges) -> CommandResult {
-        guard let all = try? modelContext.fetch(FetchDescriptor<Task>()),
+        guard let all = try? modelContext.fetch(FetchDescriptor<DONNATask>()),
               let task = all.first(where: { $0.id == id }) else {
             return .failure(.notFound(id: id))
         }
@@ -230,7 +233,7 @@ final class CommandHandler {
     }
 
     private func handleCompleteTask(id: UUID) -> CommandResult {
-        guard let all = try? modelContext.fetch(FetchDescriptor<Task>()),
+        guard let all = try? modelContext.fetch(FetchDescriptor<DONNATask>()),
               let task = all.first(where: { $0.id == id }) else {
             return .failure(.notFound(id: id))
         }
@@ -241,7 +244,7 @@ final class CommandHandler {
     }
 
     private func handleDeleteTask(id: UUID) -> CommandResult {
-        guard let all = try? modelContext.fetch(FetchDescriptor<Task>()),
+        guard let all = try? modelContext.fetch(FetchDescriptor<DONNATask>()),
               let task = all.first(where: { $0.id == id }) else {
             return .failure(.notFound(id: id))
         }
@@ -392,6 +395,31 @@ final class CommandHandler {
     private func handleConfirmPreference(key: String, value: String) -> CommandResult {
         let updater = ProfileUpdater(context: modelContext)
         updater.confirmPreference(key: key, value: value)
+        return .success
+    }
+
+    /// Upserts a user-provided preference (source: .explicit) — e.g. from onboarding
+    /// or Settings. Unlike confirmPreference (source: .observed), these are treated as
+    /// manual entries and are not removed by the "beobachtete Präferenzen löschen" reset.
+    private func handleSetExplicitPreference(key: String, value: String) -> CommandResult {
+        let all = (try? modelContext.fetch(FetchDescriptor<Preference>())) ?? []
+        if let existing = all.first(where: { $0.key == key }) {
+            existing.value = value
+            existing.scope = .global
+            existing.source = .explicit
+            existing.isActive = true
+            existing.confirmedAt = Date()
+        } else {
+            modelContext.insert(Preference(
+                key: key,
+                value: value,
+                scope: .global,
+                isActive: true,
+                source: .explicit,
+                confirmedAt: Date()
+            ))
+        }
+        try? modelContext.save()
         return .success
     }
 

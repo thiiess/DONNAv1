@@ -17,7 +17,7 @@ struct DONNAApp: App {
 
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
-            Task.self,
+            DONNATask.self,
             CalendarEvent.self,
             Routine.self,
             RoutineOccurrence.self,

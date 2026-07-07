@@ -2,18 +2,18 @@ import SwiftUI
 import SwiftData
 
 struct TaskListView: View {
-    @Query private var allTasks: [Task]
+    @Query private var allTasks: [DONNATask]
     @Environment(\.modelContext) private var modelContext
     @State private var showingCreationSheet = false
-    @State private var selectedTask: Task?
+    @State private var selectedTask: DONNATask?
 
     private let priorityOrder: [Priority] = [.high, .medium, .low, .none]
 
-    private var openTasks: [Task] {
+    private var openTasks: [DONNATask] {
         allTasks.filter { $0.status == .open }
     }
 
-    private var groupedTasks: [(Priority, [Task])] {
+    private var groupedTasks: [(Priority, [DONNATask])] {
         priorityOrder.compactMap { priority in
             let tasks = openTasks.filter { $0.priority == priority }
             return tasks.isEmpty ? nil : (priority, tasks)
@@ -129,7 +129,7 @@ struct TaskListView: View {
 // MARK: - Row
 
 private struct TaskRow: View {
-    let task: Task
+    let task: DONNATask
     let onComplete: () -> Void
 
     var body: some View {
@@ -172,7 +172,7 @@ private struct TaskRow: View {
 }
 
 #Preview {
-    let schema = Schema([Task.self])
+    let schema = Schema([DONNATask.self])
     let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
     let container = try! ModelContainer(for: schema, configurations: [config])
     return TaskListView().modelContainer(container)

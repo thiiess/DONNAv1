@@ -2,7 +2,7 @@ import SwiftUI
 import SwiftData
 
 struct TaskDetailView: View {
-    let task: Task
+    let task: DONNATask
 
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
@@ -14,7 +14,7 @@ struct TaskDetailView: View {
     @State private var priority: Priority
     @State private var showingDeleteConfirmation = false
 
-    init(task: Task) {
+    init(task: DONNATask) {
         self.task = task
         _title      = State(initialValue: task.title)
         _notes      = State(initialValue: task.notes ?? "")
@@ -200,10 +200,10 @@ struct TaskDetailView: View {
 }
 
 #Preview {
-    let schema = Schema([Task.self])
+    let schema = Schema([DONNATask.self])
     let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
     let container = try! ModelContainer(for: schema, configurations: [config])
-    let task = Task(title: "Buy groceries", dueDate: Date(), priority: .medium)
+    let task = DONNATask(title: "Buy groceries", dueDate: Date(), priority: .medium)
     container.mainContext.insert(task)
     return TaskDetailView(task: task).modelContainer(container)
 }

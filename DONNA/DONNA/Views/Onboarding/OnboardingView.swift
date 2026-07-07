@@ -270,36 +270,40 @@ struct OnboardingView: View {
     // MARK: - Completion
 
     private func finish() {
-        let today = Calendar.current.startOfDay(for: Date())
-        modelContext.insert(SleepWindow(date: today, bedtime: bedtime, wakeTime: wakeTime))
+        let handler = CommandHandler(modelContext: modelContext)
 
-        let preferences: [Preference] = [
-            Preference(key: "app_language",           value: selectedLanguage,         scope: .global, source: .explicit, confirmedAt: Date()),
-            Preference(key: "productive_time_of_day", value: productiveTime.rawValue,   scope: .global, source: .explicit, confirmedAt: Date()),
-            Preference(key: "productive_hours_start", value: "\(productiveTime.preferredStart)", scope: .global, source: .explicit, confirmedAt: Date()),
-            Preference(key: "productive_hours_end",   value: "\(productiveTime.preferredEnd)",   scope: .global, source: .explicit, confirmedAt: Date()),
+        // Sleep window
+        _ = handler.execute(.setSleepWindow(bedtime: bedtime, wakeTime: wakeTime))
+
+        // Explicit preferences from onboarding choices
+        let preferences: [(key: String, value: String)] = [
+            ("app_language",           selectedLanguage),
+            ("productive_time_of_day", productiveTime.rawValue),
+            ("productive_hours_start", "\(productiveTime.preferredStart)"),
+            ("productive_hours_end",   "\(productiveTime.preferredEnd)"),
         ]
-        preferences.forEach { modelContext.insert($0) }
+        for pref in preferences {
+            _ = handler.execute(.setExplicitPreference(key: pref.key, value: pref.value))
+        }
         UserDefaults.standard.set(selectedLanguage, forKey: "donna_app_language")
 
+        // Selected starter routines (createRoutine also generates 30 days of occurrences)
         for choice in selectedRoutines {
-            let routine = Routine(
+            let definition = RoutineDefinition(
                 title: choice.title,
                 frequency: .daily,
                 preferredTimeOfDay: choice.preferredTime(for: productiveTime),
                 durationMinutes: choice.defaultDurationMinutes,
                 priority: .medium,
-                isActive: true,
                 category: choice.category,
                 colorHex: choice.colorHex
             )
-            modelContext.insert(routine)
+            _ = handler.execute(.createRoutine(definition: definition))
         }
 
-        let ctx = ContextMode(name: contextMode.rawValue, isActive: true)
-        modelContext.insert(ctx)
+        // Initial context mode
+        _ = handler.execute(.activateContextMode(name: contextMode.rawValue, until: nil))
 
-        try? modelContext.save()
         completed = true
     }
 }

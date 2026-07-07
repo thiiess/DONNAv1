@@ -166,7 +166,7 @@ struct TaskCreationSheet: View {
 }
 
 #Preview {
-    let schema = Schema([Task.self])
+    let schema = Schema([DONNATask.self])
     let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
     let container = try! ModelContainer(for: schema, configurations: [config])
     return TaskCreationSheet().modelContainer(container)

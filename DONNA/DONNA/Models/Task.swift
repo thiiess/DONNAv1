@@ -1,7 +1,7 @@
 import Foundation
 import SwiftData
 
-@Model class Task {
+@Model class DONNATask {
     @Attribute(.unique) var id: UUID
     var title: String
     var notes: String?

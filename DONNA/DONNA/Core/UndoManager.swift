@@ -178,7 +178,7 @@ final class DONNAUndoManager {
     }
 
     private func restoreTask(_ snap: TaskSnapshot, context: ModelContext) throws {
-        // TODO(V2-S3): fetch Task by snap.id, write all properties back
+        // TODO(V2-S3): fetch DONNATask by snap.id, write all properties back
     }
 
     private func restoreCalendarEvent(_ snap: CalendarEventSnapshot, context: ModelContext) throws {
@@ -212,7 +212,7 @@ final class DONNAUndoManager {
 
 // MARK: - Model → Snapshot Helpers
 
-extension Task {
+extension DONNATask {
     func snapshot() -> TaskSnapshot {
         TaskSnapshot(
             id: id, title: title, notes: notes, status: status,

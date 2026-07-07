@@ -178,7 +178,7 @@ struct StorageDashboardView: View {
     // MARK: - Data Loading
 
     private func loadStats() {
-        guard let tasks        = try? modelContext.fetch(FetchDescriptor<Task>()),
+        guard let tasks        = try? modelContext.fetch(FetchDescriptor<DONNATask>()),
               let events       = try? modelContext.fetch(FetchDescriptor<CalendarEvent>()),
               let routines     = try? modelContext.fetch(FetchDescriptor<Routine>()),
               let occurrences  = try? modelContext.fetch(FetchDescriptor<RoutineOccurrence>()),
@@ -250,7 +250,7 @@ struct StorageDashboardView: View {
         StorageDashboardView()
     }
     .modelContainer(for: [
-        Task.self, CalendarEvent.self, Routine.self,
+        DONNATask.self, CalendarEvent.self, Routine.self,
         RoutineOccurrence.self, SleepWindow.self, ChatMessage.self, Preference.self,
     ], inMemory: true)
 }

@@ -25,7 +25,7 @@ final class NotificationScheduler: @unchecked Sendable {
 
     // MARK: - Task reminders (30 min before dueDate when dueTimeIncluded)
 
-    func scheduleTaskReminder(for task: Task) {
+    func scheduleTaskReminder(for task: DONNATask) {
         guard let due = task.dueDate, task.dueTimeIncluded, task.status == .open else { return }
         let fireDate = due.addingTimeInterval(-30 * 60)
         guard fireDate > Date() else { return }
@@ -42,7 +42,7 @@ final class NotificationScheduler: @unchecked Sendable {
         )
     }
 
-    func cancelTaskReminder(for task: Task) {
+    func cancelTaskReminder(for task: DONNATask) {
         center.removePendingNotificationRequests(withIdentifiers: [taskReminderID(task)])
     }
 
@@ -97,7 +97,7 @@ final class NotificationScheduler: @unchecked Sendable {
 
     // MARK: - Private helpers
 
-    private func taskReminderID(_ task: Task) -> String {
+    private func taskReminderID(_ task: DONNATask) -> String {
         "task_reminder_\(task.id.uuidString)"
     }
 
