@@ -174,39 +174,39 @@ final class DONNAUndoManager {
     // MARK: - Per-Type Restores (implemented in Session 3)
 
     private func deleteCreatedObject(id: UUID, type: String, context: ModelContext) throws {
-        // TODO Session 3: fetch object by ID and type, delete from context
+        // TODO(V2-S3): fetch object by ID and type, delete from context
     }
 
     private func restoreTask(_ snap: TaskSnapshot, context: ModelContext) throws {
-        // TODO Session 3: fetch Task by snap.id, write all properties back
+        // TODO(V2-S3): fetch Task by snap.id, write all properties back
     }
 
     private func restoreCalendarEvent(_ snap: CalendarEventSnapshot, context: ModelContext) throws {
-        // TODO Session 3: fetch CalendarEvent by snap.id, write all properties back
+        // TODO(V2-S3): fetch CalendarEvent by snap.id, write all properties back
     }
 
     private func restoreRoutine(_ snap: RoutineSnapshot, context: ModelContext) throws {
-        // TODO Session 3: fetch Routine by snap.id, write all properties back
+        // TODO(V2-S3): fetch Routine by snap.id, write all properties back
     }
 
     private func restoreOccurrence(_ snap: OccurrenceSnapshot, context: ModelContext) throws {
-        // TODO Session 3: fetch RoutineOccurrence by snap.id, write all properties back
+        // TODO(V2-S3): fetch RoutineOccurrence by snap.id, write all properties back
     }
 
     private func restoreSleepWindow(_ snap: SleepWindowSnapshot, context: ModelContext) throws {
-        // TODO Session 3: fetch SleepWindow by snap.id, write all properties back
+        // TODO(V2-S3): fetch SleepWindow by snap.id, write all properties back
     }
 
     private func restorePreference(_ snap: PreferenceSnapshot, context: ModelContext) throws {
-        // TODO Session 3: fetch Preference by snap.id, write all properties back
+        // TODO(V2-S3): fetch Preference by snap.id, write all properties back
     }
 
     private func restoreLearnedItem(key: String, previousValue: String, context: ModelContext) throws {
-        // TODO Session 3: restore Preference with source=observed for this key
+        // TODO(V2-S3): restore Preference with source=observed for this key
     }
 
     private func restoreContextMode(_ snap: ContextModeSnapshot?, context: ModelContext) throws {
-        // TODO Session 3: deactivate current mode, restore previous if snap != nil
+        // TODO(V2-S3): deactivate current mode, restore previous if snap != nil
     }
 }
 

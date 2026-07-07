@@ -118,17 +118,17 @@ struct LearnedProfileView: View {
     // MARK: - Actions
 
     private func deletePreferences(at offsets: IndexSet) {
+        let handler = CommandHandler(modelContext: modelContext)
         for index in offsets {
-            modelContext.delete(displayedPreferences[index])
+            _ = handler.execute(.deleteLearnedItem(key: displayedPreferences[index].key))
         }
-        try? modelContext.save()
     }
 
     private func deleteObservedPreferences() {
+        let handler = CommandHandler(modelContext: modelContext)
         for pref in preferences where pref.source == .observed || pref.key.hasPrefix("cooldown_") {
-            modelContext.delete(pref)
+            _ = handler.execute(.deleteLearnedItem(key: pref.key))
         }
-        try? modelContext.save()
     }
 }
 

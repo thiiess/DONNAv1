@@ -34,19 +34,21 @@ final class ProactiveMonitor {
     /// Full scan: update learned profile + proactive issue detection.
     /// Safe to call on app foreground and from the background refresh handler.
     func run(modelContext: ModelContext) {
-        runLearningCycle(modelContext: modelContext)
+        let patterns = runLearningCycle(modelContext: modelContext)
         detectCalendarConflicts(modelContext: modelContext)
-        detectSleepDeficitStreak(modelContext: modelContext)
+        detectSleepDeficitStreak(sleep: patterns.sleep, modelContext: modelContext)
         detectForgottenRoutines(modelContext: modelContext)
     }
 
     // MARK: - Learning cycle
 
-    private func runLearningCycle(modelContext: ModelContext) {
+    @discardableResult
+    private func runLearningCycle(modelContext: ModelContext) -> PatternResult {
         let extractor = PatternExtractor()
         let updater = ProfileUpdater(context: modelContext)
         let patterns = extractor.extract(from: modelContext)
         updater.update(with: patterns)
+        return patterns
     }
 
     // MARK: - Calendar conflict detection
@@ -105,32 +107,14 @@ final class ProactiveMonitor {
 
     // MARK: - Sleep deficit streak detection
 
-    private func detectSleepDeficitStreak(modelContext: ModelContext) {
-        let descriptor = FetchDescriptor<SleepWindow>(
-            sortBy: [SortDescriptor(\.date, order: .reverse)]
-        )
-        let windows = (try? modelContext.fetch(descriptor)) ?? []
+    private func detectSleepDeficitStreak(sleep: SleepPatternData?, modelContext: ModelContext) {
+        guard let sleep, sleep.recentDeficitStreak >= 3 else { return }
 
-        let cal = Calendar.current
-        var streakCount = 0
-        var checkDate = cal.startOfDay(for: Date())
-
-        // Walk backwards day by day; break on the first night that isn't a deficit
-        for _ in 0..<7 {
-            let match = windows.first { cal.isDate($0.date, inSameDayAs: checkDate) }
-            guard let w = match, Double(w.durationMinutes) / 60.0 < 6.0 else { break }
-            streakCount += 1
-            checkDate = cal.date(byAdding: .day, value: -1, to: checkDate) ?? checkDate
-        }
-
-        guard streakCount >= 3 else { return }
-
-        // Key is anchored to today so the proposal reappears each new day the streak holds
-        let dayKey = ISO8601DateFormatter().string(from: cal.startOfDay(for: Date())).prefix(10)
+        let dayKey = ISO8601DateFormatter().string(from: Calendar.current.startOfDay(for: Date())).prefix(10)
         let key = "sleep_deficit_streak_\(dayKey)"
         createProposalIfNew(
             key: key,
-            content: "Du schläfst seit \(streakCount) Tagen in Folge weniger als 6 Stunden. Möchtest du dein Schlaffenster anpassen oder eine Erinnerung einrichten?",
+            content: "Du schläfst seit \(sleep.recentDeficitStreak) Tagen in Folge weniger als 6 Stunden. Möchtest du dein Schlaffenster anpassen oder eine Erinnerung einrichten?",
             modelContext: modelContext
         )
     }

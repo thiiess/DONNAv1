@@ -127,6 +127,7 @@ enum CommandResult {
 @MainActor
 final class CommandHandler {
     private let modelContext: ModelContext
+    // TODO(V2-S3): capture a snapshot before each mutation and call undoManager.save(_:)
     let undoManager: DONNAUndoManager
     private let conflictDetector: ConflictDetector
     private let scienceEngine: ScienceEngine

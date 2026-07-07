@@ -177,14 +177,7 @@ struct SettingsView: View {
     }
 
     private func switchContextMode(to name: String) {
-        let all = (try? modelContext.fetch(FetchDescriptor<ContextMode>())) ?? []
-        all.forEach { $0.isActive = false }
-        if let existing = all.first(where: { $0.name == name }) {
-            existing.isActive = true
-        } else {
-            modelContext.insert(ContextMode(name: name, isActive: true))
-        }
-        try? modelContext.save()
+        _ = CommandHandler(modelContext: modelContext).execute(.activateContextMode(name: name, until: nil))
     }
 
     // MARK: - Datenschutz

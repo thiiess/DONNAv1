@@ -8,6 +8,8 @@ struct SleepPatternData {
     let avgDurationHours: Double
     let trend: Trend
     let dataPoints: Int
+    /// Consecutive recent nights with < 6h sleep (max 7), newest first.
+    let recentDeficitStreak: Int
 }
 
 struct RoutineAdherenceData {
@@ -63,12 +65,14 @@ final class PatternExtractor {
         let avgBedtime = circularMeanHour(windows.map { fractionalHour($0.bedtime) })
         let avgDuration = windows.map { Double($0.durationMinutes) / 60.0 }.reduce(0, +) / Double(windows.count)
         let trend = computeSleepTrend(windows: windows)
+        let streak = computeDeficitStreak(windows: all)
 
         return SleepPatternData(
             avgBedtimeHour: avgBedtime,
             avgDurationHours: avgDuration,
             trend: trend,
-            dataPoints: windows.count
+            dataPoints: windows.count,
+            recentDeficitStreak: streak
         )
     }
 
@@ -140,6 +144,21 @@ final class PatternExtractor {
         var mean = atan2(sinMean, cosMean) / twoPi * 24.0
         if mean < 0 { mean += 24.0 }
         return mean
+    }
+
+    /// Counts consecutive nights (newest-first, up to 7) where duration < 6h.
+    private func computeDeficitStreak(windows: [SleepWindow]) -> Int {
+        let sorted = windows.sorted { $0.date > $1.date }
+        let cal = Calendar.current
+        var streak = 0
+        var checkDate = cal.startOfDay(for: Date())
+        for _ in 0..<7 {
+            let match = sorted.first { cal.isDate($0.date, inSameDayAs: checkDate) }
+            guard let w = match, Double(w.durationMinutes) / 60.0 < 6.0 else { break }
+            streak += 1
+            checkDate = cal.date(byAdding: .day, value: -1, to: checkDate) ?? checkDate
+        }
+        return streak
     }
 
     private func computeSleepTrend(windows: [SleepWindow]) -> Trend {
