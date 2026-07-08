@@ -11,6 +11,8 @@ struct ChatView: View {
 
     var body: some View {
         VStack(spacing: 0) {
+            BriefingCardView()
+
             if let orchestrator {
                 ProposalFeedView(orchestrator: orchestrator)
                     .frame(maxHeight: orchestrator.phase == .awaitingConsent ? 180 : 44)
@@ -123,7 +125,12 @@ struct ChatView: View {
 // MARK: - ChatMessageList
 
 private struct ChatMessageList: View {
-    @Query(sort: \ChatMessage.timestamp) private var messages: [ChatMessage]
+    // Briefing messages are surfaced as a pinned card (BriefingCardView), so they are
+    // excluded from the chronological feed to avoid a duplicate bubble.
+    @Query(
+        filter: #Predicate<ChatMessage> { !$0.isBriefing },
+        sort: \ChatMessage.timestamp
+    ) private var messages: [ChatMessage]
     let onSend: () -> Void
 
     var body: some View {

@@ -57,11 +57,12 @@ struct DONNAApp: App {
         #if os(iOS)
         .backgroundTask(.appRefresh(ProactiveMonitor.bgRefreshIdentifier)) {
             await MainActor.run {
-                ProactiveMonitor().run(modelContext: sharedModelContainer.mainContext)
+                let context = sharedModelContainer.mainContext
+                let monitor = ProactiveMonitor()
+                monitor.run(modelContext: context)
+                monitor.generateMorningBriefingIfDue(modelContext: context)
                 ProactiveMonitor.scheduleNextBackgroundRefresh()
-                NotificationScheduler.shared.updateBadgeCount(
-                    modelContext: sharedModelContainer.mainContext
-                )
+                NotificationScheduler.shared.updateBadgeCount(modelContext: context)
             }
         }
         #endif
@@ -69,9 +70,12 @@ struct DONNAApp: App {
 
     @MainActor
     private func runProactiveMonitor() {
-        ProactiveMonitor().run(modelContext: sharedModelContainer.mainContext)
-        NotificationScheduler.shared.updateBadgeCount(modelContext: sharedModelContainer.mainContext)
-        DataLifecycleManager.shared.runIfNeeded(modelContext: sharedModelContainer.mainContext)
+        let context = sharedModelContainer.mainContext
+        let monitor = ProactiveMonitor()
+        monitor.run(modelContext: context)
+        monitor.generateMorningBriefingIfDue(modelContext: context)
+        NotificationScheduler.shared.updateBadgeCount(modelContext: context)
+        DataLifecycleManager.shared.runIfNeeded(modelContext: context)
         #if os(iOS)
         ProactiveMonitor.scheduleNextBackgroundRefresh()
         #endif

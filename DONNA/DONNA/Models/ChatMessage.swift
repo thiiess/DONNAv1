@@ -10,8 +10,14 @@ import SwiftData
     var timestamp: Date = Date()
     var dataLayer: DataLayer = DataLayer.hot
     var isRead: Bool = false
+    /// Marks this message as a morning briefing so it can be surfaced as a pinned card
+    /// (and filtered out of the chronological chat feed).
+    var isBriefing: Bool = false
+    /// Set when the user collapses/dismisses the pinned briefing card. The message
+    /// still persists in history; it just stops appearing as a pinned card.
+    var isBriefingDismissed: Bool = false
 
-    init(id: UUID = UUID(), role: MessageRole, content: String, outputType: AIOutputType = .interpretation, relatedCommandId: UUID? = nil, timestamp: Date = Date(), dataLayer: DataLayer = .hot, isRead: Bool = false) {
+    init(id: UUID = UUID(), role: MessageRole, content: String, outputType: AIOutputType = .interpretation, relatedCommandId: UUID? = nil, timestamp: Date = Date(), dataLayer: DataLayer = .hot, isRead: Bool = false, isBriefing: Bool = false, isBriefingDismissed: Bool = false) {
         self.id = id
         self.role = role
         self.content = content
@@ -20,5 +26,7 @@ import SwiftData
         self.timestamp = timestamp
         self.dataLayer = dataLayer
         self.isRead = isRead
+        self.isBriefing = isBriefing
+        self.isBriefingDismissed = isBriefingDismissed
     }
 }

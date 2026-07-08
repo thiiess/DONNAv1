@@ -23,6 +23,44 @@ final class NotificationScheduler: @unchecked Sendable {
         center.requestAuthorization(options: [.alert, .sound, .badge]) { _, _ in }
     }
 
+    /// Requests authorization and returns whether notifications are granted.
+    /// The system only shows the prompt once; subsequent calls resolve immediately.
+    func requestPermission() async -> Bool {
+        (try? await center.requestAuthorization(options: [.alert, .sound, .badge])) ?? false
+    }
+
+    // MARK: - Morning briefing (repeating daily nudge)
+
+    private static let morningBriefingID = "morning_briefing"
+
+    /// Schedules (or replaces) a repeating daily notification at the given time.
+    /// The notification is only a generic nudge — the actual briefing is generated
+    /// in-app as a ChatMessage when the app is opened.
+    func scheduleMorningBriefing(at time: Date) {
+        let content = UNMutableNotificationContent()
+        content.title = String(localized: "Guten Morgen")
+        content.body = String(localized: "Dein Tagesüberblick wartet in DONNA.")
+        content.sound = .default
+
+        let cal = Calendar.current
+        var components = DateComponents()
+        components.hour = cal.component(.hour, from: time)
+        components.minute = cal.component(.minute, from: time)
+
+        let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: true)
+        let request = UNNotificationRequest(
+            identifier: Self.morningBriefingID,
+            content: content,
+            trigger: trigger
+        )
+        center.removePendingNotificationRequests(withIdentifiers: [Self.morningBriefingID])
+        center.add(request, withCompletionHandler: nil)
+    }
+
+    func cancelMorningBriefing() {
+        center.removePendingNotificationRequests(withIdentifiers: [Self.morningBriefingID])
+    }
+
     // MARK: - Task reminders (30 min before dueDate when dueTimeIncluded)
 
     func scheduleTaskReminder(for task: DONNATask) {

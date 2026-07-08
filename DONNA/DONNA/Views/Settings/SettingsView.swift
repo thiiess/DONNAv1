@@ -9,6 +9,9 @@ struct SettingsView: View {
     @State private var maskedKey: String?
     @State private var showDeleteKeyConfirmation = false
     @State private var showClearChatConfirmation = false
+    #if DEBUG
+    @State private var briefingKeyCleared = false
+    #endif
 
     @AppStorage("donna_science_sport")    private var scienceSport    = true
     @AppStorage("donna_science_sleep")    private var scienceSleep    = true
@@ -38,6 +41,9 @@ struct SettingsView: View {
                 kontextmodusSection
                 datenschutzSection
                 morgenbriefingSection
+                #if DEBUG
+                debugSection
+                #endif
                 apiKeySection
             }
             .scrollContentBackground(.hidden)
@@ -224,6 +230,8 @@ struct SettingsView: View {
             Toggle("Morgenbriefing aktivieren", isOn: $briefingEnabled)
                 .foregroundStyle(DS.Colors.textPrimary)
                 .tint(DS.Colors.warmAccent)
+                .onChange(of: briefingEnabled) { _, enabled in handleBriefingEnabledChange(enabled) }
+                .onChange(of: briefingTimeInterval) { _, _ in handleBriefingTimeChange() }
             if briefingEnabled {
                 DatePicker("Uhrzeit", selection: briefingTime, displayedComponents: .hourAndMinute)
                     .foregroundStyle(DS.Colors.textPrimary)
@@ -234,11 +242,67 @@ struct SettingsView: View {
                 .font(.caption.weight(.semibold))
                 .textCase(nil)
         } footer: {
-            Text("Täglich eine kurze Zusammenfassung deines Tages. (Platzhalter – noch nicht aktiv)")
+            Text("Täglich eine kurze Zusammenfassung deines Tages – als Benachrichtigung und als Karte im DONNA-Tab.")
                 .foregroundStyle(DS.Colors.textTertiary)
         }
         .listRowBackground(DS.Colors.backgroundSecondary)
     }
+
+    private func handleBriefingEnabledChange(_ enabled: Bool) {
+        guard enabled else {
+            NotificationScheduler.shared.cancelMorningBriefing()
+            return
+        }
+        // Persist the (possibly still-default) time so the app-launch / background path reads a real value.
+        briefingTimeInterval = briefingTime.wrappedValue.timeIntervalSinceReferenceDate
+        Swift.Task {
+            let granted = await NotificationScheduler.shared.requestPermission()
+            await MainActor.run {
+                if granted {
+                    NotificationScheduler.shared.scheduleMorningBriefing(at: briefingTime.wrappedValue)
+                } else {
+                    briefingEnabled = false
+                }
+            }
+        }
+    }
+
+    private func handleBriefingTimeChange() {
+        guard briefingEnabled else { return }
+        NotificationScheduler.shared.scheduleMorningBriefing(at: briefingTime.wrappedValue)
+    }
+
+    // MARK: - Debug (DEBUG builds only)
+
+    #if DEBUG
+    private var debugSection: some View {
+        Section {
+            Button {
+                clearTodaysBriefingKey()
+            } label: {
+                Label(briefingKeyCleared ? "Briefing-Sperre gelöscht ✓" : "Heutiges Briefing zurücksetzen",
+                      systemImage: "arrow.counterclockwise")
+                    .foregroundStyle(DS.Colors.warmAccent)
+            }
+        } header: {
+            Text("Debug")
+                .foregroundStyle(DS.Colors.warmAccent)
+                .font(.caption.weight(.semibold))
+                .textCase(nil)
+        } footer: {
+            Text("Löscht die Tagessperre, damit das Morgenbriefing beim nächsten App-Start neu erzeugt wird. Nur in DEBUG-Builds sichtbar.")
+                .foregroundStyle(DS.Colors.textTertiary)
+        }
+        .listRowBackground(DS.Colors.backgroundSecondary)
+    }
+
+    private func clearTodaysBriefingKey() {
+        // Mirrors the dedup key in ProactiveMonitor.generateMorningBriefing.
+        let dayKey = ISO8601DateFormatter().string(from: Calendar.current.startOfDay(for: Date())).prefix(10)
+        UserDefaults.standard.removeObject(forKey: "briefing_generated_\(dayKey)")
+        briefingKeyCleared = true
+    }
+    #endif
 
     // MARK: - API Key
 

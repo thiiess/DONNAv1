@@ -93,6 +93,13 @@ enum DONNACommand {
     case activateContextMode(name: String, until: Date?)
     case deactivateContextMode
 
+    // Chat
+    /// Inserts an assistant-authored ChatMessage (e.g. the morning briefing).
+    /// Routed through CommandHandler so all persistent writes stay in one place.
+    case postAssistantMessage(content: String, outputType: AIOutputType, isBriefing: Bool = false)
+    /// Collapses/dismisses a pinned briefing card without deleting the message.
+    case dismissBriefing(id: UUID)
+
     // Undo
     case undo
 }
@@ -194,6 +201,11 @@ final class CommandHandler {
             return handleActivateContextMode(name: name, until: until)
         case .deactivateContextMode:
             return handleDeactivateContextMode()
+
+        case let .postAssistantMessage(content, outputType, isBriefing):
+            return handlePostAssistantMessage(content: content, outputType: outputType, isBriefing: isBriefing)
+        case let .dismissBriefing(id):
+            return handleDismissBriefing(id: id)
 
         case .undo:
             return handleUndo()
@@ -453,6 +465,25 @@ final class CommandHandler {
     private func handleDeactivateContextMode() -> CommandResult {
         let allModes = (try? modelContext.fetch(FetchDescriptor<ContextMode>())) ?? []
         for mode in allModes { mode.isActive = false }
+        try? modelContext.save()
+        return .success
+    }
+
+    // MARK: - Chat Handler
+
+    private func handlePostAssistantMessage(content: String, outputType: AIOutputType, isBriefing: Bool) -> CommandResult {
+        let message = ChatMessage(role: .assistant, content: content, outputType: outputType, isRead: false, isBriefing: isBriefing)
+        modelContext.insert(message)
+        try? modelContext.save()
+        return .success
+    }
+
+    private func handleDismissBriefing(id: UUID) -> CommandResult {
+        guard let all = try? modelContext.fetch(FetchDescriptor<ChatMessage>()),
+              let message = all.first(where: { $0.id == id }) else {
+            return .failure(.notFound(id: id))
+        }
+        message.isBriefingDismissed = true
         try? modelContext.save()
         return .success
     }
