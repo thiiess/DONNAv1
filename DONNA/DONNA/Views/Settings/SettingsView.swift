@@ -218,9 +218,7 @@ struct SettingsView: View {
     }
 
     private func clearChatHistory() {
-        let all = (try? modelContext.fetch(FetchDescriptor<ChatMessage>())) ?? []
-        all.forEach { modelContext.delete($0) }
-        try? modelContext.save()
+        _ = CommandHandler(modelContext: modelContext).execute(.clearChatHistory)
     }
 
     // MARK: - Morgenbriefing

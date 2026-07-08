@@ -101,6 +101,9 @@ enum DONNACommand {
     case postAssistantMessage(content: String, outputType: AIOutputType, isBriefing: Bool = false)
     /// Marks every unread assistant ChatMessage as read (used when the chat view appears).
     case markAssistantMessagesRead
+    /// Deletes every ChatMessage (Settings → „Chat-Verlauf löschen" and the one-shot
+    /// test-message purge in DONNAApp both route through this).
+    case clearChatHistory
     /// Collapses/dismisses a pinned briefing card without deleting the message.
     case dismissBriefing(id: UUID)
 
@@ -212,6 +215,8 @@ final class CommandHandler {
             return handlePostAssistantMessage(content: content, outputType: outputType, isBriefing: isBriefing)
         case .markAssistantMessagesRead:
             return handleMarkAssistantMessagesRead()
+        case .clearChatHistory:
+            return handleClearChatHistory()
         case let .dismissBriefing(id):
             return handleDismissBriefing(id: id)
 
@@ -498,6 +503,13 @@ final class CommandHandler {
         let unread = all.filter { $0.role == .assistant && !$0.isRead }
         guard !unread.isEmpty else { return .success }
         for msg in unread { msg.isRead = true }
+        try? modelContext.save()
+        return .success
+    }
+
+    private func handleClearChatHistory() -> CommandResult {
+        let all = (try? modelContext.fetch(FetchDescriptor<ChatMessage>())) ?? []
+        for message in all { modelContext.delete(message) }
         try? modelContext.save()
         return .success
     }

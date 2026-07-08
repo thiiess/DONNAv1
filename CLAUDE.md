@@ -1,11 +1,13 @@
 # DONNA — Project Memory for Claude Code
 
 ## Automated Progress Log
-<!-- auto-status: active -->
-<!-- sessions-since-review: 2 -->
+<!-- auto-status: awaiting-review -->
+<!-- sessions-since-review: 0 -->
 <!-- review-threshold: 3 -->
 - 2026-07-08 14:29–14:33 — Session #1 — bug fix: routed ProactiveMonitor.createProposalIfNew through CommandHandler instead of writing ChatMessage directly to modelContext; also gate dedup-key storage on successful persistence so a failed proposal insert can retry. Build: verified. Next: continue V2-S1 cleanup — audit ChatView.handleSend + persistAssistantResponse + markAllAssistantMessagesRead, which still bypass CommandHandler.
 - 2026-07-08 14:36–14:41 — Session #2 — bug fix: added .postUserMessage / .markAssistantMessagesRead commands and routed ChatView.handleSend, persistAssistantResponse, markAllAssistantMessagesRead through CommandHandler so no chat mutation writes to modelContext directly anymore. Build: verified. Next: SettingsView.clearChatHistory and DONNAApp.deleteTestMessagesOnce still bypass CommandHandler — route them through a new .clearChatHistory command.
+- 2026-07-08 14:44–14:48 — Session #3 — bug fix: added .clearChatHistory command and routed SettingsView.clearChatHistory + DONNAApp.deleteTestMessagesOnce through CommandHandler. With this, every ChatMessage mutation in the codebase now flows through CommandHandler. Build: verified. Next: V2-S2 weekly summary (Wochenzusammenfassung) — a ProactiveMonitor.generateWeeklySummaryIfDue that fires Sunday evening and posts a briefing-style ChatMessage.
+⏸ Automation paused — please visually test in Xcode before continuing.
 
 ## What is DONNA
 Personal AI secretary app for iOS and macOS. Combines calendar, tasks, routines, and an AI chat interface. Core philosophy: **consent-first** — the AI suggests, the user confirms. No action without explicit approval. Designed especially for people who struggle with self-organisation.

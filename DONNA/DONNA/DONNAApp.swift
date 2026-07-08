@@ -84,11 +84,8 @@ struct DONNAApp: App {
     @MainActor
     private func deleteTestMessagesOnce() {
         guard !UserDefaults.standard.bool(forKey: "didCleanTestMessages3") else { return }
-        let context = sharedModelContainer.mainContext
-        if let messages = try? context.fetch(FetchDescriptor<ChatMessage>()) {
-            messages.forEach { context.delete($0) }
-            try? context.save()
-        }
+        _ = CommandHandler(modelContext: sharedModelContainer.mainContext)
+            .execute(.clearChatHistory)
         UserDefaults.standard.set(true, forKey: "didCleanTestMessages3")
     }
 }
