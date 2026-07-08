@@ -1,5 +1,11 @@
 # DONNA — Project Memory for Claude Code
 
+## Automated Progress Log
+<!-- auto-status: active -->
+<!-- sessions-since-review: 1 -->
+<!-- review-threshold: 3 -->
+- 2026-07-08 14:29–14:33 — Session #1 — bug fix: routed ProactiveMonitor.createProposalIfNew through CommandHandler instead of writing ChatMessage directly to modelContext; also gate dedup-key storage on successful persistence so a failed proposal insert can retry. Build: verified. Next: continue V2-S1 cleanup — audit ChatView.handleSend + persistAssistantResponse + markAllAssistantMessagesRead, which still bypass CommandHandler.
+
 ## What is DONNA
 Personal AI secretary app for iOS and macOS. Combines calendar, tasks, routines, and an AI chat interface. Core philosophy: **consent-first** — the AI suggests, the user confirms. No action without explicit approval. Designed especially for people who struggle with self-organisation.
 

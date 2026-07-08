@@ -358,16 +358,12 @@ final class ProactiveMonitor {
     private func createProposalIfNew(key: String, content: String, modelContext: ModelContext) {
         var keys = seenKeys
         guard !keys.contains(key) else { return }
+
+        let result = CommandHandler(modelContext: modelContext)
+            .execute(.postAssistantMessage(content: content, outputType: .proposal))
+        guard case .success = result else { return }
+
         keys.insert(key)
         seenKeys = keys
-
-        let message = ChatMessage(
-            role: .assistant,
-            content: content,
-            outputType: .proposal,
-            isRead: false
-        )
-        modelContext.insert(message)
-        try? modelContext.save()
     }
 }
