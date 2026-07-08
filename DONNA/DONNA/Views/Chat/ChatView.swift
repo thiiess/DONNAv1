@@ -82,7 +82,7 @@ struct ChatView: View {
         let allMessages = (try? modelContext.fetch(FetchDescriptor<ChatMessage>(sortBy: [SortDescriptor(\.timestamp)]))) ?? []
         let history = Array(allMessages.suffix(10))
 
-        modelContext.insert(ChatMessage(role: .user, content: text))
+        _ = CommandHandler(modelContext: modelContext).execute(.postUserMessage(content: text))
 
         Swift.Task { @MainActor in
             await orchestrator.process(userInput: text, conversationHistory: history)
@@ -109,15 +109,12 @@ struct ChatView: View {
             outputType = .interpretation
         }
         guard !content.isEmpty else { return }
-        modelContext.insert(ChatMessage(role: .assistant, content: content, outputType: outputType))
+        _ = CommandHandler(modelContext: modelContext)
+            .execute(.postAssistantMessage(content: content, outputType: outputType))
     }
 
     private func markAllAssistantMessagesRead() {
-        let all = (try? modelContext.fetch(FetchDescriptor<ChatMessage>())) ?? []
-        let unread = all.filter { $0.role == .assistant && !$0.isRead }
-        guard !unread.isEmpty else { return }
-        for msg in unread { msg.isRead = true }
-        try? modelContext.save()
+        _ = CommandHandler(modelContext: modelContext).execute(.markAssistantMessagesRead)
         NotificationScheduler.shared.updateBadgeCount(modelContext: modelContext)
     }
 }

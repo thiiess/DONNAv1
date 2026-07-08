@@ -94,9 +94,13 @@ enum DONNACommand {
     case deactivateContextMode
 
     // Chat
+    /// Inserts a user-authored ChatMessage from the input field.
+    case postUserMessage(content: String)
     /// Inserts an assistant-authored ChatMessage (e.g. the morning briefing).
     /// Routed through CommandHandler so all persistent writes stay in one place.
     case postAssistantMessage(content: String, outputType: AIOutputType, isBriefing: Bool = false)
+    /// Marks every unread assistant ChatMessage as read (used when the chat view appears).
+    case markAssistantMessagesRead
     /// Collapses/dismisses a pinned briefing card without deleting the message.
     case dismissBriefing(id: UUID)
 
@@ -202,8 +206,12 @@ final class CommandHandler {
         case .deactivateContextMode:
             return handleDeactivateContextMode()
 
+        case let .postUserMessage(content):
+            return handlePostUserMessage(content: content)
         case let .postAssistantMessage(content, outputType, isBriefing):
             return handlePostAssistantMessage(content: content, outputType: outputType, isBriefing: isBriefing)
+        case .markAssistantMessagesRead:
+            return handleMarkAssistantMessagesRead()
         case let .dismissBriefing(id):
             return handleDismissBriefing(id: id)
 
@@ -471,9 +479,25 @@ final class CommandHandler {
 
     // MARK: - Chat Handler
 
+    private func handlePostUserMessage(content: String) -> CommandResult {
+        let message = ChatMessage(role: .user, content: content)
+        modelContext.insert(message)
+        try? modelContext.save()
+        return .success
+    }
+
     private func handlePostAssistantMessage(content: String, outputType: AIOutputType, isBriefing: Bool) -> CommandResult {
         let message = ChatMessage(role: .assistant, content: content, outputType: outputType, isRead: false, isBriefing: isBriefing)
         modelContext.insert(message)
+        try? modelContext.save()
+        return .success
+    }
+
+    private func handleMarkAssistantMessagesRead() -> CommandResult {
+        let all = (try? modelContext.fetch(FetchDescriptor<ChatMessage>())) ?? []
+        let unread = all.filter { $0.role == .assistant && !$0.isRead }
+        guard !unread.isEmpty else { return .success }
+        for msg in unread { msg.isRead = true }
         try? modelContext.save()
         return .success
     }
