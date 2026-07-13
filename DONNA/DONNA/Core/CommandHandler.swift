@@ -379,6 +379,25 @@ final class CommandHandler {
         }
         occ.status = .completed
         occ.completedAt = Date()
+
+        // Completing one occurrence means the routine has been caught up, so the other
+        // past-due occurrences of the same routine are moot. Retiring them here keeps
+        // them from piling up and re-firing ProactiveMonitor's consolidated proposal.
+        // The filter mirrors detectForgottenRoutines' definition of "forgotten".
+        if let routineID = occ.routine?.id {
+            let now = Date()
+            let staleSiblings = all.filter {
+                $0.id != occ.id
+                    && $0.routine?.id == routineID
+                    && $0.status == .scheduled
+                    && $0.scheduledDate < now
+            }
+            for sibling in staleSiblings {
+                sibling.status = .skipped
+                sibling.skippedReason = "automatisch übersprungen – Routine nachgeholt"
+            }
+        }
+
         try? modelContext.save()
         return .success
     }

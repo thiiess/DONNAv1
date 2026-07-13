@@ -129,12 +129,37 @@ final class ProactiveMonitor {
             $0.status == .scheduled && $0.scheduledDate < now
         }
 
+        // RoutineScheduler pre-generates one occurrence per calendar day, so a routine
+        // missed for N days leaves N past-due occurrences behind. Consolidate them into
+        // one proposal per routine rather than one per occurrence.
+        var groups: [UUID: [RoutineOccurrence]] = [:]
         for occ in forgotten {
-            let key = "forgotten_routine_\(occ.id.uuidString)"
-            let title = occ.routine?.title ?? "Routine"
+            guard let routineID = occ.routine?.id else { continue }
+            groups[routineID, default: []].append(occ)
+        }
+
+        for group in groups.values {
+            let sorted = group.sorted { $0.scheduledDate > $1.scheduledDate }
+            guard let newest = sorted.first else { continue }
+
+            let title = newest.routine?.title ?? "Routine"
+            let extraDays = sorted.count - 1
+            let suffix: String
+            switch extraDays {
+            case 0:  suffix = ""
+            case 1:  suffix = " (und 1 weiterer Tag)"
+            default: suffix = " (und \(extraDays) weitere Tage)"
+            }
+
+            // The key spans the whole group, so the count cannot re-fire on the next scan.
+            let key = "forgotten_routine_" + sorted
+                .map { $0.id.uuidString }
+                .sorted()
+                .joined(separator: "_")
+
             createProposalIfNew(
                 key: key,
-                content: "Die Routine \"\(title)\" wurde zum geplanten Zeitpunkt nicht erledigt. Möchtest du sie nachholen, überspringen oder neu planen?",
+                content: "Die Routine \"\(title)\" wurde zum geplanten Zeitpunkt nicht erledigt\(suffix). Möchtest du sie nachholen, überspringen oder neu planen?",
                 modelContext: modelContext
             )
         }
