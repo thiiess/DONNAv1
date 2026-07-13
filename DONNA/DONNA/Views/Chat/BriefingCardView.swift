@@ -24,40 +24,42 @@ struct BriefingCardView: View {
 
     var body: some View {
         if let briefing = todaysBriefing {
-            HStack(alignment: .top, spacing: 0) {
+            VStack(alignment: .leading, spacing: 6) {
+                HStack {
+                    Label("Morgenbriefing", systemImage: "sun.max.fill")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(DS.Colors.warmAccent)
+                    Spacer()
+                    Button {
+                        dismiss(briefing)
+                    } label: {
+                        Image(systemName: "xmark")
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(DS.Colors.textTertiary)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Briefing schließen")
+                }
+
+                Text(briefing.content)
+                    .font(.callout)
+                    .foregroundStyle(DS.Colors.donnaBubbleFg)
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 10)
+            .padding(.leading, 4)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            // The accent bar is a background (sized to the content) instead of an
+            // HStack child, so the card needs no fixedSize to stay at content height.
+            // No fixedSize(vertical: true) may appear anywhere in this card: any
+            // vertically-fixedSize view inside NavigationSplitView's detail column
+            // makes the whole NSSplitView adopt the content's ideal height and
+            // overflow the window (sidebar and input field pushed off-screen).
+            .background(alignment: .leading) {
                 RoundedRectangle(cornerRadius: 2)
                     .fill(DS.Colors.warmAccent)
                     .frame(width: 4)
-
-                VStack(alignment: .leading, spacing: 6) {
-                    HStack {
-                        Label("Morgenbriefing", systemImage: "sun.max.fill")
-                            .font(.caption.weight(.semibold))
-                            .foregroundStyle(DS.Colors.warmAccent)
-                        Spacer()
-                        Button {
-                            dismiss(briefing)
-                        } label: {
-                            Image(systemName: "xmark")
-                                .font(.caption.weight(.semibold))
-                                .foregroundStyle(DS.Colors.textTertiary)
-                        }
-                        .buttonStyle(.plain)
-                        .accessibilityLabel("Briefing schließen")
-                    }
-
-                    Text(briefing.content)
-                        .font(.callout)
-                        .foregroundStyle(DS.Colors.donnaBubbleFg)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-                .padding(.horizontal, 12)
-                .padding(.vertical, 10)
             }
-            // The leading accent bar is a Shape with only a width, which is vertically
-            // greedy; fixedSize pins the card to its content height so it doesn't expand
-            // to fill the VStack and squeeze the chat feed below.
-            .fixedSize(horizontal: false, vertical: true)
             .background(DS.Colors.donnaBubbleBg)
             .clipShape(RoundedRectangle(cornerRadius: DS.Radius.card))
             .padding(.horizontal, 12)
