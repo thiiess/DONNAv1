@@ -69,7 +69,7 @@ struct CalendarView: View {
                 }
             }
             .sheet(isPresented: $showingCreationSheet) {
-                EventCreationSheet()
+                EventCreationSheet(initialDate: selectedDate)
             }
         }
     }

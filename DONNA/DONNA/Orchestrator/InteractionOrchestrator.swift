@@ -136,8 +136,13 @@ final class InteractionOrchestrator {
         let handler = CommandHandler(modelContext: modelContext)
         let result = handler.execute(command)
         switch result {
-        case .success:
-            persistSystemMessage("Erledigt.")
+        case .success(let warning):
+            if let warning {
+                // Soft conflict: the event exists, but the user gets the last word on it.
+                persistSystemMessage("Erledigt. \(warning) Soll ich ihn so lassen oder verschieben?")
+            } else {
+                persistSystemMessage("Erledigt.")
+            }
         case .blocked(let reason):
             currentExplanation = reason
             phase = .blocked

@@ -132,7 +132,9 @@ enum CommandError: Error, LocalizedError {
 }
 
 enum CommandResult {
-    case success
+    /// The mutation happened. `warning` carries a soft, non-blocking advisory the caller may
+    /// surface (e.g. an event overlap); `case .success` without a binding still matches.
+    case success(warning: String? = nil)
     case blocked(reason: String)
     case failure(CommandError)
 }
@@ -231,7 +233,7 @@ final class CommandHandler {
         let task = DONNATask(title: title, notes: notes, dueDate: dueDate, priority: priority)
         modelContext.insert(task)
         try? modelContext.save()
-        return .success
+        return .success()
     }
 
     private func handleUpdateTask(id: UUID, changes: TaskChanges) -> CommandResult {
@@ -254,7 +256,7 @@ final class CommandHandler {
         if case .set(let v) = changes.dueTimeIncluded { task.dueTimeIncluded = v }
         if case .set(let v) = changes.priority { task.priority = v }
         try? modelContext.save()
-        return .success
+        return .success()
     }
 
     private func handleCompleteTask(id: UUID) -> CommandResult {
@@ -265,7 +267,7 @@ final class CommandHandler {
         task.status = .completed
         task.completedAt = Date()
         try? modelContext.save()
-        return .success
+        return .success()
     }
 
     private func handleDeleteTask(id: UUID) -> CommandResult {
@@ -275,10 +277,18 @@ final class CommandHandler {
         }
         modelContext.delete(task)
         try? modelContext.save()
-        return .success
+        return .success()
     }
 
     // MARK: - Calendar Handlers
+
+    private func fetchEvents() -> [CalendarEvent] {
+        (try? modelContext.fetch(FetchDescriptor<CalendarEvent>())) ?? []
+    }
+
+    private func fetchSleepWindows() -> [SleepWindow] {
+        (try? modelContext.fetch(FetchDescriptor<SleepWindow>())) ?? []
+    }
 
     private func handleCreateEvent(title: String, start: Date, end: Date, locked: Bool, notes: String?, isAnnual: Bool = false) -> CommandResult {
         let cal = Calendar.current
@@ -292,10 +302,18 @@ final class CommandHandler {
             actualStart = start
             actualEnd   = end
         }
+        let conflicts = conflictDetector.checkTimedEvent(
+            start: actualStart,
+            end: actualEnd,
+            against: fetchEvents(),
+            sleepWindows: fetchSleepWindows()
+        )
+        if let reason = conflicts.blockReason { return .blocked(reason: reason) }
+
         let event = CalendarEvent(title: title, startTime: actualStart, endTime: actualEnd, isLocked: actualLocked, isAnnual: isAnnual, notes: notes)
         modelContext.insert(event)
         try? modelContext.save()
-        return .success
+        return .success(warning: conflicts.overlapWarning)
     }
 
     private func handleUpdateEvent(id: UUID, changes: EventChanges) -> CommandResult {
@@ -303,6 +321,27 @@ final class CommandHandler {
               let event = all.first(where: { $0.id == id }) else {
             return .failure(.notFound(id: id))
         }
+
+        // Re-check only when the event is being moved — an edit that leaves the time window
+        // alone must not be blocked by a conflict that was already accepted.
+        var newStart = event.startTime
+        var newEnd = event.endTime
+        var timesChanged = false
+        if case .set(let v) = changes.startTime { newStart = v; timesChanged = true }
+        if case .set(let v) = changes.endTime   { newEnd   = v; timesChanged = true }
+
+        var conflicts = ConflictResult.none
+        if timesChanged, newStart != event.startTime || newEnd != event.endTime {
+            conflicts = conflictDetector.checkTimedEvent(
+                start: newStart,
+                end: newEnd,
+                against: all,
+                sleepWindows: fetchSleepWindows(),
+                excludingEventId: event.id
+            )
+            if let reason = conflicts.blockReason { return .blocked(reason: reason) }
+        }
+
         if case .set(let v) = changes.title { event.title = v }
         if case .set(let v) = changes.startTime { event.startTime = v }
         if case .set(let v) = changes.endTime { event.endTime = v }
@@ -314,7 +353,7 @@ final class CommandHandler {
         case .unchanged:  break
         }
         try? modelContext.save()
-        return .success
+        return .success(warning: conflicts.overlapWarning)
     }
 
     private func handleDeleteEvent(id: UUID) -> CommandResult {
@@ -324,7 +363,7 @@ final class CommandHandler {
         }
         modelContext.delete(event)
         try? modelContext.save()
-        return .success
+        return .success()
     }
 
     // MARK: - Routine Handlers
@@ -347,7 +386,7 @@ final class CommandHandler {
             modelContext.insert(occ)
         }
         try? modelContext.save()
-        return .success
+        return .success()
     }
 
     private func handleUpdateRoutine(id: UUID, title: String, frequency: RoutineFrequency, preferredTimeOfDay: Date?) -> CommandResult {
@@ -359,7 +398,7 @@ final class CommandHandler {
         routine.frequency = frequency
         routine.preferredTimeOfDay = preferredTimeOfDay
         try? modelContext.save()
-        return .success
+        return .success()
     }
 
     private func handleDeleteRoutine(id: UUID) -> CommandResult {
@@ -369,7 +408,7 @@ final class CommandHandler {
         }
         modelContext.delete(routine)
         try? modelContext.save()
-        return .success
+        return .success()
     }
 
     private func handleCompleteOccurrence(id: UUID) -> CommandResult {
@@ -399,7 +438,7 @@ final class CommandHandler {
         }
 
         try? modelContext.save()
-        return .success
+        return .success()
     }
 
     private func handleSkipOccurrence(id: UUID, reason: String?) -> CommandResult {
@@ -410,7 +449,7 @@ final class CommandHandler {
         occ.status = .skipped
         occ.skippedReason = reason
         try? modelContext.save()
-        return .success
+        return .success()
     }
 
     private func handleRescheduleOccurrence(id: UUID, newDate: Date) -> CommandResult {
@@ -421,7 +460,7 @@ final class CommandHandler {
         occ.scheduledDate = newDate
         occ.status = .rescheduled
         try? modelContext.save()
-        return .success
+        return .success()
     }
 
     // MARK: - Sleep Handler
@@ -431,7 +470,7 @@ final class CommandHandler {
         let window = SleepWindow(date: today, bedtime: bedtime, wakeTime: wakeTime)
         modelContext.insert(window)
         try? modelContext.save()
-        return .success
+        return .success()
     }
 
     // MARK: - Preference & Profile Handlers
@@ -439,7 +478,7 @@ final class CommandHandler {
     private func handleConfirmPreference(key: String, value: String) -> CommandResult {
         let updater = ProfileUpdater(context: modelContext)
         updater.confirmPreference(key: key, value: value)
-        return .success
+        return .success()
     }
 
     /// Upserts a user-provided preference (source: .explicit) — e.g. from onboarding
@@ -464,7 +503,7 @@ final class CommandHandler {
             ))
         }
         try? modelContext.save()
-        return .success
+        return .success()
     }
 
     private func handleDeleteLearnedItem(key: String) -> CommandResult {
@@ -475,7 +514,7 @@ final class CommandHandler {
         }
         modelContext.delete(pref)
         try? modelContext.save()
-        return .success
+        return .success()
     }
 
     // MARK: - Context Mode Handlers
@@ -491,14 +530,14 @@ final class CommandHandler {
             modelContext.insert(ContextMode(name: name, isActive: true, startDate: Date(), endDate: until))
         }
         try? modelContext.save()
-        return .success
+        return .success()
     }
 
     private func handleDeactivateContextMode() -> CommandResult {
         let allModes = (try? modelContext.fetch(FetchDescriptor<ContextMode>())) ?? []
         for mode in allModes { mode.isActive = false }
         try? modelContext.save()
-        return .success
+        return .success()
     }
 
     // MARK: - Chat Handler
@@ -507,30 +546,30 @@ final class CommandHandler {
         let message = ChatMessage(role: .user, content: content)
         modelContext.insert(message)
         try? modelContext.save()
-        return .success
+        return .success()
     }
 
     private func handlePostAssistantMessage(content: String, outputType: AIOutputType, isBriefing: Bool) -> CommandResult {
         let message = ChatMessage(role: .assistant, content: content, outputType: outputType, isRead: false, isBriefing: isBriefing)
         modelContext.insert(message)
         try? modelContext.save()
-        return .success
+        return .success()
     }
 
     private func handleMarkAssistantMessagesRead() -> CommandResult {
         let all = (try? modelContext.fetch(FetchDescriptor<ChatMessage>())) ?? []
         let unread = all.filter { $0.role == .assistant && !$0.isRead }
-        guard !unread.isEmpty else { return .success }
+        guard !unread.isEmpty else { return .success() }
         for msg in unread { msg.isRead = true }
         try? modelContext.save()
-        return .success
+        return .success()
     }
 
     private func handleClearChatHistory() -> CommandResult {
         let all = (try? modelContext.fetch(FetchDescriptor<ChatMessage>())) ?? []
         for message in all { modelContext.delete(message) }
         try? modelContext.save()
-        return .success
+        return .success()
     }
 
     private func handleDismissBriefing(id: UUID) -> CommandResult {
@@ -540,7 +579,7 @@ final class CommandHandler {
         }
         message.isBriefingDismissed = true
         try? modelContext.save()
-        return .success
+        return .success()
     }
 
     // MARK: - Undo
@@ -551,7 +590,7 @@ final class CommandHandler {
         }
         do {
             try undoManager.undo(context: modelContext)
-            return .success
+            return .success()
         } catch {
             return .failure(.validationFailed(reason: error.localizedDescription))
         }

@@ -5,6 +5,9 @@ struct EventCreationSheet: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
 
+    @Query private var allEvents: [CalendarEvent]
+    @Query private var sleepWindows: [SleepWindow]
+
     @State private var title = ""
     @State private var displayDate: Date
     @State private var startTime: Date
@@ -16,20 +19,32 @@ struct EventCreationSheet: View {
     @State private var showingDatePicker = false
     @State private var showingTimePicker = false
 
-    init() {
+    /// `initialDate` anchors the new event to the day the user is currently looking at;
+    /// the time of day still defaults to the next full hour.
+    init(initialDate: Date = .now) {
         let cal = Calendar.current
-        var comps = cal.dateComponents([.year, .month, .day, .hour], from: .now)
+        var comps = cal.dateComponents([.year, .month, .day], from: initialDate)
         comps.minute = 0
-        comps.hour = (comps.hour ?? 9) + 1
-        let start = cal.date(from: comps) ?? .now
+        comps.hour = cal.component(.hour, from: .now) + 1
+        let start = cal.date(from: comps) ?? initialDate
         let end   = cal.date(byAdding: .hour, value: 1, to: start) ?? start
         _displayDate = State(initialValue: cal.startOfDay(for: start))
         _startTime   = State(initialValue: start)
         _endTime     = State(initialValue: end)
     }
 
+    private var conflict: ConflictResult {
+        guard !isAllDay, !isAnnual else { return .none }
+        return ConflictDetector().checkTimedEvent(
+            start: startTime,
+            end: endTime,
+            against: allEvents,
+            sleepWindows: sleepWindows
+        )
+    }
+
     private var canSave: Bool {
-        !title.trimmingCharacters(in: .whitespaces).isEmpty
+        !title.trimmingCharacters(in: .whitespaces).isEmpty && conflict.blockReason == nil
     }
 
     var body: some View {
@@ -61,6 +76,7 @@ struct EventCreationSheet: View {
                 chipRow
                 if showingDatePicker { datePicker }
                 if showingTimePicker && !isAllDay { timePickers }
+                conflictBanner
                 toggleSection
                 notesField
             }
@@ -191,6 +207,17 @@ struct EventCreationSheet: View {
         }
     }
 
+    // MARK: - Conflict banner
+
+    @ViewBuilder
+    private var conflictBanner: some View {
+        if let reason = conflict.blockReason {
+            ConflictWarningBanner(message: reason, isBlocking: true)
+        } else if let warning = conflict.overlapWarning {
+            ConflictWarningBanner(message: warning, isBlocking: false)
+        }
+    }
+
     // MARK: - Toggles
 
     private var toggleSection: some View {
@@ -306,7 +333,7 @@ struct EventCreationSheet: View {
 }
 
 #Preview {
-    let schema = Schema([CalendarEvent.self])
+    let schema = Schema([CalendarEvent.self, SleepWindow.self])
     let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
     let container = try! ModelContainer(for: schema, configurations: [config])
     return EventCreationSheet().modelContainer(container)

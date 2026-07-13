@@ -35,6 +35,40 @@ struct ConflictResult {
             return nil
         }
     }
+
+    // MARK: - User-facing messages
+
+    /// Soft warning naming the overlapping event(s) — nil when nothing overlaps.
+    var overlapWarning: String? {
+        guard let first = overlappingEvents.first else { return nil }
+        let range = ConflictResult.timeRange(first.startTime, first.endTime)
+        let others = overlappingEvents.count - 1
+        let suffix: String
+        switch others {
+        case 0:  suffix = ""
+        case 1:  suffix = " und einem weiteren Termin"
+        default: suffix = " und \(others) weiteren Terminen"
+        }
+        return "Überschneidet sich mit „\(first.title)“ (\(range))\(suffix)."
+    }
+
+    /// Hard block reason naming the protected sleep window — nil when nothing is blocked.
+    var blockReason: String? {
+        guard let window = blockedBySleepWindows.first else { return nil }
+        let range = ConflictResult.timeRange(window.bedtime, window.wakeTime)
+        return "Liegt im Schlafschutzfenster (\(range))."
+    }
+
+    private static func timeRange(_ start: Date, _ end: Date) -> String {
+        "\(timeFormatter.string(from: start))–\(timeFormatter.string(from: end))"
+    }
+
+    private static let timeFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.locale = Locale(identifier: "de_DE")
+        f.dateFormat = "HH:mm"
+        return f
+    }()
 }
 
 // MARK: - ConflictDetector
@@ -68,6 +102,26 @@ final class ConflictDetector {
         }
 
         return ConflictResult(conflicts: found)
+    }
+
+    /// Check used at persistence time and by the event sheets. All-day and annual entries
+    /// are stored as 00:00–23:59, so they would collide with every other event and every
+    /// sleep window by construction — they are ignored on both sides of the comparison.
+    func checkTimedEvent(
+        start: Date,
+        end: Date,
+        against events: [CalendarEvent],
+        sleepWindows: [SleepWindow],
+        excludingEventId: UUID? = nil
+    ) -> ConflictResult {
+        guard !CalendarEvent.spansWholeDay(start: start, end: end) else { return .none }
+        return check(
+            start: start,
+            end: end,
+            against: events.filter { !$0.isAnnual && !$0.spansWholeDay },
+            sleepWindows: sleepWindows,
+            excludingEventId: excludingEventId
+        )
     }
 
     // MARK: - Private helpers

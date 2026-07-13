@@ -7,6 +7,9 @@ struct EventDetailView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
 
+    @Query private var allEvents: [CalendarEvent]
+    @Query private var sleepWindows: [SleepWindow]
+
     @State private var title: String
     @State private var notes: String
     @State private var displayDate: Date
@@ -35,8 +38,21 @@ struct EventDetailView: View {
         _isAllDay = State(initialValue: startIsDay && endComps.hour == 23 && endComps.minute == 59)
     }
 
+    private var conflict: ConflictResult {
+        guard !isAllDay, !isAnnual else { return .none }
+        return ConflictDetector().checkTimedEvent(
+            start: startTime,
+            end: endTime,
+            against: allEvents,
+            sleepWindows: sleepWindows,
+            excludingEventId: event.id
+        )
+    }
+
     private var canSave: Bool {
-        !title.trimmingCharacters(in: .whitespaces).isEmpty && (isAllDay || endTime > startTime)
+        !title.trimmingCharacters(in: .whitespaces).isEmpty
+            && (isAllDay || endTime > startTime)
+            && conflict.blockReason == nil
     }
 
     var body: some View {
@@ -79,6 +95,7 @@ struct EventDetailView: View {
                 chipRow
                 if showingDatePicker { datePicker }
                 if showingTimePicker && !isAllDay { timePickers }
+                conflictBanner
                 toggleSection
                 notesField
             }
@@ -209,6 +226,17 @@ struct EventDetailView: View {
         }
     }
 
+    // MARK: - Conflict banner
+
+    @ViewBuilder
+    private var conflictBanner: some View {
+        if let reason = conflict.blockReason {
+            ConflictWarningBanner(message: reason, isBlocking: true)
+        } else if let warning = conflict.overlapWarning {
+            ConflictWarningBanner(message: warning, isBlocking: false)
+        }
+    }
+
     // MARK: - Toggles
 
     private var toggleSection: some View {
@@ -336,7 +364,10 @@ struct EventDetailView: View {
         changes.isLocked  = .set(isLocked)
         changes.isAnnual  = .set(isAnnual)
         changes.notes     = notes.isEmpty ? .clear : .set(notes)
-        _ = CommandHandler(modelContext: modelContext).execute(.updateEvent(id: event.id, changes: changes))
+        let result = CommandHandler(modelContext: modelContext).execute(.updateEvent(id: event.id, changes: changes))
+        // A block leaves the sheet open so the edit isn't silently dropped — the banner
+        // above already explains why.
+        if case .blocked = result { return }
         dismiss()
     }
 
@@ -347,7 +378,7 @@ struct EventDetailView: View {
 }
 
 #Preview {
-    let schema = Schema([CalendarEvent.self])
+    let schema = Schema([CalendarEvent.self, SleepWindow.self])
     let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
     let container = try! ModelContainer(for: schema, configurations: [config])
     let event = CalendarEvent(title: "Team Meeting",

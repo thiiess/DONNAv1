@@ -23,4 +23,16 @@ import SwiftData
         self.createdAt = createdAt
         self.dataLayer = dataLayer
     }
+
+    /// All-day entries carry no flag — they are persisted as 00:00–23:59.
+    var spansWholeDay: Bool {
+        CalendarEvent.spansWholeDay(start: startTime, end: endTime)
+    }
+
+    static func spansWholeDay(start: Date, end: Date) -> Bool {
+        let cal = Calendar.current
+        guard cal.startOfDay(for: start) == start else { return false }
+        let comps = cal.dateComponents([.hour, .minute], from: end)
+        return comps.hour == 23 && comps.minute == 59
+    }
 }
