@@ -507,5 +507,43 @@ Bevor ein neues Feature in eine Spec aufgenommen wird, muss es diese Fragen best
 
 ---
 
+---
+
+## Bekannter Stand: Bugs & offene Nacharbeiten
+
+> Wird laufend aktualisiert, sortiert nach dem Sprint, zu dem der Punkt inhaltlich gehört —
+> nicht danach, wann er gefunden wurde.
+
+### V2-S1 (Code-Cleanup)
+- [x] `ProactiveMonitor.createProposalIfNew` routet jetzt über CommandHandler (Session 08.07.)
+- [ ] `InteractionOrchestrator.persistSystemMessage` fügt ChatMessage noch direkt ein — umgeht CommandHandler
+- [ ] `ProfileUpdater.proposeIfNeeded` fügt ChatMessage noch direkt ein — umgeht CommandHandler
+- [ ] Chat-Handler (`postAssistantMessage`, `postUserMessage`, etc.) nutzen `try?` + geben unconditional `.success` zurück — Fehler bei fehlgeschlagenem Save sind unsichtbar
+- [ ] `seenKeys` ohne Timestamp/Ablauf — Kommentar behauptet 7-Tage-Rückhaltung, ist aber nicht implementiert; Keys akkumulieren für immer
+- [ ] `ContentView` hält `@Query` über alle ChatMessages nur für den Badge-Count — rendert die komplette NavigationSplitView bei jeder neuen Nachricht neu
+
+### V2-S2 (Morgenbriefing)
+- [x] Forgotten-Routine-Vorschläge konsolidiert (neueste + Zähler), inkl. Sibling-Skip bei Bestätigung (Session 13.07.)
+- [ ] Fenster wächst unbegrenzt mit dem Chat-Verlauf statt sich zu begrenzen — Root Cause gefunden (fehlende `.frame()`-Constraints in `DONNAApp.swift`, `ContentView.swift`, `ChatView.swift`), Fix-Session vorbereitet
+- [ ] Möglicherweise doppeltes Briefing nach Debug-Reset — noch nicht verifiziert, ob wirklich 2 Briefing-Nachrichten oder Verwechslung mit Vorschlag-Bubbles
+
+### V2-S3 (Erschöpfungs-Modus + Kontext-Gedächtnis)
+- [ ] `CommandHandler.init` baut bei jedem Aufruf einen neuen `DONNAUndoManager()` — Undo-Stack geht zwischen Commands verloren, blockiert die hier geplante Snapshot-Arbeit
+
+### V2-S4 (Vorschlag bearbeiten + Chat-Verbesserungen)
+- [ ] `[THOUGHT]`/`[CLARIFICATION]`-Tag-Parsing-Bug — konkreter Repro-Fall: kurze Antwort ("Lernen") auf Rückfrage → `[Debug: parse error — emptyContent]`
+- [ ] Dauer-Eingabe im Komma-Format ("1,5h") führt zu Hang/Crash nach Routine-Erstellung (Verdacht, noch nicht verifiziert)
+
+### V2-S6 (Fehlende Datenmodelle)
+- [ ] Alte Routine-Occurrences bleiben im Kalender stehen, wenn die Routine-Zeit geändert wird (z. B. 18 Uhr täglich → 19 Uhr täglich) — keine Kaskadierung/Bereinigung
+- [ ] Sich überschneidende Kalendereinträge werden nicht sauber dargestellt
+- [ ] `RoutineOccurrence`s mit `routine == nil` existieren in der DB — vermutlich Reste gelöschter Routinen; Datenintegritätsfrage, nicht dringend
+
+### V2-S7 (DONNA-Tab Redesign)
+- [ ] Bearbeiten-Sheet für Routine blockiert den Tab-Wechsel, solange es offen ist
+- [ ] Onboarding-Farbschema-Bug
+
+---
+
 *Ende der Spezifikation · Version 2.0*
 *Aufbauend auf DONNA V1 · Raum für V3 bewusst offen gelassen*

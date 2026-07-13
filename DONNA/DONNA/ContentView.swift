@@ -26,15 +26,9 @@ private enum AppTab: String, CaseIterable {
 }
 
 struct ContentView: View {
-    @Query private var allMessages: [ChatMessage]
-
     #if os(macOS)
     @State private var selectedTab: AppTab = .calendar
     #endif
-
-    private var unreadCount: Int {
-        allMessages.filter { $0.role == .assistant && !$0.isRead }.count
-    }
 
     var body: some View {
         #if os(iOS)
@@ -47,7 +41,7 @@ struct ContentView: View {
                 .tabItem { Label("Routines", systemImage: "arrow.clockwise") }
             ChatView()
                 .tabItem { Label("DONNA", systemImage: "bubble.left.and.bubble.right") }
-                .badge(unreadCount > 0 ? unreadCount : 0)
+                .modifier(UnreadTabBadge())
             SettingsView()
                 .tabItem { Label("Settings", systemImage: "gear") }
         }
@@ -65,13 +59,8 @@ struct ContentView: View {
                                     .frame(width: 20)
                                 Text(tab.title)
                                 Spacer()
-                                if tab == .donna && unreadCount > 0 {
-                                    Text("\(unreadCount)")
-                                        .font(.caption2.weight(.bold))
-                                        .padding(.horizontal, 6)
-                                        .padding(.vertical, 2)
-                                        .background(DS.Colors.warmAccent, in: Capsule())
-                                        .foregroundStyle(.white)
+                                if tab == .donna {
+                                    SidebarUnreadBadge()
                                 }
                             }
                             .foregroundStyle(
@@ -103,7 +92,7 @@ struct ContentView: View {
             case .calendar: CalendarView()
             case .tasks:    TaskListView()
             case .routines: RoutineListView()
-            case .donna:    ChatView()
+            case .donna:    ChatView().frame(maxWidth: .infinity, maxHeight: .infinity)
             case .settings: SettingsView()
             }
         }
@@ -111,6 +100,37 @@ struct ContentView: View {
         #endif
     }
 }
+
+// The unread count lives in these small leaf views so a ChatMessage insert only
+// re-renders the badge, not the entire TabView / NavigationSplitView.
+#if os(iOS)
+private struct UnreadTabBadge: ViewModifier {
+    @Query(filter: #Predicate<ChatMessage> { !$0.isRead })
+    private var unreadMessages: [ChatMessage]
+
+    func body(content: Content) -> some View {
+        let count = unreadMessages.filter { $0.role == .assistant }.count
+        content.badge(count > 0 ? count : 0)
+    }
+}
+#else
+private struct SidebarUnreadBadge: View {
+    @Query(filter: #Predicate<ChatMessage> { !$0.isRead })
+    private var unreadMessages: [ChatMessage]
+
+    var body: some View {
+        let count = unreadMessages.filter { $0.role == .assistant }.count
+        if count > 0 {
+            Text("\(count)")
+                .font(.caption2.weight(.bold))
+                .padding(.horizontal, 6)
+                .padding(.vertical, 2)
+                .background(DS.Colors.warmAccent, in: Capsule())
+                .foregroundStyle(.white)
+        }
+    }
+}
+#endif
 
 #Preview {
     ContentView()

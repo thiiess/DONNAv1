@@ -40,6 +40,15 @@ struct DONNAApp: App {
         WindowGroup {
             ContentView()
                 .preferredColorScheme(.dark)
+                #if os(macOS)
+                // Bound the root view so AppKit's window-sizes-to-content behavior
+                // cannot grow the window with chat content (maxHeight .infinity lets
+                // the window fill fullscreen while the scroll view clips inside).
+                .frame(
+                    minWidth: 800, idealWidth: 1000, maxWidth: .infinity,
+                    minHeight: 560, idealHeight: 720, maxHeight: .infinity
+                )
+                #endif
                 .sheet(isPresented: Binding(
                     get: { !onboardingCompleted },
                     set: { _ in }
@@ -54,6 +63,9 @@ struct DONNAApp: App {
                 }
         }
         .modelContainer(sharedModelContainer)
+        #if os(macOS)
+        .defaultSize(width: 1000, height: 720)
+        #endif
         #if os(iOS)
         .backgroundTask(.appRefresh(ProactiveMonitor.bgRefreshIdentifier)) {
             await MainActor.run {

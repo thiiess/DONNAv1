@@ -144,6 +144,9 @@ private struct ChatMessageList: View {
             }
             .onChange(of: messages.count) { _, _ in scrollToBottom(proxy: proxy) }
             .onAppear { scrollToBottom(proxy: proxy) }
+            // Bounded viewport: without this the ScrollView can report its full
+            // content height and drive the window to grow with the chat history.
+            .frame(maxHeight: .infinity)
         }
     }
 
