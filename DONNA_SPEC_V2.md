@@ -531,13 +531,13 @@ Bevor ein neues Feature in eine Spec aufgenommen wird, muss es diese Fragen best
 - [ ] `CommandHandler.init` baut bei jedem Aufruf einen neuen `DONNAUndoManager()` — Undo-Stack geht zwischen Commands verloren, blockiert die hier geplante Snapshot-Arbeit
 
 ### V2-S4 (Vorschlag bearbeiten + Chat-Verbesserungen)
-- [ ] `[THOUGHT]`/`[CLARIFICATION]`-Tag-Parsing-Bug — konkreter Repro-Fall: kurze Antwort ("Lernen") auf Rückfrage → `[Debug: parse error — emptyContent]`
-- [ ] Dauer-Eingabe im Komma-Format ("1,5h") führt zu Hang/Crash nach Routine-Erstellung (Verdacht, noch nicht verifiziert)
+- [x] `[THOUGHT]`/`[CLARIFICATION]`-Tag-Parsing-Bug — behoben (14.07.). Root Cause: Der `[PROPOSAL]`-Prefill nach Klärungsantworten zwang Gemini in ein Proposal, aber für Routine-Überspringen/-Ändern gab es keinen Schema-Typ — Gemini lieferte erfundene Typen oder einen nackten `[PROPOSAL_DATA]`-Block ohne Beschreibung → `emptyContent`. Fix: neue Typen `skipRoutine`/`updateRoutine` im System-Prompt + `buildCommand`-Mapping (inkl. Fuzzy-Routine-Auflösung „Lernroutine"→„Lernen"), Parser akzeptiert Proposals ohne Beschreibungstext (Fallback-Zeile statt Fehler).
+- [x] Dauer-Eingabe im Komma-Format ("1,5h") führt zu Hang/Crash — behoben (14.07.). Root Cause: gleiche Ursache wie oben — „Verschiebe die Lernroutine" wurde mangels `updateRoutine`-Typ als `createRoutine` (Duplikat!) beantwortet; „1,5h" selbst wird korrekt zu 90 Minuten. Der „endlose" Spinner war der unbegrenzte Netzwerk-Wait (bis 120s) — URLSession-Timeouts jetzt 30s/60s, jeder Fehler landet als Chat-Nachricht. Beide Flows end-to-end verifiziert (Skip + Verschieben mit 1,5h via Chat).
 
 ### V2-S6 (Fehlende Datenmodelle)
 - [x] Datum bei „+" wählt nicht den aktuell angezeigten Kalendertag vor — behoben
 - [x] Keine Warnung bei überschneidenden Terminen (weder manuell noch über DONNA-Chat) — behoben, ConflictDetector wird jetzt bei Erstellung/Änderung konsultiert
-- [ ] Alte Routine-Occurrences bleiben im Kalender stehen, wenn die Routine-Zeit geändert wird (z. B. 18 Uhr täglich → 19 Uhr täglich) — keine Kaskadierung/Bereinigung
+- [x] Alte Routine-Occurrences bleiben im Kalender stehen, wenn die Routine-Zeit geändert wird — behoben (14.07.): `handleUpdateRoutine` verschiebt jetzt alle noch offenen (`scheduled`) Occurrences auf die neue Uhrzeit; manuell verschobene (`rescheduled`) bleiben unangetastet. Frequenz-Änderungen kaskadieren weiterhin nicht.
 - [ ] Sich überschneidende Kalendereinträge werden nicht sauber dargestellt
 - [ ] `RoutineOccurrence`s mit `routine == nil` existieren in der DB — vermutlich Reste gelöschter Routinen; Datenintegritätsfrage, nicht dringend
 

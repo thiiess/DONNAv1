@@ -75,7 +75,7 @@ enum DONNACommand {
 
     // Routines
     case createRoutine(definition: RoutineDefinition)
-    case updateRoutine(id: UUID, title: String, frequency: RoutineFrequency, preferredTimeOfDay: Date?)
+    case updateRoutine(id: UUID, title: String, frequency: RoutineFrequency, preferredTimeOfDay: Date?, durationMinutes: Int? = nil)
     case deleteRoutine(id: UUID)
     case completeOccurrence(id: UUID)
     case skipOccurrence(id: UUID, reason: String?)
@@ -185,8 +185,8 @@ final class CommandHandler {
 
         case let .createRoutine(definition):
             return handleCreateRoutine(definition: definition)
-        case let .updateRoutine(id, title, frequency, preferredTimeOfDay):
-            return handleUpdateRoutine(id: id, title: title, frequency: frequency, preferredTimeOfDay: preferredTimeOfDay)
+        case let .updateRoutine(id, title, frequency, preferredTimeOfDay, durationMinutes):
+            return handleUpdateRoutine(id: id, title: title, frequency: frequency, preferredTimeOfDay: preferredTimeOfDay, durationMinutes: durationMinutes)
         case let .deleteRoutine(id):
             return handleDeleteRoutine(id: id)
         case let .completeOccurrence(id):
@@ -389,7 +389,7 @@ final class CommandHandler {
         return .success()
     }
 
-    private func handleUpdateRoutine(id: UUID, title: String, frequency: RoutineFrequency, preferredTimeOfDay: Date?) -> CommandResult {
+    private func handleUpdateRoutine(id: UUID, title: String, frequency: RoutineFrequency, preferredTimeOfDay: Date?, durationMinutes: Int? = nil) -> CommandResult {
         guard let all = try? modelContext.fetch(FetchDescriptor<Routine>()),
               let routine = all.first(where: { $0.id == id }) else {
             return .failure(.notFound(id: id))
@@ -397,6 +397,21 @@ final class CommandHandler {
         routine.title = title
         routine.frequency = frequency
         routine.preferredTimeOfDay = preferredTimeOfDay
+        if let durationMinutes {
+            routine.durationMinutes = durationMinutes
+        }
+        // Move still-pending occurrences to the new preferred time so the change
+        // is visible in the calendar, not only on future generations.
+        if let preferred = preferredTimeOfDay {
+            let cal = Calendar.current
+            let comps = cal.dateComponents([.hour, .minute], from: preferred)
+            for occ in routine.occurrences where occ.status == .scheduled {
+                if let moved = cal.date(bySettingHour: comps.hour ?? 0, minute: comps.minute ?? 0,
+                                        second: 0, of: occ.scheduledDate) {
+                    occ.scheduledDate = moved
+                }
+            }
+        }
         try? modelContext.save()
         return .success()
     }

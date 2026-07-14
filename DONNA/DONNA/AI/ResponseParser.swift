@@ -65,8 +65,14 @@ struct ResponseParser {
 
             if outputType == .proposal {
                 let json = extractProposalJSON(from: afterTag)
-                let display = stripProposalData(from: afterTag)
-                guard !display.isEmpty else { throw ParseError.emptyContent }
+                var display = stripProposalData(from: afterTag)
+                if display.isEmpty {
+                    // The [PROPOSAL] prefill sometimes makes Gemini skip the human
+                    // description and emit only the data block. The proposal is still
+                    // actionable, so fall back to a generic line instead of failing.
+                    guard json != nil else { throw ParseError.emptyContent }
+                    display = "Vorschlag bereit – bitte bestätigen."
+                }
                 return ParsedAIResponse(outputType: .proposal, content: display, proposalJSON: json)
             }
 

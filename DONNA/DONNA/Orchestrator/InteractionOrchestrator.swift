@@ -99,6 +99,10 @@ final class InteractionOrchestrator {
             return
         }
 
+        #if DEBUG
+        print("[DEBUG] InteractionOrchestrator: raw Gemini response before parse:\n---\n\(rawResponse)\n---")
+        #endif
+
         let parsed: ParsedAIResponse
         do {
             parsed = try parser.parse(rawResponse)
@@ -231,6 +235,33 @@ final class InteractionOrchestrator {
                 preferredTimeOfDay: preferred, durationMinutes: duration, category: category
             ))
 
+        case "skipRoutine":
+            guard let routine = resolveRoutine(named: data["routineTitle"] as? String ?? data["title"] as? String) else { return nil }
+            let dateStr = data["date"] as? String
+            let day = dateStr.flatMap { DateFormatter.isoDate.date(from: $0) } ?? Date()
+            let occurrences = (try? modelContext.fetch(FetchDescriptor<RoutineOccurrence>())) ?? []
+            guard let occ = occurrences.first(where: {
+                $0.routine?.id == routine.id
+                    && $0.status == .scheduled
+                    && cal.isDate($0.scheduledDate, inSameDayAs: day)
+            }) else { return nil }
+            return .skipOccurrence(id: occ.id, reason: data["reason"] as? String)
+
+        case "updateRoutine":
+            guard let routine = resolveRoutine(named: data["routineTitle"] as? String ?? data["title"] as? String) else { return nil }
+            var preferred = routine.preferredTimeOfDay
+            if let h = data["preferredTimeHour"] as? Int {
+                let m = data["preferredTimeMinute"] as? Int ?? 0
+                preferred = cal.date(bySettingHour: h, minute: m, second: 0, of: Date()) ?? preferred
+            }
+            return .updateRoutine(
+                id: routine.id,
+                title: routine.title,
+                frequency: routine.frequency,
+                preferredTimeOfDay: preferred,
+                durationMinutes: data["durationMinutes"] as? Int
+            )
+
         case "setSleepWindow":
             let bedH = data["bedtimeHour"]   as? Int ?? 23
             let bedM = data["bedtimeMinute"] as? Int ?? 0
@@ -244,6 +275,46 @@ final class InteractionOrchestrator {
         default:
             return nil
         }
+    }
+
+    /// Resolves the routine the user referred to. The AI context is anonymised
+    /// (no titles reach Gemini), so the AI echoes whatever the user typed —
+    /// which may be the exact title, a fragment ("Lernen" for "Lernroutine"),
+    /// or a category name in either language.
+    private func resolveRoutine(named name: String?) -> Routine? {
+        guard let raw = name?.trimmingCharacters(in: .whitespacesAndNewlines).lowercased(),
+              !raw.isEmpty else { return nil }
+        let routines = ((try? modelContext.fetch(FetchDescriptor<Routine>())) ?? [])
+            .filter { $0.isActive }
+
+        if let exact = routines.first(where: { $0.title.lowercased() == raw }) { return exact }
+
+        // Stem match: "Lernroutine" must find the routine titled "Lernen", so the
+        // generic word "Routine" is stripped before comparing ("lernroutine" → "lern").
+        func stem(_ s: String) -> String {
+            var out = s.lowercased()
+            for noise in ["routine", "-", " "] {
+                out = out.replacingOccurrences(of: noise, with: "")
+            }
+            return out
+        }
+        let query = stem(raw)
+        if !query.isEmpty, let partial = routines.first(where: {
+            let title = stem($0.title)
+            return !title.isEmpty && (title.contains(query) || query.contains(title))
+        }) { return partial }
+
+        let categoryAliases: [String: RoutineCategory] = [
+            "learning": .learning, "lernen": .learning, "lern": .learning,
+            "sport": .sport,
+            "sleep": .sleep, "schlaf": .sleep,
+            "skincare": .skincare, "hautpflege": .skincare,
+            "nutrition": .nutrition, "ernährung": .nutrition, "essen": .nutrition
+        ]
+        if let category = categoryAliases.first(where: { raw.contains($0.key) || query.contains($0.key) })?.value {
+            return routines.first(where: { $0.category == category })
+        }
+        return nil
     }
 
     // MARK: - Private helpers

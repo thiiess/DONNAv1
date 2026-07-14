@@ -60,12 +60,23 @@ final class InternalAssistantClient {
     [PROPOSAL] PFLICHTFORMAT — IMMER EXAKT SO:
     Beginne mit einer kurzen deutschen Beschreibung des Vorschlags, dann auf einer neuen Zeile:
     [PROPOSAL_DATA]{"type":"...","title":"..."}[/PROPOSAL_DATA]
+    Auch nach einer Klärungsantwort: IMMER zuerst die kurze Beschreibung, niemals direkt mit [PROPOSAL_DATA] beginnen.
 
     UNTERSTÜTZTE TYPEN:
     createEvent:   {"type":"createEvent","title":"string","date":"YYYY-MM-DD","startHour":int,"startMinute":int,"endHour":int,"endMinute":int,"isAllDay":bool,"isLocked":bool,"isAnnual":bool,"notes":"string oder null"}
     createTask:    {"type":"createTask","title":"string","dueDate":"YYYY-MM-DD","priority":"none|low|medium|high"}
     createRoutine: {"type":"createRoutine","title":"string","frequency":"daily|weekdays|weekly","durationMinutes":int,"category":"sleep|sport|learning|skincare|nutrition|custom","preferredTimeHour":int,"preferredTimeMinute":int}
+    skipRoutine:   {"type":"skipRoutine","routineTitle":"string","date":"YYYY-MM-DD","reason":"string oder null"}
+    updateRoutine: {"type":"updateRoutine","routineTitle":"string","preferredTimeHour":int oder null,"preferredTimeMinute":int oder null,"durationMinutes":int oder null}
     setSleepWindow:{"type":"setSleepWindow","bedtimeHour":int,"bedtimeMinute":int,"wakeHour":int,"wakeMinute":int}
+
+    ROUTINEN-AKTIONEN:
+    Routine überspringen/auslassen/heute nicht ("überspringen", "heute nicht", "auslassen") → skipRoutine.
+    Bestehende Routine ändern oder verschieben (neue Uhrzeit oder neue Dauer) → updateRoutine. NIEMALS createRoutine dafür verwenden.
+    routineTitle = der Name, den der Nutzer nennt (z. B. "Lernen", "Lernroutine", "Sport").
+    updateRoutine: nur Felder setzen, die der Nutzer ändern will, alle anderen auf null.
+    Beim Verschieben einer Routine NICHT nach der Dauer fragen – die vorhandene Dauer bleibt (durationMinutes: null).
+    createRoutine nur, wenn der Nutzer ausdrücklich eine NEUE Routine anlegen will.
 
     EXTRAKTION — TERMINDETAILS:
     "ganztägig", "den ganzen Tag", "ganzer Tag" → isAllDay: true (startHour/endHour ignoriert)
@@ -89,6 +100,20 @@ final class InternalAssistantClient {
     Nutzer-Antwort: "15:30"
     → [PROPOSAL] Termin "Friseur" morgen um 15:30 Uhr.
     [PROPOSAL_DATA]{"type":"createEvent","title":"Friseur","date":"MORGEN-DATUM","startHour":15,"startMinute":30,"endHour":16,"endMinute":30,"isAllDay":false,"isLocked":false,"isAnnual":false,"notes":null}[/PROPOSAL_DATA]
+
+    MEHRZUG-BEISPIEL C (Routine überspringen):
+    Nutzer: "Ich möchte heute eine Routine überspringen"
+    DONNA: "[CLARIFICATION] Welche Routine möchtest du überspringen?"
+    Nutzer-Antwort: "Lernen"
+    → [PROPOSAL] Routine "Lernen" wird heute übersprungen.
+    [PROPOSAL_DATA]{"type":"skipRoutine","routineTitle":"Lernen","date":"HEUTE-DATUM","reason":null}[/PROPOSAL_DATA]
+
+    MEHRZUG-BEISPIEL D (Routine verschieben, Dauer nachgereicht):
+    Nutzer: "Verschiebe die Lernroutine auf 20 Uhr"
+    → [PROPOSAL] Lernroutine ab jetzt um 20:00 Uhr, Dauer bleibt unverändert.
+    [PROPOSAL_DATA]{"type":"updateRoutine","routineTitle":"Lernroutine","preferredTimeHour":20,"preferredTimeMinute":0,"durationMinutes":null}[/PROPOSAL_DATA]
+    Nennt der Nutzer zusätzlich eine Dauer ("1,5h", "90 Minuten"), dann durationMinutes in ganzen Minuten (1,5h = 90):
+    [PROPOSAL_DATA]{"type":"updateRoutine","routineTitle":"Lernroutine","preferredTimeHour":20,"preferredTimeMinute":0,"durationMinutes":90}[/PROPOSAL_DATA]
 
     EINZELZUG-BEISPIELE:
     Nutzer: "Termin Fußball morgen 16-17 Uhr"
@@ -118,8 +143,11 @@ final class InternalAssistantClient {
 
     private static let session: URLSession = {
         let config = URLSessionConfiguration.default
-        config.timeoutIntervalForRequest = 120
-        config.timeoutIntervalForResource = 120
+        // Hard upper bound on how long "DONNA denkt …" can spin: a stalled request
+        // (e.g. proxy auto-discovery, trickling response) must fail into the error
+        // path instead of holding the UI. Normal responses arrive in ~1-3s.
+        config.timeoutIntervalForRequest = 30
+        config.timeoutIntervalForResource = 60
         return URLSession(configuration: config)
     }()
 
@@ -210,9 +238,10 @@ final class InternalAssistantClient {
         var rawText = try extractText(from: data)
         // Gemini returns only the continuation after a prefill turn.
         // Prepend the seeded tag if it's not already present (guards against
-        // API versions that return the full text including the prefill).
-        if isClarificationAnswer && !rawText.hasPrefix("[PROPOSAL]") {
-            rawText = "[PROPOSAL] " + rawText
+        // responses that repeat the tag themselves, possibly after whitespace).
+        if isClarificationAnswer {
+            let trimmed = rawText.trimmingCharacters(in: .whitespacesAndNewlines)
+            rawText = trimmed.hasPrefix("[PROPOSAL]") ? trimmed : "[PROPOSAL] " + trimmed
         }
         return rawText
     }
