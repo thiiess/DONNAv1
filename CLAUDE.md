@@ -148,7 +148,7 @@ Fix all errors before reporting done.
 | `ContextBuilder.swift` | Builds anonymised context snapshot for Gemini |
 | `KeychainHelper.swift` | Secure API key storage |
 | `Task.swift` | `DONNATask` model (class named DONNATask to avoid Swift.Task conflict) |
-| `CalendarEvent.swift` | Calendar event model — includes `isAnnual`, `notes`, `isLocked`, `isAllDay` |
+| `CalendarEvent.swift` | Calendar event model — includes `isAnnual`, `notes`, `isLocked`. No stored all-day flag: all-day/annual events are stored as 00:00–23:59 and detected via the computed `spansWholeDay` |
 | `Routine.swift` | Routine model |
 | `RoutineOccurrence.swift` | Individual routine occurrence |
 | `ChatMessage.swift` | Persisted chat message model |

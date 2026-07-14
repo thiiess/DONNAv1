@@ -96,6 +96,11 @@ struct ContentView: View {
             case .settings: SettingsView()
             }
         }
+        // A view pushed inside a detail-column NavigationStack (RoutineDetailView) is
+        // retained by the split view's own column state, so swapping the detail content
+        // — even with a fresh .id — leaves the pushed view on screen. Re-creating the
+        // split view per tab discards that column state along with it.
+        .id(selectedTab)
         .tint(DS.Colors.warmAccent)
         #endif
     }

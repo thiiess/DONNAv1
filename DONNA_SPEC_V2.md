@@ -520,11 +520,11 @@ Bevor ein neues Feature in eine Spec aufgenommen wird, muss es diese Fragen best
 - [ ] `ProfileUpdater.proposeIfNeeded` fügt ChatMessage noch direkt ein — umgeht CommandHandler
 - [ ] Chat-Handler (`postAssistantMessage`, `postUserMessage`, etc.) nutzen `try?` + geben unconditional `.success` zurück — Fehler bei fehlgeschlagenem Save sind unsichtbar
 - [ ] `seenKeys` ohne Timestamp/Ablauf — Kommentar behauptet 7-Tage-Rückhaltung, ist aber nicht implementiert; Keys akkumulieren für immer
-- [ ] `ContentView` hält `@Query` über alle ChatMessages nur für den Badge-Count — rendert die komplette NavigationSplitView bei jeder neuen Nachricht neu
+- [x] `ContentView` hält `@Query` über alle ChatMessages nur für den Badge-Count — behoben, Badge-Query in `SidebarUnreadBadge`/`UnreadTabBadge` ausgelagert, NavigationSplitView rendert nicht mehr bei jeder Nachricht neu
 
 ### V2-S2 (Morgenbriefing)
 - [x] Forgotten-Routine-Vorschläge konsolidiert (neueste + Zähler), inkl. Sibling-Skip bei Bestätigung (Session 13.07.)
-- [ ] Fenster wächst unbegrenzt mit dem Chat-Verlauf statt sich zu begrenzen — Root Cause gefunden (fehlende `.frame()`-Constraints in `DONNAApp.swift`, `ContentView.swift`, `ChatView.swift`), Fix-Session vorbereitet
+- [x] Fenster wächst unbegrenzt mit dem Chat-Verlauf statt sich zu begrenzen — behoben, `.frame()`-Constraints in `DONNAApp.swift`/`ContentView.swift`/`ChatView.swift` ergänzt und `fixedSize` aus `BriefingCardView` entfernt (blähte die NavigationSplitView auf ideal height auf)
 - [ ] Möglicherweise doppeltes Briefing nach Debug-Reset — noch nicht verifiziert, ob wirklich 2 Briefing-Nachrichten oder Verwechslung mit Vorschlag-Bubbles
 
 ### V2-S3 (Erschöpfungs-Modus + Kontext-Gedächtnis)
@@ -535,6 +535,8 @@ Bevor ein neues Feature in eine Spec aufgenommen wird, muss es diese Fragen best
 - [ ] Dauer-Eingabe im Komma-Format ("1,5h") führt zu Hang/Crash nach Routine-Erstellung (Verdacht, noch nicht verifiziert)
 
 ### V2-S6 (Fehlende Datenmodelle)
+- [x] Datum bei „+" wählt nicht den aktuell angezeigten Kalendertag vor — behoben
+- [x] Keine Warnung bei überschneidenden Terminen (weder manuell noch über DONNA-Chat) — behoben, ConflictDetector wird jetzt bei Erstellung/Änderung konsultiert
 - [ ] Alte Routine-Occurrences bleiben im Kalender stehen, wenn die Routine-Zeit geändert wird (z. B. 18 Uhr täglich → 19 Uhr täglich) — keine Kaskadierung/Bereinigung
 - [ ] Sich überschneidende Kalendereinträge werden nicht sauber dargestellt
 - [ ] `RoutineOccurrence`s mit `routine == nil` existieren in der DB — vermutlich Reste gelöschter Routinen; Datenintegritätsfrage, nicht dringend
