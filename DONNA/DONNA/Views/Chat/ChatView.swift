@@ -41,20 +41,33 @@ struct ChatView: View {
                 .padding(.vertical, 6)
             }
 
-            HStack(spacing: 12) {
-                TextField("Schreib an DONNA …", text: $inputText)
-                    .textFieldStyle(.roundedBorder)
+            // Composer: one soft capsule with the send button inside — DONNA's own, not a
+            // stock rounded-border field.
+            HStack(spacing: 8) {
+                TextField("Schreib an DONNA …", text: $inputText, axis: .vertical)
+                    .textFieldStyle(.plain)
+                    .lineLimit(1...4)
                     .disabled(isSending || orchestrator == nil || orchestrator?.phase == .awaitingConsent)
                     .onSubmit { handleSend() }
+                    .padding(.leading, 16)
+                    .padding(.vertical, 10)
 
                 Button { handleSend() } label: {
-                    Image(systemName: "arrow.up.circle.fill")
-                        .font(.title2)
-                        .foregroundStyle(canSend ? DS.Colors.warmAccent : Color.secondary)
+                    Image(systemName: "arrow.up")
+                        .font(.body.weight(.semibold))
+                        .foregroundStyle(canSend ? DS.Colors.onAccent : DS.Colors.textTertiary)
+                        .frame(width: 32, height: 32)
+                        .background(canSend ? DS.Colors.warmAccent : DS.Colors.backgroundSecondary, in: Circle())
                 }
+                .buttonStyle(.plain)
                 .disabled(!canSend)
+                .padding(.trailing, 6)
+                .accessibilityLabel("Senden")
             }
-            .padding()
+            .background(DS.Colors.backgroundTertiary, in: Capsule())
+            .overlay(Capsule().stroke(DS.Colors.warmAccent.opacity(0.25), lineWidth: 1))
+            .padding(.horizontal, DS.Spacing.horizontal)
+            .padding(.vertical, 12)
         }
         .background(DS.Colors.appBackground)
         .navigationTitle("DONNA")

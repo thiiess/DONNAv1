@@ -9,9 +9,10 @@ struct ProposalCard: View {
         if orchestrator.phase == .awaitingConsent, let proposal = orchestrator.currentProposal {
             VStack(alignment: .leading, spacing: 12) {
                 HStack(spacing: 6) {
-                    Text(orchestrator.isEditingProposal ? "Vorschlag ändern" : "Vorschlag")
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(DS.Colors.textSecondary)
+                    Text((orchestrator.isEditingProposal ? "Vorschlag ändern" : "Vorschlag").uppercased())
+                        .font(.caption2.weight(.semibold))
+                        .tracking(0.8)
+                        .foregroundStyle(DS.Colors.warmAccent)
                     Spacer()
                 }
 
@@ -25,9 +26,12 @@ struct ProposalCard: View {
                 }
             }
             .padding(16)
-            .background(.background)
-            .clipShape(RoundedRectangle(cornerRadius: 12))
-            .shadow(color: .black.opacity(0.06), radius: 6, x: 0, y: 2)
+            .background(DS.Colors.backgroundTertiary)
+            .clipShape(RoundedRectangle(cornerRadius: DS.Radius.card))
+            .overlay(
+                RoundedRectangle(cornerRadius: DS.Radius.card)
+                    .stroke(DS.Colors.warmAccent.opacity(0.35), lineWidth: 1)
+            )
             .padding(.horizontal, 16)
         }
     }
