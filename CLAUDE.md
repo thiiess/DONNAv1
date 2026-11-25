@@ -126,6 +126,10 @@ xcodebuild -scheme DONNA -destination 'platform=macOS' build 2>&1 | tail -20
 ```
 Fix all errors before reporting done.
 
+### Tests (headless — prefer over screen control)
+See `TESTING.md`. Once the `DONNATests` target exists: `xcodebuild test -scheme DONNA -destination 'platform=macOS'`.
+Every logic change gets a test in `DONNATests/` with an in-memory `ModelContainer`. Screen control (computer use) only when a visual check is genuinely needed — it is expensive.
+
 ---
 
 ## Design System (`DesignSystem.swift` — `DS` namespace)
