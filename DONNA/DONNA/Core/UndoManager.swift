@@ -102,6 +102,8 @@ enum DONNASnapshot {
     case preference(key: String, previous: PreferenceSnapshot?)
     /// Every context mode before the command (activation deactivates all others).
     case contextModes([ContextModeSnapshot])
+    /// Commands that change several kinds of objects at once.
+    indirect case multiple([DONNASnapshot])
 }
 
 // MARK: - Undo Errors
@@ -192,6 +194,8 @@ final class DONNAUndoManager {
             restorePreference(key: key, previous: previous, context: context)
         case let .contextModes(snaps):
             restoreContextModes(snaps, context: context)
+        case let .multiple(snaps):
+            for snap in snaps { try restore(snap, context: context) }
         }
     }
 

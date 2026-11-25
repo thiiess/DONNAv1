@@ -24,6 +24,8 @@ private struct ContextSnapshot: Encodable {
     let open_routines_today: [String]
     let sleep_window: SleepWindowEntry?
     let active_context_mode: String?
+    /// True when the user declared today a recovery day (Erschöpfungs-Modus).
+    let recovery_day: Bool
     let conflict_flags: [String]
 }
 
@@ -56,6 +58,7 @@ struct ContextBuilder {
         occurrences: [RoutineOccurrence],
         sleepWindows: [SleepWindow],
         activeContextMode: ContextMode?,
+        isRecoveryDay: Bool = false,
         referenceDate: Date = Date()
     ) -> String? {
 
@@ -116,6 +119,7 @@ struct ContextBuilder {
             open_routines_today: openRoutineTypes,
             sleep_window: sleepEntry,
             active_context_mode: activeContextMode?.name,
+            recovery_day: isRecoveryDay,
             conflict_flags: flags
         )
 

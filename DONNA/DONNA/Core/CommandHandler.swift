@@ -90,6 +90,11 @@ enum DONNACommand {
     /// `.cascade` delete rule). Housekeeping, run on app start.
     case purgeOrphanedOccurrences
 
+    // Recovery (V2-S3 Erschöpfungs-Modus)
+    /// Marks `date` as a recovery day: records `exhaustion_day_<date>` and makes the day's
+    /// still-open, non-high-priority routine occurrences optional (skipped, can still be done).
+    case startRecoveryDay(date: Date)
+
     // Sleep
     case setSleepWindow(bedtime: Date, wakeTime: Date)
 
@@ -222,6 +227,7 @@ final class CommandHandler {
         case .skipOccurrence:           return "Routine übersprungen"
         case .rescheduleOccurrence:     return "Routine verschoben"
         case .setSleepWindow:           return "Schlaffenster gesetzt"
+        case .startRecoveryDay:         return "Erholungstag"
         case .confirmPreference,
              .setExplicitPreference:    return "Präferenz gespeichert"
         case .deleteLearnedItem:        return "Präferenz gelöscht"
@@ -268,6 +274,15 @@ final class CommandHandler {
 
         case .activateContextMode, .deactivateContextMode:
             return .contextModes(fetchAll(ContextMode.self).map { $0.snapshot() })
+
+        case let .startRecoveryDay(date):
+            let key = Self.recoveryKey(for: date)
+            let previous = fetchAll(Preference.self).first { $0.key == key }
+            let day = fetchAll(RoutineOccurrence.self).filter { Calendar.current.isDate($0.scheduledDate, inSameDayAs: date) }
+            return .multiple([
+                .preference(key: key, previous: previous?.snapshot()),
+                .occurrences(day.map { $0.snapshot() })
+            ])
 
         default:
             return nil
@@ -321,6 +336,8 @@ final class CommandHandler {
 
         case let .setSleepWindow(bedtime, wakeTime):
             return handleSetSleepWindow(bedtime: bedtime, wakeTime: wakeTime)
+        case let .startRecoveryDay(date):
+            return handleStartRecoveryDay(date: date)
 
         case let .confirmPreference(key, value):
             return handleConfirmPreference(key: key, value: value)
@@ -725,6 +742,39 @@ final class CommandHandler {
         let orphans = all.filter { $0.routine == nil }
         guard !orphans.isEmpty else { return .success() }
         for occ in orphans { modelContext.delete(occ) }
+        return persist()
+    }
+
+    // MARK: - Recovery Handler
+
+    static let recoveryKeyPrefix = "exhaustion_day_"
+    static let recoverySkipReason = "Erholungstag – optional"
+
+    static func recoveryKey(for date: Date) -> String {
+        recoveryKeyPrefix + DateFormatter.isoDate.string(from: date)
+    }
+
+    private func handleStartRecoveryDay(date: Date) -> CommandResult {
+        let key = Self.recoveryKey(for: date)
+        if !fetchAll(Preference.self).contains(where: { $0.key == key }) {
+            modelContext.insert(Preference(
+                key: key,
+                value: DateFormatter.isoDate.string(from: date),
+                scope: .global,
+                isActive: true,
+                source: .explicit,
+                confirmedAt: Date()
+            ))
+        }
+        // "Nicht-fixe" Routinen: everything except high priority becomes optional for the day.
+        let cal = Calendar.current
+        for occ in fetchAll(RoutineOccurrence.self)
+        where occ.status == .scheduled
+            && cal.isDate(occ.scheduledDate, inSameDayAs: date)
+            && occ.routine?.priority != .high {
+            occ.status = .skipped
+            occ.skippedReason = Self.recoverySkipReason
+        }
         return persist()
     }
 

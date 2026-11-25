@@ -69,6 +69,8 @@ final class InteractionOrchestrator {
         let sleepWindows = (try? modelContext.fetch(FetchDescriptor<SleepWindow>())) ?? []
         let modes        = (try? modelContext.fetch(FetchDescriptor<ContextMode>())) ?? []
         let activeMode   = modes.first(where: { $0.isActive })
+        let recoveryKey  = CommandHandler.recoveryKey(for: Date())
+        let isRecovery   = ((try? modelContext.fetch(FetchDescriptor<Preference>())) ?? []).contains { $0.key == recoveryKey }
 
         guard let contextJSON = contextBuilder.buildJSON(
             userText: userInput,
@@ -76,7 +78,8 @@ final class InteractionOrchestrator {
             events: events,
             occurrences: occurrences,
             sleepWindows: sleepWindows,
-            activeContextMode: activeMode
+            activeContextMode: activeMode,
+            isRecoveryDay: isRecovery
         ) else {
             fail("Kontext konnte nicht erstellt werden.")
             return
@@ -291,6 +294,9 @@ final class InteractionOrchestrator {
                 preferredTimeOfDay: preferred,
                 durationMinutes: data["durationMinutes"] as? Int
             )
+
+        case "startRecoveryDay":
+            return .startRecoveryDay(date: Date())
 
         case "setSleepWindow":
             let bedH = data["bedtimeHour"]   as? Int ?? 23

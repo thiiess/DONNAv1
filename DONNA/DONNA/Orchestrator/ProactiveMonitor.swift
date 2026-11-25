@@ -38,6 +38,27 @@ final class ProactiveMonitor {
         detectCalendarConflicts(modelContext: modelContext)
         detectSleepDeficitStreak(sleep: patterns.sleep, modelContext: modelContext)
         detectForgottenRoutines(modelContext: modelContext)
+        detectRecoveryPattern(modelContext: modelContext)
+    }
+
+    // MARK: - Recovery pattern (V2-S3)
+
+    /// 3+ recovery days within 14 days → ask once whether DONNA should plan less overall.
+    /// Deduplicated per ISO week via seenKeys, so it surfaces at most weekly.
+    private func detectRecoveryPattern(modelContext: ModelContext, now: Date = Date()) {
+        let cutoff = Calendar.current.date(byAdding: .day, value: -14, to: now) ?? now
+        let prefix = CommandHandler.recoveryKeyPrefix
+        let recent = ((try? modelContext.fetch(FetchDescriptor<Preference>())) ?? [])
+            .filter { $0.key.hasPrefix(prefix) }
+            .compactMap { DateFormatter.isoDate.date(from: String($0.key.dropFirst(prefix.count))) }
+            .filter { $0 >= cutoff && $0 <= now }
+        guard recent.count >= 3 else { return }
+
+        createProposalIfNew(
+            key: "recovery_pattern_" + Self.weeklySummaryStoreKey(for: now),
+            content: "Ich habe bemerkt, dass du in den letzten zwei Wochen öfter erschöpft warst. Soll ich generell weniger planen?",
+            modelContext: modelContext
+        )
     }
 
     // MARK: - Learning cycle

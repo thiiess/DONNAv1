@@ -69,6 +69,14 @@ final class InternalAssistantClient {
     skipRoutine:   {"type":"skipRoutine","routineTitle":"string","date":"YYYY-MM-DD","reason":"string oder null"}
     updateRoutine: {"type":"updateRoutine","routineTitle":"string","preferredTimeHour":int oder null,"preferredTimeMinute":int oder null,"durationMinutes":int oder null}
     setSleepWindow:{"type":"setSleepWindow","bedtimeHour":int,"bedtimeMinute":int,"wakeHour":int,"wakeMinute":int}
+    startRecoveryDay:{"type":"startRecoveryDay","reason":"string oder null"}
+
+    ERSCHÖPFUNG / ÜBERFORDERUNG:
+    "Ich bin erschöpft", "Ich mache heute Pause", "Ich bin krank", "Ich schaffe das heute nicht", "Zu viel gerade" → startRecoveryDay.
+    Ton: ohne Bewertung, ohne Ratschläge, ohne Nachfragen nach dem Warum. Beschreibung kurz, z. B.:
+    [PROPOSAL] Okay, ich reduziere heute. Deine offenen Routinen für heute werden optional, feste Termine bleiben.
+    [PROPOSAL_DATA]{"type":"startRecoveryDay","reason":null}[/PROPOSAL_DATA]
+    Ist recovery_day im Kontext true: für heute nichts Zusätzliches vorschlagen, keine Aufgaben drängen, sanft und knapp bleiben.
 
     ROUTINEN-AKTIONEN:
     Routine überspringen/auslassen/heute nicht ("überspringen", "heute nicht", "auslassen") → skipRoutine.

@@ -114,7 +114,8 @@ struct RoutineListView: View {
             .listRowSeparator(.hidden)
             .listRowInsets(EdgeInsets(top: 4, leading: DS.Spacing.horizontal, bottom: 4, trailing: DS.Spacing.horizontal))
             .swipeActions(edge: .leading, allowsFullSwipe: true) {
-                if occ.status == .scheduled {
+                // Recovery-day routines are "optional": skipped, but still completable.
+                if occ.status == .scheduled || occ.skippedReason == CommandHandler.recoverySkipReason {
                     Button {
                         withAnimation(DS.animation) {
                             _ = CommandHandler(modelContext: modelContext)
