@@ -73,7 +73,7 @@ Source of truth for open bugs: `DONNA_SPEC_V2.md` → „Bekannter Stand". Short
 - **V2-S3**: ✅ Undo (one level, every data command, toast + Bearbeiten → „Rückgängig: …" ⇧⌘Z). ✅ Erschöpfungs-Modus (recovery day via chat, `exhaustion_day_<date>` preference — not a ContextMode). ✅ Kontext-Gedächtnis: an unanswered DONNA question is re-asked once after 24h („Kurz nachgefragt: …"). Time-bound contexts („Prüfung am 15. Mai" → reminder) open
 - **V2-S4**: ✅ clarification flow + inline „Ändern" on proposals + Stopp button (Esc). Edit last message / regenerate / dictation open
 - **V2-S5**: repeated one-off event (3 distinct weeks, same weekday+hour) → one-time series hint. Energy profile / sport intelligence open
-- **V2-S6**: ✅ conflict detection, overlap lanes, recurring events (weekly/biweekly), Someday stack. prepTime/dependencies open
+- **V2-S6**: ✅ conflict detection, overlap lanes, recurring events (weekly/biweekly), Someday stack, preparation time (`prepTimeMinutes`). Task dependencies open
 - **V2-S7**: ✅ themes + own visual identity, inviting empty states, night note. Micro-interactions open
 - **V2-S6b EventKit, V2-S12 CloudKit**: not started (reserved for the stronger model)
 
@@ -208,6 +208,7 @@ The user picks a colour theme in Einstellungen → Erscheinungsbild: `DONNATheme
 - "ganztägig" / "den ganzen Tag" → `allDay: true`
 - "gesperrt" / "nicht verschiebbar" / "fix" → `isLocked: true`
 - "Geburtstag" / "Jahrestag" / "jedes Jahr" → `isAnnual: true` (auto-sets allDay + locked)
+- "mit 30 Minuten Vorbereitung" → `prepMinutes`; exams/interviews/presentations get 30 min proposed automatically
 - "jeden Dienstag" / "wöchentlich" → `recurrence: "weekly"`, "alle zwei Wochen" → `"biweekly"` → `.createEventSeries`
 - Notes/context provided → passed as `notes` field
 

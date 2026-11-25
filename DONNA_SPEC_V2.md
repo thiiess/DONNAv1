@@ -556,6 +556,7 @@ Bevor ein neues Feature in eine Spec aufgenommen wird, muss es diese Fragen best
 - [x] V2-S5 Muster: gleicher Termin an 3 verschiedenen Wochen, gleicher Wochentag + Uhrzeit → einmalige Frage nach Serientermin
 - [x] V2-S7 Spät-Hinweis nach 22 Uhr (einmalig)
 - [x] V2-S3 Kontext-Gedächtnis: unbeantwortete Rückfrage wird nach 24 h einmal nachgefragt, danach nie wieder (noch nicht live getestet — braucht eine 24 h alte Frage)
+- [x] V2-S6 Vorbereitungszeit: per Chat („mit 30 Minuten Vorbereitung", bei Prüfung/Vorstellungsgespräch/Präsentation schlägt DONNA 30 Min von selbst vor), in beiden Termin-Sheets und im „Ändern"-Editor; gestrichelter Block im Tageskalender
 - [x] „Was steht heute / diese Woche an?" wird lokal auf dem Gerät beantwortet (vorher „nicht unterstützt"; Gemini sieht bewusst nur ein anonymes 12-Stunden-Fenster)
 - [x] V2-S7 Leere Zustände als Einladung (Kalender heute, Aufgaben, Routinen, Chat)
 - [x] Monatsansicht: Tag antippen öffnet ihn; Wochentage folgen der Regionseinstellung (vorher bei Wochenbeginn Montag verschoben)
