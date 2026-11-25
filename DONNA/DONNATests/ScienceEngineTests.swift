@@ -226,8 +226,15 @@ final class ScienceEngineTests: XCTestCase {
     }
 
     func testConsecutiveShortSleep_noWarningWhenBroken() {
-        var windows = (0..<3).map { sleepWindow(bedHour: 3, wakeHour: 6, daysAgo: $0) }
-        windows.append(sleepWindow(bedHour: 23, wakeHour: 7, daysAgo: 3)) // 8 h breaks streak
+        // Short, long, short, short — the 8 h night in between breaks the streak,
+        // so no window of 3 consecutive short nights exists. (Before: the long night was
+        // the oldest, leaving 3 consecutive short nights — which correctly warned.)
+        let windows = [
+            sleepWindow(bedHour: 3, wakeHour: 6, daysAgo: 0),
+            sleepWindow(bedHour: 23, wakeHour: 7, daysAgo: 1),
+            sleepWindow(bedHour: 3, wakeHour: 6, daysAgo: 2),
+            sleepWindow(bedHour: 3, wakeHour: 6, daysAgo: 3),
+        ]
         let result = engine.checkConsecutiveShortSleep(recentSleepWindows: windows)
         XCTAssertNil(result)
     }

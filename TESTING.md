@@ -1,6 +1,11 @@
 # DONNA — Tests (ohne Bildschirm)
 
-## Einmalig einrichten (ca. 1 Minute in Xcode)
+## Status
+✅ Eingerichtet am 25.11.2026 — 54 Tests, alle grün (`xcodebuild test`, ~1 Min).
+Hinweis: Xcode hatte das Test-Target zunächst als **visionOS** angelegt (`SDKROOT = xros`) →
+„Could not find test host … Debug-xros". Auf `SDKROOT = auto`, iOS + macOS umgestellt.
+
+## Einmalig einrichten (erledigt — nur zur Referenz)
 1. `DONNA.xcodeproj` öffnen → **File → New → Target… → macOS → Unit Testing Bundle**
 2. Product Name: **`DONNATests`**, Target to be Tested: **DONNA**, Language Swift, Testing System **XCTest** → Finish
 3. Xcode legt einen Ordner `DONNATests` mit einer Beispieldatei an — die Beispieldatei löschen.

@@ -6,7 +6,18 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXContainerItemProxy section */
+		F011EF0C30B739AC00564183 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F092E3392FBCA94B0048D4B3 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F092E3402FBCA94B0048D4B3;
+			remoteInfo = DONNA;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
+		F011EF0830B739AC00564183 /* DONNATests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DONNATests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F092E3412FBCA94B0048D4B3 /* DONNA.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DONNA.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -21,6 +32,11 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		F011EF0930B739AC00564183 /* DONNATests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = DONNATests;
+			sourceTree = "<group>";
+		};
 		F092E3432FBCA94B0048D4B3 /* DONNA */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
@@ -32,6 +48,13 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		F011EF0530B739AC00564183 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		F092E33E2FBCA94B0048D4B3 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -46,6 +69,7 @@
 			isa = PBXGroup;
 			children = (
 				F092E3432FBCA94B0048D4B3 /* DONNA */,
+				F011EF0930B739AC00564183 /* DONNATests */,
 				F092E3422FBCA94B0048D4B3 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -54,6 +78,7 @@
 			isa = PBXGroup;
 			children = (
 				F092E3412FBCA94B0048D4B3 /* DONNA.app */,
+				F011EF0830B739AC00564183 /* DONNATests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -61,6 +86,29 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		F011EF0730B739AC00564183 /* DONNATests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F011EF0E30B739AC00564183 /* Build configuration list for PBXNativeTarget "DONNATests" */;
+			buildPhases = (
+				F011EF0430B739AC00564183 /* Sources */,
+				F011EF0530B739AC00564183 /* Frameworks */,
+				F011EF0630B739AC00564183 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				F011EF0D30B739AC00564183 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				F011EF0930B739AC00564183 /* DONNATests */,
+			);
+			name = DONNATests;
+			packageProductDependencies = (
+			);
+			productName = DONNATests;
+			productReference = F011EF0830B739AC00564183 /* DONNATests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		F092E3402FBCA94B0048D4B3 /* DONNA */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = F092E34F2FBCA94D0048D4B3 /* Build configuration list for PBXNativeTarget "DONNA" */;
@@ -90,9 +138,13 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 2650;
+				LastSwiftUpdateCheck = 2710;
 				LastUpgradeCheck = 2650;
 				TargetAttributes = {
+					F011EF0730B739AC00564183 = {
+						CreatedOnToolsVersion = 27.1;
+						TestTargetID = F092E3402FBCA94B0048D4B3;
+					};
 					F092E3402FBCA94B0048D4B3 = {
 						CreatedOnToolsVersion = 26.5;
 					};
@@ -113,11 +165,19 @@
 			projectRoot = "";
 			targets = (
 				F092E3402FBCA94B0048D4B3 /* DONNA */,
+				F011EF0730B739AC00564183 /* DONNATests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		F011EF0630B739AC00564183 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		F092E33F2FBCA94B0048D4B3 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -128,6 +188,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		F011EF0430B739AC00564183 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		F092E33D2FBCA94B0048D4B3 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -137,7 +204,64 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		F011EF0D30B739AC00564183 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F092E3402FBCA94B0048D4B3 /* DONNA */;
+			targetProxy = F011EF0C30B739AC00564183 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		F011EF0F30B739AC00564183 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = TP4RP5VG9T;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.thieskleber.donna.DONNATests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				MACOSX_DEPLOYMENT_TARGET = 26.4;
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/DONNA.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/DONNA";
+			};
+			name = Debug;
+		};
+		F011EF1030B739AC00564183 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = TP4RP5VG9T;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.thieskleber.donna.DONNATests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				MACOSX_DEPLOYMENT_TARGET = 26.4;
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/DONNA.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/DONNA";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
 		F092E3502FBCA94D0048D4B3 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -339,6 +463,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		F011EF0E30B739AC00564183 /* Build configuration list for PBXNativeTarget "DONNATests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F011EF0F30B739AC00564183 /* Debug */,
+				F011EF1030B739AC00564183 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		F092E33C2FBCA94B0048D4B3 /* Build configuration list for PBXProject "DONNA" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
