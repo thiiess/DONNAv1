@@ -29,7 +29,7 @@ struct RoutineListView: View {
                             Text("Keine Routinen heute")
                                 .font(DS.Typography.subheading)
                                 .foregroundStyle(DS.Colors.textPrimary)
-                            Text("Routinen hinzufügen, um zu beginnen.")
+                            Text("Routinen helfen langfristig. Soll ich dir ein paar vorschlagen? Frag mich im DONNA-Tab.")
                                 .font(DS.Typography.caption)
                                 .foregroundStyle(DS.Colors.textSecondary)
                                 .multilineTextAlignment(.center)

@@ -39,6 +39,30 @@ final class ProactiveMonitor {
         detectSleepDeficitStreak(sleep: patterns.sleep, modelContext: modelContext)
         detectForgottenRoutines(modelContext: modelContext)
         detectRecoveryPattern(modelContext: modelContext)
+        detectSomedayStack(modelContext: modelContext)
+    }
+
+    // MARK: - Someday stack (V2-S6)
+
+    /// Once a week: if undated tasks have been waiting for a week or more, ask gently
+    /// whether one of them is due now. Never on a recovery day.
+    private func detectSomedayStack(modelContext: ModelContext, now: Date = Date()) {
+        let prefs = (try? modelContext.fetch(FetchDescriptor<Preference>())) ?? []
+        guard !prefs.contains(where: { $0.key == CommandHandler.recoveryKey(for: now) }) else { return }
+
+        let waiting = ((try? modelContext.fetch(FetchDescriptor<DONNATask>())) ?? [])
+            .filter(TaskListView.isSomeday)
+        let weekAgo = Calendar.current.date(byAdding: .day, value: -7, to: now) ?? now
+        guard waiting.contains(where: { $0.createdAt < weekAgo }) else { return }
+
+        let content = waiting.count == 1
+            ? "Du hast eine Sache im Wartestapel: „\(waiting[0].title)“. Ist die jetzt dran?"
+            : "Du hast \(waiting.count) Dinge im Wartestapel. Ist eins davon jetzt dran?"
+        createProposalIfNew(
+            key: "someday_stack_" + Self.weeklySummaryStoreKey(for: now),
+            content: content,
+            modelContext: modelContext
+        )
     }
 
     // MARK: - Recovery pattern (V2-S3)

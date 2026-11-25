@@ -13,9 +13,21 @@ struct TaskListView: View {
         allTasks.filter { $0.status == .open }
     }
 
+    /// V2-S6 Someday-Stapel: undated tasks wait in „Irgendwann" instead of competing
+    /// with dated work. High priority stays up top even without a date.
+    static func isSomeday(_ task: DONNATask) -> Bool {
+        task.status == .open && task.dueDate == nil && task.priority != .high
+    }
+
+    private var somedayTasks: [DONNATask] {
+        openTasks.filter(Self.isSomeday).sorted { $0.createdAt < $1.createdAt }
+    }
+
     private var groupedTasks: [(Priority, [DONNATask])] {
         priorityOrder.compactMap { priority in
-            let tasks = openTasks.filter { $0.priority == priority }
+            let tasks = openTasks
+                .filter { $0.priority == priority && !Self.isSomeday($0) }
+                .sorted { ($0.dueDate ?? .distantFuture) < ($1.dueDate ?? .distantFuture) }
             return tasks.isEmpty ? nil : (priority, tasks)
         }
     }
@@ -25,16 +37,16 @@ struct TaskListView: View {
             Group {
                 if openTasks.isEmpty {
                     ContentUnavailableView(
-                        "No Open Tasks",
+                        "Keine offenen Aufgaben",
                         systemImage: "checkmark.circle",
-                        description: Text("All tasks are completed.")
+                        description: Text("Alles erledigt – oder noch nichts geplant? Ich helfe dir.")
                     )
                     .background(DS.Colors.appBackground)
                 } else {
                     List {
-                        ForEach(groupedTasks, id: \.0) { priority, tasks in
+                        ForEach(sections, id: \.title) { section in
                             Section {
-                                ForEach(tasks) { task in
+                                ForEach(section.tasks) { task in
                                     Button { selectedTask = task } label: {
                                         TaskRow(task: task, onComplete: {
                                             _ = CommandHandler(modelContext: modelContext)
@@ -51,7 +63,7 @@ struct TaskListView: View {
                                             _ = CommandHandler(modelContext: modelContext)
                                                 .execute(.completeTask(id: task.id))
                                         } label: {
-                                            Label("Complete", systemImage: "checkmark")
+                                            Label("Erledigt", systemImage: "checkmark")
                                         }
                                         .tint(DS.Colors.success)
                                     }
@@ -60,7 +72,7 @@ struct TaskListView: View {
                                             _ = CommandHandler(modelContext: modelContext)
                                                 .execute(.deleteTask(id: task.id))
                                         } label: {
-                                            Label("Delete", systemImage: "trash")
+                                            Label("Löschen", systemImage: "trash")
                                         }
                                     }
                                     #endif
@@ -69,22 +81,29 @@ struct TaskListView: View {
                                             _ = CommandHandler(modelContext: modelContext)
                                                 .execute(.completeTask(id: task.id))
                                         } label: {
-                                            Label("Mark as Complete", systemImage: "checkmark.circle")
+                                            Label("Als erledigt markieren", systemImage: "checkmark.circle")
                                         }
                                         Divider()
                                         Button(role: .destructive) {
                                             _ = CommandHandler(modelContext: modelContext)
                                                 .execute(.deleteTask(id: task.id))
                                         } label: {
-                                            Label("Delete", systemImage: "trash")
+                                            Label("Löschen", systemImage: "trash")
                                         }
                                     }
                                 }
                             } header: {
-                                Text(sectionTitle(for: priority))
-                                    .font(.caption.weight(.semibold))
-                                    .foregroundStyle(DS.Colors.warmAccent)
-                                    .textCase(nil)
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(section.title)
+                                        .font(.caption.weight(.semibold))
+                                        .foregroundStyle(DS.Colors.warmAccent)
+                                    if let subtitle = section.subtitle {
+                                        Text(subtitle)
+                                            .font(.caption2)
+                                            .foregroundStyle(DS.Colors.textTertiary)
+                                    }
+                                }
+                                .textCase(nil)
                             }
                         }
                     }
@@ -116,12 +135,26 @@ struct TaskListView: View {
         }
     }
 
+    private struct TaskSection {
+        let title: String
+        let subtitle: String?
+        let tasks: [DONNATask]
+    }
+
+    private var sections: [TaskSection] {
+        var result = groupedTasks.map { TaskSection(title: sectionTitle(for: $0.0), subtitle: nil, tasks: $0.1) }
+        if !somedayTasks.isEmpty {
+            result.append(TaskSection(title: "Irgendwann", subtitle: "Ohne Datum – kein Druck.", tasks: somedayTasks))
+        }
+        return result
+    }
+
     private func sectionTitle(for priority: Priority) -> String {
         switch priority {
-        case .high:   return "High Priority"
-        case .medium: return "Medium Priority"
-        case .low:    return "Low Priority"
-        case .none:   return "No Priority"
+        case .high:   return "Hohe Priorität"
+        case .medium: return "Mittlere Priorität"
+        case .low:    return "Niedrige Priorität"
+        case .none:   return "Ohne Priorität"
         }
     }
 }

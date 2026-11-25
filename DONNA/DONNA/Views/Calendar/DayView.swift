@@ -64,6 +64,10 @@ struct DayView: View {
 
     private let laneGap: CGFloat = 2
 
+    private var isEmptyToday: Bool {
+        Calendar.current.isDateInToday(date) && dayEvents.isEmpty && dayOccurrences.isEmpty
+    }
+
     var body: some View {
         VStack(spacing: 0) {
             if !allDayEvents.isEmpty {
@@ -76,6 +80,13 @@ struct DayView: View {
 
                     ZStack(alignment: .topLeading) {
                         gridLines
+                        if isEmptyToday {
+                            Text("Kein Termin heute. Schreib mir, was du planst.")
+                                .font(DS.Typography.caption)
+                                .foregroundStyle(DS.Colors.textTertiary)
+                                .frame(maxWidth: .infinity)
+                                .padding(.top, hourHeight * 3 + 20)
+                        }
                         GeometryReader { geo in
                             let currentSlots = slots
                             ZStack(alignment: .topLeading) {

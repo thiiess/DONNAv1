@@ -137,6 +137,13 @@ private struct ChatMessageList: View {
         ScrollViewReader { proxy in
             ScrollView {
                 LazyVStack(spacing: 8) {
+                    if messages.isEmpty {
+                        Text("Hallo. Was beschäftigt dich heute?")
+                            .font(DS.Typography.body)
+                            .foregroundStyle(DS.Colors.textSecondary)
+                            .frame(maxWidth: .infinity)
+                            .padding(.top, DS.Spacing.section)
+                    }
                     ForEach(messages) { message in
                         MessageBubble(message: message)
                             .id(message.id)
