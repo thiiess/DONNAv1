@@ -23,7 +23,7 @@ struct ProposalDraft {
     /// Event end / wake time.
     var end: Date
     /// Events stored as whole-day markers (all-day or annual) only edit the day.
-    let isWholeDay: Bool
+    private(set) var isWholeDay: Bool
     /// Routines: length in minutes.
     var durationMinutes: Int
 
