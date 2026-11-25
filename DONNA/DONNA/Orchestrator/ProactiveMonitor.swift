@@ -18,6 +18,10 @@ final class ProactiveMonitor {
     static let bgRefreshIdentifier = "com.donna.proactive-refresh"
 
     private let conflictDetector = ConflictDetector()
+    /// Fundament: max. 1 Vorschlag gleichzeitig. Set once a scan has posted a proposal,
+    /// or when an earlier proactive proposal is still unread — detectors run in priority
+    /// order, so the most important open issue wins and the rest waits for a later scan.
+    private var proposalBudgetUsed = false
 
     // MARK: - Background task scheduling
 
@@ -34,6 +38,8 @@ final class ProactiveMonitor {
     /// Full scan: update learned profile + proactive issue detection.
     /// Safe to call on app foreground and from the background refresh handler.
     func run(modelContext: ModelContext) {
+        proposalBudgetUsed = ((try? modelContext.fetch(FetchDescriptor<ChatMessage>())) ?? [])
+            .contains { $0.role == .assistant && $0.outputType == .proposal && !$0.isRead }
         let patterns = runLearningCycle(modelContext: modelContext)
         detectCalendarConflicts(modelContext: modelContext)
         detectSleepDeficitStreak(sleep: patterns.sleep, modelContext: modelContext)
@@ -531,7 +537,7 @@ final class ProactiveMonitor {
 
     private func createProposalIfNew(key: String, content: String, modelContext: ModelContext) {
         var keys = loadSeenKeys()
-        guard keys[key] == nil else { return }
+        guard keys[key] == nil, !proposalBudgetUsed else { return }
 
         let result = CommandHandler(modelContext: modelContext)
             .execute(.postAssistantMessage(content: content, outputType: .proposal))
@@ -539,5 +545,6 @@ final class ProactiveMonitor {
 
         keys[key] = Date().timeIntervalSince1970
         UserDefaults.standard.set(keys, forKey: Self.seenKeysStoreKey)
+        proposalBudgetUsed = true
     }
 }
