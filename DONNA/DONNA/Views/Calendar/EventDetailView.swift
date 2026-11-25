@@ -64,10 +64,15 @@ struct EventDetailView: View {
             footer
         }
         .background(DS.Colors.backgroundPrimary)
-        .confirmationDialog("Termin löschen?",
+        .confirmationDialog(event.seriesID == nil ? "Termin löschen?" : "Serientermin löschen?",
                             isPresented: $showingDeleteConfirmation,
                             titleVisibility: .visible) {
-            Button("Löschen", role: .destructive) { deleteEvent() }
+            if event.seriesID != nil {
+                Button("Nur diesen Termin", role: .destructive) { deleteEvent() }
+                Button("Diesen und alle folgenden", role: .destructive) { deleteFollowing() }
+            } else {
+                Button("Löschen", role: .destructive) { deleteEvent() }
+            }
         }
         .confirmationDialog("Termin ist gesperrt. Trotzdem löschen?",
                             isPresented: $showingLockedDeleteConfirmation,
@@ -373,6 +378,12 @@ struct EventDetailView: View {
 
     private func deleteEvent() {
         _ = CommandHandler(modelContext: modelContext).execute(.deleteEvent(id: event.id))
+        dismiss()
+    }
+
+    private func deleteFollowing() {
+        guard let seriesID = event.seriesID else { return }
+        _ = CommandHandler(modelContext: modelContext).execute(.deleteEventSeries(seriesID: seriesID, from: event.startTime))
         dismiss()
     }
 }

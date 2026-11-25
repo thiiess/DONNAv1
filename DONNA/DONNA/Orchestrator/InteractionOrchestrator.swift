@@ -237,6 +237,10 @@ final class InteractionOrchestrator {
                 start = s
                 end   = e
             }
+            if !(isAllDay || isAnnual),
+               let recurrence = (data["recurrence"] as? String).flatMap(EventRecurrence.init(rawValue:)) {
+                return .createEventSeries(title: title, start: start, end: end, locked: isLocked, notes: notes, recurrence: recurrence)
+            }
             return .createEvent(title: title, start: start, end: end, locked: isLocked, notes: notes, isAnnual: isAnnual)
 
         case "createTask":

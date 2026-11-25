@@ -30,6 +30,8 @@ struct CalendarEventSnapshot {
     let notes: String?
     let createdAt: Date
     let dataLayer: DataLayer
+    let seriesID: UUID?
+    let recurrenceRaw: String?
 }
 
 struct RoutineSnapshot {
@@ -87,6 +89,10 @@ enum DONNASnapshot {
     case created(UndoableModel, id: UUID)
     case task(TaskSnapshot)
     case calendarEvent(CalendarEventSnapshot)
+    /// Several events at once (a recurring series).
+    case calendarEvents([CalendarEventSnapshot])
+    /// Undo of a series create: delete every event of the series.
+    case createdSeries(UUID)
     /// A routine together with every occurrence it had — covers edits that move
     /// occurrences and deletes that cascade.
     case routine(RoutineSnapshot, occurrences: [OccurrenceSnapshot])
@@ -167,6 +173,12 @@ final class DONNAUndoManager {
             restoreTask(snap, context: context)
         case let .calendarEvent(snap):
             restoreCalendarEvent(snap, context: context)
+        case let .calendarEvents(snaps):
+            for snap in snaps { restoreCalendarEvent(snap, context: context) }
+        case let .createdSeries(seriesID):
+            for event in fetch(CalendarEvent.self, context) where event.seriesID == seriesID {
+                context.delete(event)
+            }
         case let .routine(snap, occurrences):
             let routine = restoreRoutine(snap, context: context)
             for occ in occurrences { restoreOccurrence(occ, routine: routine, context: context) }
@@ -227,6 +239,8 @@ final class DONNAUndoManager {
         event.notes = s.notes
         event.createdAt = s.createdAt
         event.dataLayer = s.dataLayer
+        event.seriesID = s.seriesID
+        event.recurrenceRaw = s.recurrenceRaw
     }
 
     private func restoreRoutine(_ s: RoutineSnapshot, context: ModelContext) -> Routine {
@@ -324,7 +338,8 @@ extension CalendarEvent {
         CalendarEventSnapshot(
             id: id, title: title, startTime: startTime, endTime: endTime,
             isLocked: isLocked, isAnnual: isAnnual, notes: notes,
-            createdAt: createdAt, dataLayer: dataLayer
+            createdAt: createdAt, dataLayer: dataLayer,
+            seriesID: seriesID, recurrenceRaw: recurrenceRaw
         )
     }
 }

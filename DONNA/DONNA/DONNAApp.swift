@@ -85,6 +85,7 @@ struct DONNAApp: App {
     private func runProactiveMonitor() {
         let context = sharedModelContainer.mainContext
         _ = CommandHandler(modelContext: context).execute(.purgeOrphanedOccurrences)
+        _ = CommandHandler(modelContext: context).execute(.extendEventSeries)
         let monitor = ProactiveMonitor()
         monitor.run(modelContext: context)
         monitor.generateMorningBriefingIfDue(modelContext: context)

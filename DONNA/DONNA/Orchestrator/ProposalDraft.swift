@@ -166,6 +166,9 @@ struct ProposalDraft {
             let day = Self.dayFormatter.string(from: date)
             if isWholeDay { return "Termin „\(name)“ am \(day), ganztägig." }
             let (s, e) = normalizedEventTimes
+            if let rec = (raw["recurrence"] as? String).flatMap(EventRecurrence.init(rawValue:)) {
+                return "Serientermin „\(name)“ \(rec.label) ab \(day), \(Self.clock(s))–\(Self.clock(e)) Uhr."
+            }
             return "Termin „\(name)“ am \(day) von \(Self.clock(s)) bis \(Self.clock(e)) Uhr."
         case .task:
             return hasDate

@@ -72,6 +72,12 @@ enum DONNACommand {
     case createEvent(title: String, start: Date, end: Date, locked: Bool, notes: String?, isAnnual: Bool = false)
     case updateEvent(id: UUID, changes: EventChanges)
     case deleteEvent(id: UUID)
+    /// Creates a recurring series: one CalendarEvent per occurrence, `eventSeriesHorizonWeeks` ahead.
+    case createEventSeries(title: String, start: Date, end: Date, locked: Bool, notes: String?, recurrence: EventRecurrence)
+    /// Deletes the series instances starting on or after `from` and ends the series there.
+    case deleteEventSeries(seriesID: UUID, from: Date)
+    /// Housekeeping on app start: tops running series up to the horizon. Not undoable.
+    case extendEventSeries
 
     // Routines
     case createRoutine(definition: RoutineDefinition)
@@ -155,6 +161,11 @@ final class CommandHandler {
     private let routineScheduler: RoutineScheduler
     /// Set by create handlers so execute() can register a "delete it again" undo.
     private var createdObject: (UndoableModel, UUID)?
+    /// Set by handleCreateEventSeries — undo deletes the whole new series.
+    private var createdSeries: UUID?
+
+    /// How far ahead recurring series are materialised.
+    static let eventSeriesHorizonWeeks = 12
 
     init(modelContext: ModelContext) {
         self.modelContext = modelContext
@@ -174,11 +185,14 @@ final class CommandHandler {
         let label = undoLabel(for: command)
         let before = label == nil ? nil : captureSnapshot(for: command)
         createdObject = nil
+        createdSeries = nil
 
         let result = dispatch(command)
 
         if case .success = result, let label {
-            if let (kind, id) = createdObject {
+            if let seriesID = createdSeries {
+                undoManager.register(.createdSeries(seriesID), label: label)
+            } else if let (kind, id) = createdObject {
                 undoManager.register(.created(kind, id: id), label: label)
             } else if let before {
                 undoManager.register(before, label: label)
@@ -199,6 +213,8 @@ final class CommandHandler {
         case .createEvent:              return "Termin erstellt"
         case .updateEvent:              return "Termin geändert"
         case .deleteEvent:              return "Termin gelöscht"
+        case .createEventSeries:        return "Terminserie erstellt"
+        case .deleteEventSeries:        return "Terminserie gelöscht"
         case .createRoutine:            return "Routine erstellt"
         case .updateRoutine:            return "Routine geändert"
         case .deleteRoutine:            return "Routine gelöscht"
@@ -211,7 +227,7 @@ final class CommandHandler {
         case .deleteLearnedItem:        return "Präferenz gelöscht"
         case .activateContextMode:      return "Kontextmodus aktiviert"
         case .deactivateContextMode:    return "Kontextmodus beendet"
-        case .purgeOrphanedOccurrences,
+        case .purgeOrphanedOccurrences, .extendEventSeries,
              .postUserMessage, .postAssistantMessage, .markAssistantMessagesRead,
              .clearChatHistory, .dismissBriefing, .undo:
             return nil
@@ -227,6 +243,10 @@ final class CommandHandler {
 
         case let .updateEvent(id, _), let .deleteEvent(id):
             return fetchAll(CalendarEvent.self).first { $0.id == id }.map { .calendarEvent($0.snapshot()) }
+
+        case let .deleteEventSeries(seriesID, _):
+            // Whole series: deleted instances come back and the survivors get their recurrence back.
+            return .calendarEvents(fetchAll(CalendarEvent.self).filter { $0.seriesID == seriesID }.map { $0.snapshot() })
 
         case let .updateRoutine(id, _, _, _, _), let .deleteRoutine(id):
             guard let routine = fetchAll(Routine.self).first(where: { $0.id == id }) else { return nil }
@@ -277,6 +297,12 @@ final class CommandHandler {
             return handleUpdateEvent(id: id, changes: changes)
         case let .deleteEvent(id):
             return handleDeleteEvent(id: id)
+        case let .createEventSeries(title, start, end, locked, notes, recurrence):
+            return handleCreateEventSeries(title: title, start: start, end: end, locked: locked, notes: notes, recurrence: recurrence)
+        case let .deleteEventSeries(seriesID, from):
+            return handleDeleteEventSeries(seriesID: seriesID, from: from)
+        case .extendEventSeries:
+            return handleExtendEventSeries()
 
         case let .createRoutine(definition):
             return handleCreateRoutine(definition: definition)
@@ -473,6 +499,118 @@ final class CommandHandler {
         }
         modelContext.delete(event)
         return persist()
+    }
+
+    // MARK: - Event Series Handlers
+
+    private static func seriesGeneratedUntilKey(_ id: UUID) -> String { "event_series_until_\(id.uuidString)" }
+
+    /// Inserts instances of a series from `first` (inclusive) every `recurrence.intervalWeeks`
+    /// up to the horizon. Instances that would land in a protected sleep window are skipped.
+    /// Returns (created, skipped, overlapping).
+    private func materializeSeries(
+        seriesID: UUID, title: String, first: Date, duration: TimeInterval, locked: Bool,
+        notes: String?, recurrence: EventRecurrence, horizon: Date
+    ) -> (created: Int, skipped: Int, overlaps: Int) {
+        let cal = Calendar.current
+        var created = 0, skipped = 0, overlaps = 0
+        var start = first
+        var lastGenerated: Date?
+        let sleep = fetchSleepWindows()
+        while start <= horizon {
+            let end = start.addingTimeInterval(duration)
+            let check = conflictDetector.checkTimedEvent(start: start, end: end, against: fetchEvents(), sleepWindows: sleep)
+            if check.blockReason != nil {
+                skipped += 1
+            } else {
+                if check.overlapWarning != nil { overlaps += 1 }
+                let event = CalendarEvent(title: title, startTime: start, endTime: end, isLocked: locked, notes: notes)
+                event.seriesID = seriesID
+                event.recurrenceRaw = recurrence.rawValue
+                modelContext.insert(event)
+                created += 1
+            }
+            lastGenerated = start
+            guard let next = cal.date(byAdding: .weekOfYear, value: recurrence.intervalWeeks, to: start) else { break }
+            start = next
+        }
+        if let lastGenerated {
+            UserDefaults.standard.set(lastGenerated.timeIntervalSince1970, forKey: Self.seriesGeneratedUntilKey(seriesID))
+        }
+        return (created, skipped, overlaps)
+    }
+
+    private func seriesHorizon(from date: Date = Date()) -> Date {
+        Calendar.current.date(byAdding: .weekOfYear, value: Self.eventSeriesHorizonWeeks, to: date) ?? date
+    }
+
+    private func handleCreateEventSeries(title: String, start: Date, end: Date, locked: Bool, notes: String?, recurrence: EventRecurrence) -> CommandResult {
+        guard end > start else { return .failure(.validationFailed(reason: "Ende liegt vor dem Beginn.")) }
+        let seriesID = UUID()
+        let result = materializeSeries(
+            seriesID: seriesID, title: title, first: start, duration: end.timeIntervalSince(start),
+            locked: locked, notes: notes, recurrence: recurrence,
+            horizon: max(seriesHorizon(), start)
+        )
+        guard result.created > 0 else {
+            modelContext.rollback()
+            return .blocked(reason: "Alle Termine dieser Serie lägen in deinem Schlaffenster.")
+        }
+        createdSeries = seriesID
+
+        var hints: [String] = []
+        if result.overlaps > 0 {
+            hints.append(result.overlaps == 1
+                ? "Ein Termin der Serie überschneidet sich mit einem anderen Termin."
+                : "\(result.overlaps) Termine der Serie überschneiden sich mit anderen Terminen.")
+        }
+        if result.skipped > 0 {
+            hints.append(result.skipped == 1
+                ? "Ein Termin lag im Schlaffenster und wurde ausgelassen."
+                : "\(result.skipped) Termine lagen im Schlaffenster und wurden ausgelassen.")
+        }
+        return persist(warning: hints.isEmpty ? nil : hints.joined(separator: " "))
+    }
+
+    private func handleDeleteEventSeries(seriesID: UUID, from: Date) -> CommandResult {
+        let cutoff = Calendar.current.startOfDay(for: from)
+        let series = fetchEvents().filter { $0.seriesID == seriesID }
+        guard !series.isEmpty else { return .failure(.notFound(id: seriesID)) }
+        for event in series {
+            if event.startTime >= cutoff {
+                modelContext.delete(event)
+            } else {
+                event.recurrenceRaw = nil   // series ends here, nothing gets re-generated
+            }
+        }
+        return persist()
+    }
+
+    private func handleExtendEventSeries() -> CommandResult {
+        let running = fetchEvents().filter { $0.seriesID != nil && $0.recurrence != nil }
+        let groups = Dictionary(grouping: running) { $0.seriesID! }
+        let horizon = seriesHorizon()
+        let cal = Calendar.current
+        var changed = false
+        for (seriesID, events) in groups {
+            guard let latest = events.max(by: { $0.startTime < $1.startTime }),
+                  let recurrence = latest.recurrence else { continue }
+            // Continue from the last *generated* date, not the last existing instance, so a
+            // deleted single occurrence at the end of the series is not re-created.
+            let stored = UserDefaults.standard.object(forKey: Self.seriesGeneratedUntilKey(seriesID)) as? Double
+            let anchor = max(latest.startTime, stored.map { Date(timeIntervalSince1970: $0) } ?? latest.startTime)
+            guard let next = cal.date(byAdding: .weekOfYear, value: recurrence.intervalWeeks, to: anchor),
+                  next <= horizon else { continue }
+            let result = materializeSeries(
+                seriesID: seriesID, title: latest.title,
+                first: cal.date(bySettingHour: cal.component(.hour, from: latest.startTime),
+                                minute: cal.component(.minute, from: latest.startTime), second: 0, of: next) ?? next,
+                duration: latest.endTime.timeIntervalSince(latest.startTime),
+                locked: latest.isLocked, notes: latest.notes, recurrence: recurrence, horizon: horizon
+            )
+            changed = changed || result.created > 0
+        }
+        return changed ? persist() : .success()
     }
 
     // MARK: - Routine Handlers

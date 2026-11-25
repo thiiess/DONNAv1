@@ -191,10 +191,17 @@ struct DayView: View {
                     .frame(width: 3)
                     .frame(maxHeight: .infinity)
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(event.title)
-                        .font(.caption.weight(.medium))
-                        .foregroundStyle(DS.Colors.textPrimary)
-                        .lineLimit(h > 36 ? 2 : 1)
+                    HStack(spacing: 4) {
+                        if event.recurrence != nil {
+                            Image(systemName: "repeat")
+                                .font(.caption2)
+                                .foregroundStyle(DS.Colors.warmAccent)
+                        }
+                        Text(event.title)
+                            .font(.caption.weight(.medium))
+                            .foregroundStyle(DS.Colors.textPrimary)
+                            .lineLimit(h > 36 ? 2 : 1)
+                    }
                     if h > 48 {
                         Text(event.startTime, format: .dateTime.hour().minute())
                             .font(.caption2.monospacedDigit())

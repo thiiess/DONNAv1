@@ -11,6 +11,11 @@ import SwiftData
     var notes: String?
     var createdAt: Date = Date()
     var dataLayer: DataLayer = DataLayer.hot
+    /// Shared by every instance of a recurring series (V2-S6); nil for one-off events.
+    var seriesID: UUID?
+    /// `EventRecurrence` raw value while the series is running. Cleared on the instances
+    /// that remain when the rest of a series is deleted, which ends the series.
+    var recurrenceRaw: String?
 
     init(id: UUID = UUID(), title: String, startTime: Date, endTime: Date, isLocked: Bool = false, isAnnual: Bool = false, notes: String? = nil, createdAt: Date = Date(), dataLayer: DataLayer = .hot) {
         self.id = id
@@ -24,6 +29,8 @@ import SwiftData
         self.dataLayer = dataLayer
     }
 
+    var recurrence: EventRecurrence? { recurrenceRaw.flatMap(EventRecurrence.init(rawValue:)) }
+
     /// All-day entries carry no flag — they are persisted as 00:00–23:59.
     var spansWholeDay: Bool {
         CalendarEvent.spansWholeDay(start: startTime, end: endTime)
@@ -35,4 +42,13 @@ import SwiftData
         let comps = cal.dateComponents([.hour, .minute], from: end)
         return comps.hour == 23 && comps.minute == 59
     }
+}
+
+/// Simple recurrence for calendar events — deliberately only these two cases (spec V2-S6).
+enum EventRecurrence: String, CaseIterable {
+    case weekly, biweekly
+
+    var intervalWeeks: Int { self == .weekly ? 1 : 2 }
+
+    var label: String { self == .weekly ? "wöchentlich" : "alle 2 Wochen" }
 }

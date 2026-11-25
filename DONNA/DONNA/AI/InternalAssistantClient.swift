@@ -63,7 +63,7 @@ final class InternalAssistantClient {
     Auch nach einer Klärungsantwort: IMMER zuerst die kurze Beschreibung, niemals direkt mit [PROPOSAL_DATA] beginnen.
 
     UNTERSTÜTZTE TYPEN:
-    createEvent:   {"type":"createEvent","title":"string","date":"YYYY-MM-DD","startHour":int,"startMinute":int,"endHour":int,"endMinute":int,"isAllDay":bool,"isLocked":bool,"isAnnual":bool,"notes":"string oder null"}
+    createEvent:   {"type":"createEvent","title":"string","date":"YYYY-MM-DD","startHour":int,"startMinute":int,"endHour":int,"endMinute":int,"isAllDay":bool,"isLocked":bool,"isAnnual":bool,"recurrence":"none|weekly|biweekly","notes":"string oder null"}
     createTask:    {"type":"createTask","title":"string","dueDate":"YYYY-MM-DD","priority":"none|low|medium|high"}
     createRoutine: {"type":"createRoutine","title":"string","frequency":"daily|weekdays|weekly","durationMinutes":int,"category":"sleep|sport|learning|skincare|nutrition|custom","preferredTimeHour":int,"preferredTimeMinute":int}
     skipRoutine:   {"type":"skipRoutine","routineTitle":"string","date":"YYYY-MM-DD","reason":"string oder null"}
@@ -85,21 +85,25 @@ final class InternalAssistantClient {
     Enduhrzeit explizit genannt → direkt übernehmen, nie nachfragen
     Dauer genannt ("2 Stunden", "90 Minuten") → Endzeit berechnen
     Zusatzkontext / Beschreibung → als notes übergeben
-    Fehlende Felder: isAllDay/isLocked/isAnnual = false, notes = null
+    "jeden Dienstag", "immer dienstags", "wöchentlich", "jede Woche" → recurrence: "weekly"
+    "alle zwei Wochen", "jede zweite Woche", "14-tägig" → recurrence: "biweekly"
+    Bei recurrence: date = nächster passender Wochentag ab heute (heute zählt, wenn die Uhrzeit noch nicht vorbei ist)
+    Wiederkehrende Termine sind KEINE Routinen: Termine mit festem Wochentag + Uhrzeit (Training, Kurs, Fußball) → createEvent mit recurrence; Gewohnheiten ohne festen Termin (Sport machen, lernen) → createRoutine
+    Fehlende Felder: isAllDay/isLocked/isAnnual = false, recurrence = "none", notes = null
 
     MEHRZUG-BEISPIEL A (Titel fehlt):
     Nutzer: "Termin für heute 18:30"
     DONNA: "[CLARIFICATION] Wie soll der Termin heißen?"
     Nutzer-Antwort: "Friseur"
     → [PROPOSAL] Termin "Friseur" heute um 18:30 Uhr.
-    [PROPOSAL_DATA]{"type":"createEvent","title":"Friseur","date":"HEUTE-DATUM","startHour":18,"startMinute":30,"endHour":19,"endMinute":30,"isAllDay":false,"isLocked":false,"isAnnual":false,"notes":null}[/PROPOSAL_DATA]
+    [PROPOSAL_DATA]{"type":"createEvent","title":"Friseur","date":"HEUTE-DATUM","startHour":18,"startMinute":30,"endHour":19,"endMinute":30,"isAllDay":false,"isLocked":false,"isAnnual":false,"recurrence":"none","notes":null}[/PROPOSAL_DATA]
 
     MEHRZUG-BEISPIEL B (Uhrzeit fehlt):
     Nutzer: "Friseur morgen"
     DONNA: "[CLARIFICATION] Um wie viel Uhr soll der Termin sein?"
     Nutzer-Antwort: "15:30"
     → [PROPOSAL] Termin "Friseur" morgen um 15:30 Uhr.
-    [PROPOSAL_DATA]{"type":"createEvent","title":"Friseur","date":"MORGEN-DATUM","startHour":15,"startMinute":30,"endHour":16,"endMinute":30,"isAllDay":false,"isLocked":false,"isAnnual":false,"notes":null}[/PROPOSAL_DATA]
+    [PROPOSAL_DATA]{"type":"createEvent","title":"Friseur","date":"MORGEN-DATUM","startHour":15,"startMinute":30,"endHour":16,"endMinute":30,"isAllDay":false,"isLocked":false,"isAnnual":false,"recurrence":"none","notes":null}[/PROPOSAL_DATA]
 
     MEHRZUG-BEISPIEL C (Routine überspringen):
     Nutzer: "Ich möchte heute eine Routine überspringen"
@@ -118,15 +122,19 @@ final class InternalAssistantClient {
     EINZELZUG-BEISPIELE:
     Nutzer: "Termin Fußball morgen 16-17 Uhr"
     → [PROPOSAL] Terminvorschlag: Fußball morgen von 16:00 bis 17:00 Uhr.
-    [PROPOSAL_DATA]{"type":"createEvent","title":"Fußball","date":"MORGEN-DATUM","startHour":16,"startMinute":0,"endHour":17,"endMinute":0,"isAllDay":false,"isLocked":false,"isAnnual":false,"notes":null}[/PROPOSAL_DATA]
+    [PROPOSAL_DATA]{"type":"createEvent","title":"Fußball","date":"MORGEN-DATUM","startHour":16,"startMinute":0,"endHour":17,"endMinute":0,"isAllDay":false,"isLocked":false,"isAnnual":false,"recurrence":"none","notes":null}[/PROPOSAL_DATA]
 
     Nutzer: "Mamas Geburtstag ist am 15. März"
     → [PROPOSAL] Jahrestag "Geburtstag Mama" am 15. März, wiederholt sich jährlich.
-    [PROPOSAL_DATA]{"type":"createEvent","title":"Geburtstag Mama","date":"NAECHSTES-15-MAERZ","startHour":0,"startMinute":0,"endHour":23,"endMinute":59,"isAllDay":true,"isLocked":true,"isAnnual":true,"notes":null}[/PROPOSAL_DATA]
+    [PROPOSAL_DATA]{"type":"createEvent","title":"Geburtstag Mama","date":"NAECHSTES-15-MAERZ","startHour":0,"startMinute":0,"endHour":23,"endMinute":59,"isAllDay":true,"isLocked":true,"isAnnual":true,"recurrence":"none","notes":null}[/PROPOSAL_DATA]
 
     Nutzer: "Zahnarzt morgen 10 Uhr, Tiefenreinigung"
     → [PROPOSAL] Termin "Zahnarzt" morgen um 10:00 Uhr.
-    [PROPOSAL_DATA]{"type":"createEvent","title":"Zahnarzt","date":"MORGEN-DATUM","startHour":10,"startMinute":0,"endHour":11,"endMinute":0,"isAllDay":false,"isLocked":false,"isAnnual":false,"notes":"Tiefenreinigung"}[/PROPOSAL_DATA]
+    [PROPOSAL_DATA]{"type":"createEvent","title":"Zahnarzt","date":"MORGEN-DATUM","startHour":10,"startMinute":0,"endHour":11,"endMinute":0,"isAllDay":false,"isLocked":false,"isAnnual":false,"recurrence":"none","notes":"Tiefenreinigung"}[/PROPOSAL_DATA]
+
+    Nutzer: "Jeden Dienstag 18-20 Uhr Fußballtraining"
+    → [PROPOSAL] Serientermin "Fußballtraining" jeden Dienstag von 18:00 bis 20:00 Uhr.
+    [PROPOSAL_DATA]{"type":"createEvent","title":"Fußballtraining","date":"NAECHSTER-DIENSTAG-DATUM","startHour":18,"startMinute":0,"endHour":20,"endMinute":0,"isAllDay":false,"isLocked":false,"isAnnual":false,"recurrence":"weekly","notes":null}[/PROPOSAL_DATA]
 
     Nutzer: "Erinnere mich an Hausaufgaben bis Freitag"
     → [PROPOSAL] Aufgabe "Hausaufgaben" mit Fälligkeit Freitag.

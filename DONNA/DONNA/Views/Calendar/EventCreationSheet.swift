@@ -15,6 +15,8 @@ struct EventCreationSheet: View {
     @State private var isAllDay = false
     @State private var isLocked = false
     @State private var isAnnual = false
+    /// nil = einmalig.
+    @State private var recurrence: EventRecurrence? = nil
     @State private var notes = ""
     @State private var showingDatePicker = false
     @State private var showingTimePicker = false
@@ -255,6 +257,25 @@ struct EventCreationSheet: View {
                     .padding(.bottom, 12)
                     .opacity(isAnnual ? 1 : 0)
             }
+            if !isAllDay && !isAnnual {
+                Divider()
+                HStack {
+                    Text("Wiederholen")
+                        .foregroundStyle(DS.Colors.textPrimary)
+                    Spacer()
+                    Picker("Wiederholen", selection: $recurrence) {
+                        Text("Nie").tag(EventRecurrence?.none)
+                        ForEach(EventRecurrence.allCases, id: \.self) { rec in
+                            Text(rec.label.capitalized).tag(EventRecurrence?.some(rec))
+                        }
+                    }
+                    .labelsHidden()
+                    .pickerStyle(.menu)
+                    .tint(DS.Colors.warmAccent)
+                    .fixedSize()
+                }
+                .padding(.vertical, 12)
+            }
         }
     }
 
@@ -317,6 +338,17 @@ struct EventCreationSheet: View {
         } else {
             actualStart = startTime
             actualEnd   = endTime
+        }
+
+        if let recurrence, !isAllDay, !isAnnual {
+            _ = CommandHandler(modelContext: modelContext).execute(
+                .createEventSeries(
+                    title: trimmed, start: actualStart, end: actualEnd,
+                    locked: isLocked, notes: notes.isEmpty ? nil : notes,
+                    recurrence: recurrence
+                )
+            )
+            return
         }
 
         _ = CommandHandler(modelContext: modelContext).execute(
