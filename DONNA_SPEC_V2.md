@@ -561,6 +561,19 @@ Bevor ein neues Feature in eine Spec aufgenommen wird, muss es diese Fragen best
 - [x] V2-S7 Leere Zustände als Einladung (Kalender heute, Aufgaben, Routinen, Chat)
 - [x] Monatsansicht: Tag antippen öffnet ihn; Wochentage folgen der Regionseinstellung (vorher bei Wochenbeginn Montag verschoben)
 
+### Spec-Analyse 25.11. — Logikfehler
+- [x] Schlafschutz galt nur für die Nacht, in der das Schlaffenster angelegt wurde (absolute Daten) — jetzt tägliches Muster, das neueste Fenster gilt für jede Nacht
+- [x] Routinen endeten nach 30 Tagen (Occurrences nur beim Anlegen erzeugt) — `.extendRoutineOccurrences` beim App-Start hält 30 Tage vorrätig
+- [x] Proaktive Konflikt-Hinweise fluteten den Chat (ganztägige Termine überschnitten sich mit allem, Serien je Instanz) — nur noch zeitgebundene Termine der nächsten 7 Tage, eine Nachricht pro Durchlauf
+- [x] Streak-Zähler in der Routinenliste widersprach dem Fundament — entfernt
+- [ ] **Keine einzige Erinnerung:** `scheduleTaskReminder`/`scheduleRoutineReminder`/`scheduleSleepWarning` werden nirgends aufgerufen. Für die Zielgruppe die wichtigste Lücke; lokale Notifications brauchen keinen bezahlten Account
+- [ ] Proaktive Vorschläge sind reiner Text ohne Knöpfe — „nachholen / überspringen / neu planen" muss getippt werden, Gemini kennt die Routine dabei nicht
+- [ ] „Maximal 1 Vorschlag gleichzeitig" wird von ProactiveMonitor insgesamt nicht durchgesetzt (mehrere Detektoren pro Scan)
+- [ ] V2-S11-Tonregeln (max. 2 Sätze, keine Ausrufezeichen) fehlen im System-Prompt
+- [ ] Kein Test-Target — V2-S1 „Test-Coverage erhöhen" offen; `ScienceEngineTests.swift` wird nicht gebaut
+- [ ] Spec-Widerspruch: Morgenbriefing soll „Schlafqualität letzte Nacht" nennen — messbar erst mit Apple Health (V2-S10)
+- [ ] In keiner Spec: Datensicherung/Export (ohne CloudKit nur lokal), Verhalten ohne Gemini-Schlüssel/offline, Barrierefreiheit (VoiceOver, Dynamic Type)
+
 ### V2-S7 (DONNA-Tab Redesign)
 - [x] Bearbeiten-Sheet / Routine-Detail blockiert den Tab-Wechsel — behoben über `.id(selectedTab)` auf der NavigationSplitView (14.07.); ein offenes Sheet ist auf macOS bewusst modal
 - [x] Onboarding-Farbschema-Bug — behoben (25.11.): `DS.Colors.accent` zeigte auf das alte blaue `AccentColor`-Asset aus V1; jetzt Alias auf `warmAccent`, Asset ebenfalls auf #C4783C/#E8A06A
