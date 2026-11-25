@@ -65,6 +65,16 @@ struct DONNAApp: App {
         .modelContainer(sharedModelContainer)
         #if os(macOS)
         .defaultSize(width: 1000, height: 720)
+        .commands {
+            // Keeps undo reachable after the toast has faded — until the next action.
+            CommandGroup(after: .undoRedo) {
+                Button(DONNAUndoManager.shared.actionLabel.map { "Rückgängig: \($0)" } ?? "Letzte DONNA-Aktion rückgängig") {
+                    _ = CommandHandler(modelContext: sharedModelContainer.mainContext).execute(.undo)
+                }
+                .keyboardShortcut("z", modifiers: [.command, .shift])
+                .disabled(!DONNAUndoManager.shared.canUndo)
+            }
+        }
         #endif
         #if os(iOS)
         .backgroundTask(.appRefresh(ProactiveMonitor.bgRefreshIdentifier)) {

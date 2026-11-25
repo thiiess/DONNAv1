@@ -26,9 +26,6 @@ struct UndoToastView: View {
                             .buttonStyle(.plain)
                             .font(.callout.weight(.semibold))
                             .foregroundStyle(DS.Colors.warmAccent)
-                            #if os(macOS)
-                            .keyboardShortcut("z", modifiers: [.command, .shift])
-                            #endif
                     }
                 }
                 .padding(.horizontal, 16)
@@ -45,7 +42,7 @@ struct UndoToastView: View {
             errorText = nil
             visible = true
             // Long enough to react to an action, short for the "rückgängig gemacht" confirmation.
-            let seconds: Double = undo.canUndo ? 6 : 2.5
+            let seconds: Double = undo.canUndo ? 8 : 2.5
             try? await Swift.Task.sleep(for: .seconds(seconds))
             visible = false
         }
