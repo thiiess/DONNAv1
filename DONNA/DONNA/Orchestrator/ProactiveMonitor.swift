@@ -40,6 +40,73 @@ final class ProactiveMonitor {
         detectForgottenRoutines(modelContext: modelContext)
         detectRecoveryPattern(modelContext: modelContext)
         detectSomedayStack(modelContext: modelContext)
+        detectRepeatedEvents(modelContext: modelContext)
+        postNightNoteIfLate(modelContext: modelContext)
+    }
+
+    // MARK: - Repeated one-off events → series (V2-S5)
+
+    private static let askedPatternsKey = "pattern_series_asked"
+
+    /// The same event title on the same weekday at the same hour 3+ times in the last six
+    /// weeks, entered as one-offs → ask once whether it should become a series.
+    private func detectRepeatedEvents(modelContext: ModelContext, now: Date = Date()) {
+        let cal = Calendar.current
+        let from = cal.date(byAdding: .day, value: -42, to: now) ?? now
+        let events = ((try? modelContext.fetch(FetchDescriptor<CalendarEvent>())) ?? [])
+            .filter { $0.seriesID == nil && !$0.isAnnual && !$0.spansWholeDay
+                && $0.startTime >= from && $0.startTime <= now }
+
+        struct Pattern: Hashable { let title: String; let weekday: Int; let hour: Int }
+        let groups = Dictionary(grouping: events) {
+            Pattern(title: $0.title.trimmingCharacters(in: .whitespaces).lowercased(),
+                    weekday: cal.component(.weekday, from: $0.startTime),
+                    hour: cal.component(.hour, from: $0.startTime))
+        }
+
+        var asked = Set(UserDefaults.standard.stringArray(forKey: Self.askedPatternsKey) ?? [])
+        for (pattern, matches) in groups where matches.count >= 3 {
+            // Distinct weeks only — three entries on one day are not a weekly habit.
+            let weeks = Set(matches.map { cal.component(.weekOfYear, from: $0.startTime) })
+            guard weeks.count >= 3 else { continue }
+            let key = "\(pattern.title)|\(pattern.weekday)|\(pattern.hour)"
+            guard !asked.contains(key), let sample = matches.max(by: { $0.startTime < $1.startTime }) else { continue }
+
+            let weekday = Self.weekdayName(sample.startTime)
+            let time = Self.briefingTimeFormatter.string(from: sample.startTime)
+            let content = "Du trägst „\(sample.title)“ jede Woche \(weekday)s ein. Soll ich das als Serientermin anlegen? Sag einfach: „Jeden \(weekday.capitalized) \(time) Uhr \(sample.title)“."
+            let result = CommandHandler(modelContext: modelContext)
+                .execute(.postAssistantMessage(content: content, outputType: .proposal))
+            if case .success = result {
+                asked.insert(key)   // asked once — never again (spec V2-S5)
+            }
+        }
+        UserDefaults.standard.set(Array(asked), forKey: Self.askedPatternsKey)
+    }
+
+    private static func weekdayName(_ date: Date) -> String {
+        let f = DateFormatter()
+        f.locale = Locale(identifier: "de_DE")
+        f.dateFormat = "EEEE"
+        return f.string(from: date).lowercased()
+    }
+
+    // MARK: - Night note (V2-S7)
+
+    private static let nightNoteKey = "night_note_shown"
+
+    /// After 22:00 DONNA says once that planning can wait until morning — then never again.
+    private func postNightNoteIfLate(modelContext: ModelContext, now: Date = Date()) {
+        let hour = Calendar.current.component(.hour, from: now)
+        guard hour >= 22 || hour < 5,
+              !UserDefaults.standard.bool(forKey: Self.nightNoteKey) else { return }
+        let result = CommandHandler(modelContext: modelContext).execute(.postAssistantMessage(
+            content: "Es ist spät. Du kannst mir auch morgen früh sagen, was du planst.",
+            outputType: .interpretation
+        ))
+        if case .success = result {
+            UserDefaults.standard.set(true, forKey: Self.nightNoteKey)
+        }
     }
 
     // MARK: - Someday stack (V2-S6)

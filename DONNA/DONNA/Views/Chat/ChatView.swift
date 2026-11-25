@@ -8,6 +8,8 @@ struct ChatView: View {
     @State private var orchestrator: InteractionOrchestrator? = nil
     @State private var inputText = ""
     @State private var isSending = false
+    /// The in-flight request, so the Stopp button can cancel it.
+    @State private var sendTask: Swift.Task<Void, Never>?
 
     var body: some View {
         VStack(spacing: 0) {
@@ -35,6 +37,18 @@ struct ChatView: View {
                     Text("DONNA denkt …")
                         .font(.caption)
                         .foregroundStyle(DS.Colors.textSecondary)
+                    Spacer()
+                    Button {
+                        sendTask?.cancel()
+                    } label: {
+                        Label("Stopp", systemImage: "stop.fill")
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(DS.Colors.warmAccent)
+                    }
+                    .buttonStyle(.plain)
+                    #if os(macOS)
+                    .keyboardShortcut(.escape, modifiers: [])
+                    #endif
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal)
@@ -99,10 +113,11 @@ struct ChatView: View {
 
         _ = CommandHandler(modelContext: modelContext).execute(.postUserMessage(content: text))
 
-        Swift.Task { @MainActor in
+        sendTask = Swift.Task { @MainActor in
             await orchestrator.process(userInput: text, conversationHistory: history)
             persistAssistantResponse(orchestrator: orchestrator)
             isSending = false
+            sendTask = nil
         }
     }
 

@@ -93,6 +93,12 @@ final class InteractionOrchestrator {
                 conversationHistory: conversationHistory
             )
         } catch {
+            // Stop button (V2-S4): cancelling the Swift.Task cancels the URLSession request.
+            if Swift.Task.isCancelled || (error as? URLError)?.code == .cancelled {
+                lastAssistantMessage = "Abgebrochen."
+                phase = .idle
+                return
+            }
             var msg = error.localizedDescription
             #if DEBUG
             if let ae = error as? AssistantError, case .apiError(let code, _) = ae {
