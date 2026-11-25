@@ -19,6 +19,7 @@ struct SettingsView: View {
     @AppStorage("donna_science_learning") private var scienceLearning = true
     @AppStorage("donna_science_general")  private var scienceGeneral  = true
 
+    @AppStorage(DONNATheme.storageKey) private var themeRaw = DONNATheme.default.rawValue
     @AppStorage("donna_briefing_enabled") private var briefingEnabled = false
     @AppStorage("donna_briefing_time")    private var briefingTimeInterval: Double = {
         var c = DateComponents(); c.hour = 7; c.minute = 30
@@ -47,6 +48,7 @@ struct SettingsView: View {
     var body: some View {
         NavigationStack {
             Form {
+                erscheinungsbildSection
                 learnedProfileSection
                 wissenschaftSection
                 kontextmodusSection
@@ -176,7 +178,7 @@ struct SettingsView: View {
                                 RoundedRectangle(cornerRadius: DS.Radius.chip)
                                     .fill(isActive ? DS.Colors.warmAccent : DS.Colors.backgroundTertiary)
                             )
-                            .foregroundStyle(isActive ? .white : DS.Colors.textSecondary)
+                            .foregroundStyle(isActive ? DS.Colors.onAccent : DS.Colors.textSecondary)
                     }
                     .buttonStyle(.plain)
                     .animation(DS.animation, value: isActive)
@@ -275,6 +277,53 @@ struct SettingsView: View {
                 }
             }
         }
+    }
+
+    // MARK: - Erscheinungsbild
+
+    private var erscheinungsbildSection: some View {
+        Section {
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 76), spacing: 12)], spacing: 12) {
+                ForEach(DONNATheme.allCases) { theme in
+                    let isOn = theme.rawValue == themeRaw
+                    Button {
+                        withAnimation(DS.animation) { themeRaw = theme.rawValue }
+                    } label: {
+                        VStack(spacing: 6) {
+                            ZStack {
+                                Circle().fill(theme.surface)
+                                Circle().fill(theme.accent).padding(9)
+                                if isOn {
+                                    Image(systemName: "checkmark")
+                                        .font(.caption.weight(.bold))
+                                        .foregroundStyle(DS.Colors.onAccent)
+                                }
+                            }
+                            .frame(width: 44, height: 44)
+                            .overlay(Circle().stroke(isOn ? theme.accent : Color.clear, lineWidth: 2).padding(-3))
+                            Text(theme.name)
+                                .font(.caption)
+                                .foregroundStyle(isOn ? DS.Colors.textPrimary : DS.Colors.textSecondary)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Farbthema \(theme.name)")
+                    .accessibilityAddTraits(isOn ? .isSelected : [])
+                }
+            }
+            .padding(.vertical, 6)
+        } header: {
+            Text("Erscheinungsbild")
+                .foregroundStyle(DS.Colors.warmAccent)
+                .font(.caption.weight(.semibold))
+                .textCase(nil)
+        } footer: {
+            Text("Färbt Akzente und Flächen in ganz DONNA.")
+                .foregroundStyle(DS.Colors.textTertiary)
+        }
+        .listRowBackground(DS.Colors.backgroundSecondary)
     }
 
     // MARK: - Wochenrückblick

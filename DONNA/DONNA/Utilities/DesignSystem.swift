@@ -1,5 +1,54 @@
 import SwiftUI
 
+// MARK: - Themes
+
+/// User-selectable colour themes (Einstellungen → Erscheinungsbild). DONNA runs in dark
+/// mode; each theme tints the surfaces slightly towards its accent so the app reads as
+/// one warm, calm space instead of stock system grey.
+enum DONNATheme: String, CaseIterable, Identifiable {
+    case bernstein, salbei, ozean, lavendel, koralle, graphit
+
+    static let storageKey = "donna_theme"
+    static let `default`: DONNATheme = .bernstein
+
+    /// Read on every access, so views pick up a change on their next render. The app
+    /// root re-creates the view tree when the stored theme changes (see DONNAApp).
+    static var current: DONNATheme {
+        UserDefaults.standard.string(forKey: storageKey).flatMap(DONNATheme.init(rawValue:)) ?? .default
+    }
+
+    var id: String { rawValue }
+
+    var name: String {
+        switch self {
+        case .bernstein: return "Bernstein"
+        case .salbei:    return "Salbei"
+        case .ozean:     return "Ozean"
+        case .lavendel:  return "Lavendel"
+        case .koralle:   return "Koralle"
+        case .graphit:   return "Graphit"
+        }
+    }
+
+    /// (accent, background, surface, elevated, bubble)
+    private var palette: (String, String, String, String, String) {
+        switch self {
+        case .bernstein: return ("#E8A06A", "#16120F", "#211B17", "#2B231E", "#2E241F")
+        case .salbei:    return ("#94C4A0", "#111512", "#1A201C", "#222A25", "#1F2B23")
+        case .ozean:     return ("#74B6D6", "#101419", "#182029", "#202A34", "#1A2834")
+        case .lavendel:  return ("#BBA6E6", "#14121D", "#1E1B29", "#272334", "#262137")
+        case .koralle:   return ("#F0907F", "#171111", "#231A19", "#2D2220", "#33211F")
+        case .graphit:   return ("#D9D4CC", "#111111", "#1B1B1B", "#252525", "#292929")
+        }
+    }
+
+    var accent: Color     { Color(hex: palette.0) }
+    var background: Color { Color(hex: palette.1) }
+    var surface: Color    { Color(hex: palette.2) }
+    var elevated: Color   { Color(hex: palette.3) }
+    var bubble: Color     { Color(hex: palette.4) }
+}
+
 // MARK: - Design System
 
 enum DS {
@@ -7,9 +56,10 @@ enum DS {
     // MARK: Colors
 
     enum Colors {
-        static let backgroundPrimary    = Color("BackgroundPrimary")
-        static let backgroundSecondary  = Color("BackgroundSecondary")
-        static let backgroundTertiary   = Color("BackgroundTertiary")
+        // Surfaces follow the selected theme (see DONNATheme).
+        static var backgroundPrimary: Color   { DONNATheme.current.background }
+        static var backgroundSecondary: Color { DONNATheme.current.surface }
+        static var backgroundTertiary: Color  { DONNATheme.current.elevated }
         /// Legacy alias from V1 (was the blue AccentColor asset). Points at the warm
         /// brand accent so older views (onboarding, routine status) match the rest of the app.
         static var accent: Color { warmAccent }
@@ -20,29 +70,26 @@ enum DS {
         static let success              = Color("Success")
         static let separator            = Color("LineSeparator")
 
-        // Warm brand palette
-        static let warmAccent     = Color(light: Color(hex: "#C4783C"), dark: Color(hex: "#E8A06A"))
+        // Brand palette — the accent follows the selected theme. The name `warmAccent`
+        // stays for compatibility; it is "the accent", whatever the theme.
+        static var warmAccent: Color { DONNATheme.current.accent }
+        /// Text/icons on an accent-filled background (dark — the accents are light tones).
+        static let onAccent       = Color(hex: "#15110E")
         static let warmLight      = Color(hex: "#F5E6D8")
         static let warmDark       = Color(hex: "#6B3410")
         static let darkBackground = Color(hex: "#2A2420")
         static let darkSurface    = Color(hex: "#E8A06A")
 
-        static var appBackground: Color {
-            #if os(macOS)
-            Color(NSColor.windowBackgroundColor)
-            #else
-            Color(UIColor.systemBackground)
-            #endif
-        }
+        static var appBackground: Color { DONNATheme.current.background }
 
-        static let donnaBubbleBg = Color(light: Color(hex: "#F5E6D8"), dark: Color(hex: "#2E2420"))
-        static let donnaBubbleFg = Color(light: Color(hex: "#6B3410"), dark: Color(hex: "#E8A06A"))
+        static var donnaBubbleBg: Color { DONNATheme.current.bubble }
+        static var donnaBubbleFg: Color { DONNATheme.current.accent }
 
         static func category(_ cat: RoutineCategory) -> Color {
             switch cat {
             case .sleep:     return Color(hex: "#5E5CE6")
             case .sport:     return Color(hex: "#FF6B35")
-            case .learning:  return Color("AccentColor")
+            case .learning:  return Color(hex: "#5AA9E6")
             case .skincare:  return Color(hex: "#BF5AF2")
             case .nutrition: return Color(hex: "#30D158")
             case .custom:    return Color("TextTertiary")
@@ -61,10 +108,12 @@ enum DS {
 
     // MARK: Typography
 
+    /// Headings use a serif — DONNA's own handwriting, closer to a paper planner than to
+    /// a stock settings screen. Body text stays sans for legibility.
     enum Typography {
-        static let title:      Font = .largeTitle.weight(.semibold)
-        static let heading:    Font = .title2.weight(.semibold)
-        static let subheading: Font = .headline.weight(.medium)
+        static let title:      Font = .system(.largeTitle, design: .serif).weight(.semibold)
+        static let heading:    Font = .system(.title2, design: .serif).weight(.semibold)
+        static let subheading: Font = .system(.headline, design: .serif).weight(.medium)
         static let body:       Font = .body.weight(.regular)
         static let caption:    Font = .caption.weight(.regular)
     }
@@ -80,7 +129,7 @@ enum DS {
     // MARK: Corner Radius
 
     enum Radius {
-        static let card:   CGFloat = 12
+        static let card:   CGFloat = 14
         static let chip:   CGFloat = 8
         static let button: CGFloat = 999
     }

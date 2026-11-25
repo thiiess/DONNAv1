@@ -6,11 +6,11 @@ private enum AppTab: String, CaseIterable {
 
     var title: String {
         switch self {
-        case .calendar: return "Calendar"
-        case .tasks:    return "Tasks"
-        case .routines: return "Routines"
+        case .calendar: return "Kalender"
+        case .tasks:    return "Aufgaben"
+        case .routines: return "Routinen"
         case .donna:    return "DONNA"
-        case .settings: return "Settings"
+        case .settings: return "Einstellungen"
         }
     }
 
@@ -27,30 +27,45 @@ private enum AppTab: String, CaseIterable {
 
 struct ContentView: View {
     #if os(macOS)
-    @State private var selectedTab: AppTab = .calendar
+    // SceneStorage survives the view-tree rebuild a theme change triggers (DONNAApp .id).
+    @SceneStorage("donna_selected_tab") private var selectedTab: AppTab = .calendar
     #endif
 
     var body: some View {
         #if os(iOS)
         TabView {
-            CalendarView()
-                .tabItem { Label("Calendar", systemImage: "calendar") }
-            TaskListView()
-                .tabItem { Label("Tasks", systemImage: "checkmark.circle") }
-            RoutineListView()
-                .tabItem { Label("Routines", systemImage: "arrow.clockwise") }
+            // DONNA first on the phone: the chat is the front door, the lists are the filing cabinet.
             ChatView()
                 .tabItem { Label("DONNA", systemImage: "bubble.left.and.bubble.right") }
                 .modifier(UnreadTabBadge())
+            CalendarView()
+                .tabItem { Label("Kalender", systemImage: "calendar") }
+            TaskListView()
+                .tabItem { Label("Aufgaben", systemImage: "checkmark.circle") }
+            RoutineListView()
+                .tabItem { Label("Routinen", systemImage: "arrow.clockwise") }
             SettingsView()
-                .tabItem { Label("Settings", systemImage: "gear") }
+                .tabItem { Label("Mehr", systemImage: "slider.horizontal.3") }
         }
         .tint(DS.Colors.warmAccent)
         .overlay(alignment: .bottom) { UndoToastView().padding(.bottom, 72) }
         #else
         NavigationSplitView {
             ScrollView {
-                VStack(spacing: 2) {
+                VStack(alignment: .leading, spacing: 2) {
+                    // Wordmark — DONNA's own signature instead of a stock title.
+                    HStack(alignment: .firstTextBaseline, spacing: 3) {
+                        Text("Donna")
+                            .font(.system(size: 26, weight: .semibold, design: .serif))
+                            .foregroundStyle(DS.Colors.textPrimary)
+                        Circle()
+                            .fill(DS.Colors.warmAccent)
+                            .frame(width: 7, height: 7)
+                    }
+                    .padding(.horizontal, 12)
+                    .padding(.top, 4)
+                    .padding(.bottom, 14)
+
                     ForEach(AppTab.allCases, id: \.self) { tab in
                         Button {
                             selectedTab = tab
@@ -85,9 +100,8 @@ struct ContentView: View {
                 .padding(.horizontal, 8)
                 .padding(.vertical, 8)
             }
-            .background(DS.Colors.appBackground)
+            .background(DS.Colors.backgroundSecondary)
             .navigationSplitViewColumnWidth(min: 180, ideal: 220, max: 280)
-            .navigationTitle("DONNA")
         } detail: {
             switch selectedTab {
             case .calendar: CalendarView()
@@ -133,7 +147,7 @@ private struct SidebarUnreadBadge: View {
                 .padding(.horizontal, 6)
                 .padding(.vertical, 2)
                 .background(DS.Colors.warmAccent, in: Capsule())
-                .foregroundStyle(.white)
+                .foregroundStyle(DS.Colors.onAccent)
         }
     }
 }

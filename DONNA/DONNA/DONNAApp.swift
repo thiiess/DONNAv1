@@ -14,6 +14,8 @@ import BackgroundTasks
 @main
 struct DONNAApp: App {
     @AppStorage("donna_onboarding_completed") private var onboardingCompleted = false
+    /// Changing the theme rebuilds the view tree so every DS colour is read fresh.
+    @AppStorage(DONNATheme.storageKey) private var themeRaw = DONNATheme.default.rawValue
 
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
@@ -39,6 +41,8 @@ struct DONNAApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .id(themeRaw)
+                .tint(DS.Colors.warmAccent)
                 .preferredColorScheme(.dark)
                 #if os(macOS)
                 // Bound the root view so AppKit's window-sizes-to-content behavior

@@ -245,7 +245,7 @@ struct OnboardingView: View {
                         Image(systemName: "chevron.right")
                     }
                     .font(.callout.weight(.semibold))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(DS.Colors.onAccent)
                     .padding(.horizontal, DS.Spacing.horizontal)
                     .padding(.vertical, 12)
                     .background(DS.Colors.accent)
@@ -256,7 +256,7 @@ struct OnboardingView: View {
                 Button(action: finish) {
                     Text("Loslegen")
                         .font(.callout.weight(.semibold))
-                        .foregroundStyle(.white)
+                        .foregroundStyle(DS.Colors.onAccent)
                         .padding(.horizontal, DS.Spacing.horizontal)
                         .padding(.vertical, 12)
                         .background(DS.Colors.accent)
