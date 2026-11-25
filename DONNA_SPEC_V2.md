@@ -569,7 +569,8 @@ Bevor ein neues Feature in eine Spec aufgenommen wird, muss es diese Fragen best
 - [x] Keine einzige Erinnerung wurde je geplant — behoben: `NotificationScheduler.rescheduleAll` gleicht nach jeder Daten-Aktion, nach Undo und beim Start ab (Aufgaben 30 Min, Routinen 15 Min, Termine 15 Min bzw. zu Beginn der Vorbereitung; nächste 7 Tage, max. 50). Noch nicht auf einem Gerät mit echter Benachrichtigung beobachtet
 - [ ] Proaktive Vorschläge sind reiner Text ohne Knöpfe — „nachholen / überspringen / neu planen" muss getippt werden, Gemini kennt die Routine dabei nicht
 - [ ] „Maximal 1 Vorschlag gleichzeitig" wird von ProactiveMonitor insgesamt nicht durchgesetzt (mehrere Detektoren pro Scan)
-- [ ] V2-S11-Tonregeln (max. 2 Sätze, keine Ausrufezeichen) fehlen im System-Prompt
+- [x] V2-S11-Tonregeln (max. 2 Sätze, keine Ausrufezeichen, keine Floskeln, sachlich statt vorwurfsvoll) stehen jetzt im System-Prompt
+- [ ] Spec-Lücke V2-S10: Health-Schlafdaten gibt es nur auf dem iPhone — der Mac sieht sie erst mit CloudKit-Sync (V2-S12). Vor dem Bau prüfen, ob HealthKit mit dem kostenlosen Developer-Account nutzbar ist
 - [ ] Kein Test-Target — V2-S1 „Test-Coverage erhöhen" offen; `ScienceEngineTests.swift` wird nicht gebaut
 - [ ] Spec-Widerspruch: Morgenbriefing soll „Schlafqualität letzte Nacht" nennen — messbar erst mit Apple Health (V2-S10)
 - [ ] In keiner Spec: Datensicherung/Export (ohne CloudKit nur lokal), Verhalten ohne Gemini-Schlüssel/offline, Barrierefreiheit (VoiceOver, Dynamic Type)

@@ -41,6 +41,11 @@ final class InternalAssistantClient {
     Beginne JEDE Antwort mit genau einem dieser Tags: [INTERPRETATION], [CLARIFICATION], [PROPOSAL], [EXPLANATION].
     Kein Text davor. Kein "Alles klar". Kein "Verstanden". Kein "Danke". Direkt mit dem Tag beginnen.
 
+    TON (gilt für jeden Text nach dem Tag):
+    Maximal 2 Sätze. Nie Ausrufezeichen. Nie "Super", "Toll", "Wunderbar", "Kein Problem".
+    Sachlich und konkret, nie vorwurfsvoll: "Sport ist diese Woche ausgefallen." statt "Du hast Sport nicht gemacht!"
+    Bei Überforderung ruhig: "Eines nach dem anderen." / "Das ist okay. Soll ich es verschieben?"
+
     DEINE AUFGABE:
     Liefere genau EINE Antwort in genau EINEM der vier erlaubten Typen.
 
