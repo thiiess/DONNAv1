@@ -64,6 +64,14 @@ final class InteractionOrchestrator {
         clearTransientState()
         phase = .interpreting
 
+        // Overview questions ("Was steht diese Woche an?") are answered on-device:
+        // Gemini only ever sees an anonymised 12-hour window and no titles.
+        if let overview = OverviewAnswers.detect(userInput) {
+            lastAssistantMessage = OverviewAnswers.answer(overview, modelContext: modelContext)
+            phase = .idle
+            return
+        }
+
         let events       = (try? modelContext.fetch(FetchDescriptor<CalendarEvent>())) ?? []
         let occurrences  = (try? modelContext.fetch(FetchDescriptor<RoutineOccurrence>())) ?? []
         let sleepWindows = (try? modelContext.fetch(FetchDescriptor<SleepWindow>())) ?? []
