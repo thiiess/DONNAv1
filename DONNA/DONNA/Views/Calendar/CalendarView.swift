@@ -43,8 +43,14 @@ struct CalendarView: View {
                     WeekView(weekStart: weekStart)
                         .background(DS.Colors.appBackground)
                 case .month:
-                    MonthView(month: selectedDate)
-                        .background(DS.Colors.appBackground)
+                    MonthView(month: selectedDate) { day in
+                        // Tapping a day opens it in the day view.
+                        withAnimation(DS.animation) {
+                            selectedDate = day
+                            calendarMode = .day
+                        }
+                    }
+                    .background(DS.Colors.appBackground)
                 }
             }
             .background(DS.Colors.appBackground)
@@ -257,12 +263,19 @@ private struct WeekDayRow: View {
 
 private struct MonthView: View {
     let month: Date
+    var onSelectDay: (Date) -> Void = { _ in }
 
     @Query private var allEvents: [CalendarEvent]
     @Query private var allOccurrences: [RoutineOccurrence]
 
     private let columns = Array(repeating: GridItem(.flexible(), spacing: 2), count: 7)
-    private let weekdaySymbols = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"]
+    /// German two-letter weekday names, rotated to the calendar's first weekday so the
+    /// header lines up with `gridDays` (Monday-first in German regions, Sunday-first in US).
+    private var weekdaySymbols: [String] {
+        let symbols = ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"]
+        let first = Calendar.current.firstWeekday - 1
+        return Array(symbols[first...] + symbols[..<first])
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -283,6 +296,8 @@ private struct MonthView: View {
                     ForEach(gridDays.indices, id: \.self) { i in
                         if let day = gridDays[i] {
                             MonthDayCell(day: day, hasEvents: hasActivity(on: day))
+                                .contentShape(Rectangle())
+                                .onTapGesture { onSelectDay(day) }
                         } else {
                             Color.clear.frame(height: 44)
                         }
