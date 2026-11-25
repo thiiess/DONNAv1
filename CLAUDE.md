@@ -71,8 +71,11 @@ Source of truth for open bugs: `DONNA_SPEC_V2.md` → „Bekannter Stand". Short
 - **V2-S1 Code-Cleanup**: ✅ DONE — no ChatMessage/SwiftData write bypasses CommandHandler anymore; every handler saves via `persist()`
 - **V2-S2**: ✅ Morgenbriefing + Wochenrückblick (Sunday, Settings toggle, DEBUG button)
 - **V2-S3**: ✅ Undo (one level, every data command, toast + Bearbeiten → „Rückgängig: …" ⇧⌘Z). Erschöpfungs-Modus + Kontext-Gedächtnis open
-- **V2-S4**: ✅ clarification flow + inline „Ändern" on proposals. Stop button / edit last message / regenerate / dictation open
-- **V2-S6**: ✅ conflict detection, overlap lanes, recurring events (weekly/biweekly). prepTime/Someday/dependencies open
+- **V2-S4**: ✅ clarification flow + inline „Ändern" on proposals + Stopp button (Esc). Edit last message / regenerate / dictation open
+- **V2-S5**: repeated one-off event (3 distinct weeks, same weekday+hour) → one-time series hint. Energy profile / sport intelligence open
+- **V2-S3 Erschöpfungs-Modus**: ✅ recovery day via chat (`exhaustion_day_<date>` preference, not a ContextMode)
+- **V2-S6**: ✅ conflict detection, overlap lanes, recurring events (weekly/biweekly), Someday stack. prepTime/dependencies open
+- **V2-S7**: ✅ themes + own visual identity, inviting empty states, night note. Micro-interactions open
 - **V2-S6b EventKit, V2-S12 CloudKit**: not started (reserved for the stronger model)
 
 ---
