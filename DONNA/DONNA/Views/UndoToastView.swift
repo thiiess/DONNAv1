@@ -36,7 +36,7 @@ struct UndoToastView: View {
                 .background(DS.Colors.backgroundSecondary, in: Capsule())
                 .overlay(Capsule().stroke(DS.Colors.warmAccent.opacity(0.3), lineWidth: 1))
                 .shadow(color: .black.opacity(0.25), radius: 8, y: 2)
-                .transition(.move(edge: .top).combined(with: .opacity))
+                .transition(.move(edge: .bottom).combined(with: .opacity))
             }
         }
         .animation(DS.animation, value: visible)

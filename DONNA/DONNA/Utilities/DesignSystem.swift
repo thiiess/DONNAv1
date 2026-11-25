@@ -10,7 +10,9 @@ enum DS {
         static let backgroundPrimary    = Color("BackgroundPrimary")
         static let backgroundSecondary  = Color("BackgroundSecondary")
         static let backgroundTertiary   = Color("BackgroundTertiary")
-        static let accent               = Color("AccentColor")
+        /// Legacy alias from V1 (was the blue AccentColor asset). Points at the warm
+        /// brand accent so older views (onboarding, routine status) match the rest of the app.
+        static var accent: Color { warmAccent }
         static let textPrimary          = Color("TextPrimary")
         static let textSecondary        = Color("TextSecondary")
         static let textTertiary         = Color("TextTertiary")
