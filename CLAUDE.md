@@ -7,6 +7,7 @@
 - 2026-07-08 14:29–14:33 — Session #1 — bug fix: routed ProactiveMonitor.createProposalIfNew through CommandHandler instead of writing ChatMessage directly to modelContext; also gate dedup-key storage on successful persistence so a failed proposal insert can retry. Build: verified. Next: continue V2-S1 cleanup — audit ChatView.handleSend + persistAssistantResponse + markAllAssistantMessagesRead, which still bypass CommandHandler.
 - 2026-07-08 14:36–14:41 — Session #2 — bug fix: added .postUserMessage / .markAssistantMessagesRead commands and routed ChatView.handleSend, persistAssistantResponse, markAllAssistantMessagesRead through CommandHandler so no chat mutation writes to modelContext directly anymore. Build: verified. Next: SettingsView.clearChatHistory and DONNAApp.deleteTestMessagesOnce still bypass CommandHandler — route them through a new .clearChatHistory command.
 - 2026-07-08 14:44–14:48 — Session #3 — bug fix: added .clearChatHistory command and routed SettingsView.clearChatHistory + DONNAApp.deleteTestMessagesOnce through CommandHandler. With this, every ChatMessage mutation in the codebase now flows through CommandHandler. Build: verified. Next: V2-S2 weekly summary (Wochenzusammenfassung) — a ProactiveMonitor.generateWeeklySummaryIfDue that fires Sunday evening and posts a briefing-style ChatMessage.
+- 2026-11-25 — Session (Claude, direct on Mac) — V2-S1 finished (persist(), last bypasses, expiring seenKeys), shared undo stack, DayView overlap lanes + all-day banner. Build: verified (xcodebuild, fresh DerivedData). Next: visual test of DayView; then orphan-occurrence migration, onboarding color bug, weekly summary (V2-S2).
 ⏸ Automation paused — please visually test in Xcode before continuing.
 
 ## What is DONNA
@@ -17,7 +18,7 @@ Xcode scheme: `DONNA` (not DONNAv1)
 Language: SwiftUI + SwiftData
 AI backend: Google Gemini API (`gemini-2.5-flash` — verify if session is >2 weeks old)
 Sync: iCloud/CloudKit (temporarily disabled — no paid Apple Developer account yet)
-GitHub: https://github.com/thiiess/DONNAv1 (private)
+GitHub: https://github.com/thiiess/DONNAv1 (public — never commit secrets)
 
 ---
 
@@ -68,11 +69,13 @@ User input → InteractionOrchestrator → CommandHandler → SwiftData models
 ---
 
 ## V2 Status
-- **V2-S1 Code-Cleanup**: ✅ DONE
-  - `AppState.swift` deleted (dead code)
-  - CommandHandler bypasses fixed in RoutineListView, RoutineCreationSheet, TaskCreationSheet
-  - `DONNAApp.deleteTestMessagesOnce()` annotated `@MainActor`
-- **V2-S2 and beyond**: not started
+Source of truth for open bugs: `DONNA_SPEC_V2.md` → „Bekannter Stand". Short version (25.11.):
+- **V2-S1 Code-Cleanup**: ✅ DONE — no ChatMessage/SwiftData write bypasses CommandHandler anymore; every handler saves via `persist()`
+- **V2-S2 Morgenbriefing**: ✅ built (weekly summary still open)
+- **V2-S3**: unblocked — shared undo stack in place, snapshot capture + restore stubs still need their dedicated session
+- **V2-S4**: clarification flow incl. `skipRoutine`/`updateRoutine` done; inline proposal editing open
+- **V2-S6**: conflict detection + overlap layout in DayView done; prepTime/Someday/dependencies/recurring events open
+- **V2-S6b EventKit, V2-S12 CloudKit**: not started (reserved for the stronger model)
 
 ---
 
@@ -103,6 +106,13 @@ Check every file you touch — missing guards cause build failures on macOS.
 - API key lives in Keychain via `KeychainHelper` — never hardcode, never print
 - Free tier: 503 errors are common under load — retry logic already handles this
 - Prefill pattern: trailing `{ role: "model", parts: [{ text: "[PROPOSAL] " }] }` forces correct output format
+
+### Persistence & undo
+- Every CommandHandler mutation ends with `return persist()` — never `try? modelContext.save()` + `.success()`. `persist()` reports `.failure` and rolls back on a failed save.
+- `CommandHandler.undoManager` is `DONNAUndoManager.shared`. Never create a `DONNAUndoManager()` per handler — handlers are created per call, the undo stack must outlive them.
+
+### Navigation (macOS)
+- `NavigationSplitView` keeps the detail column's NavigationStack state across content swaps. Per-case `.id()` does not reset it, and driving the inner stack with an explicit `path` crashes (`AnyNavigationPath.Error.comparisonTypeMismatch`) when the column switches to a view without a matching `navigationDestination`. The split view is therefore re-created per tab via `.id(selectedTab)` in `ContentView` — keep it, and keep each tab's NavigationStack nested inside its own tab view.
 
 ### Build verification
 After every set of changes:
@@ -157,7 +167,8 @@ Fix all errors before reporting done.
 | `ChatView.swift` | DONNA chat UI — `ChatMessageList` is a separate child view (prevents SwiftData freeze) |
 | `MessageBubble.swift` | Chat bubble — `donnaBubbleBg/Fg` for DONNA, `warmAccent`+white for user |
 | `CalendarView.swift` | Calendar with Day/Week/Month views |
-| `DayView.swift` | Day view — event blocks as ZStack with warmAccent left bar |
+| `DayView.swift` | Day view — all-day banner on top; timed events + routines in side-by-side lanes (warmAccent left bar for events) |
+| `DayTimelineLayout.swift` | Pure lane/column layout for overlapping timeline items |
 | `EventCreationSheet.swift` | New event sheet — chips, toggles, isAnnual, no Form |
 | `EventDetailView.swift` | Edit event sheet — same layout as creation |
 | `TaskListView.swift` | Task list — completion circle button, priority color bars |

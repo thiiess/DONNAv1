@@ -516,19 +516,19 @@ Bevor ein neues Feature in eine Spec aufgenommen wird, muss es diese Fragen best
 
 ### V2-S1 (Code-Cleanup)
 - [x] `ProactiveMonitor.createProposalIfNew` routet jetzt über CommandHandler (Session 08.07.)
-- [ ] `InteractionOrchestrator.persistSystemMessage` fügt ChatMessage noch direkt ein — umgeht CommandHandler
-- [ ] `ProfileUpdater.proposeIfNeeded` fügt ChatMessage noch direkt ein — umgeht CommandHandler
-- [ ] Chat-Handler (`postAssistantMessage`, `postUserMessage`, etc.) nutzen `try?` + geben unconditional `.success` zurück — Fehler bei fehlgeschlagenem Save sind unsichtbar
-- [ ] `seenKeys` ohne Timestamp/Ablauf — Kommentar behauptet 7-Tage-Rückhaltung, ist aber nicht implementiert; Keys akkumulieren für immer
+- [x] `InteractionOrchestrator.persistSystemMessage` routet über `.postAssistantMessage` (25.11.)
+- [x] `ProfileUpdater.proposeIfNeeded` routet über `.postAssistantMessage`; 30-Tage-Cooldown startet nur, wenn die Frage wirklich im Chat gelandet ist (25.11.)
+- [x] `try?` + unconditional `.success` — behoben (25.11.) für **alle** Handler: zentrales `persist()` meldet `.failure` und macht `rollback()`
+- [x] `seenKeys` jetzt `[key: firstSeen]` mit echter 7-Tage-Rückhaltung (`proactive_seen_keys_v2`), Alt-Array wird beim ersten Lauf migriert (25.11.). Folge: ungelöste Konflikte/Routinen tauchen nach 7 Tagen erneut auf — gewollt.
 - [x] `ContentView` hält `@Query` über alle ChatMessages nur für den Badge-Count — behoben, Badge-Query in `SidebarUnreadBadge`/`UnreadTabBadge` ausgelagert, NavigationSplitView rendert nicht mehr bei jeder Nachricht neu
 
 ### V2-S2 (Morgenbriefing)
 - [x] Forgotten-Routine-Vorschläge konsolidiert (neueste + Zähler), inkl. Sibling-Skip bei Bestätigung (Session 13.07.)
 - [x] Fenster wächst unbegrenzt mit dem Chat-Verlauf statt sich zu begrenzen — behoben, `.frame()`-Constraints in `DONNAApp.swift`/`ContentView.swift`/`ChatView.swift` ergänzt und `fixedSize` aus `BriefingCardView` entfernt (blähte die NavigationSplitView auf ideal height auf)
-- [ ] Möglicherweise doppeltes Briefing nach Debug-Reset — noch nicht verifiziert, ob wirklich 2 Briefing-Nachrichten oder Verwechslung mit Vorschlag-Bubbles
+- [ ] Möglicherweise doppeltes Briefing nach Debug-Reset — Code-Analyse 25.11.: Debug-Reset löscht nur die Tagessperre, die alte Briefing-Nachricht bleibt → nach Neustart existieren 2 Briefing-Messages. Sichtbar ist trotzdem nur eine: `BriefingCardView` zeigt nur die neueste, `ChatView` filtert `isBriefing` aus dem Feed. Ein sichtbares Doppel wären also sehr wahrscheinlich Vorschlag-Bubbles. Einmal visuell bestätigen, dann schließen.
 
 ### V2-S3 (Erschöpfungs-Modus + Kontext-Gedächtnis)
-- [ ] `CommandHandler.init` baut bei jedem Aufruf einen neuen `DONNAUndoManager()` — Undo-Stack geht zwischen Commands verloren, blockiert die hier geplante Snapshot-Arbeit
+- [x] `CommandHandler.init` nutzt jetzt `DONNAUndoManager.shared` — Undo-Stack überlebt zwischen Commands, Snapshot-Arbeit ist entblockt (25.11.)
 
 ### V2-S4 (Vorschlag bearbeiten + Chat-Verbesserungen)
 - [x] `[THOUGHT]`/`[CLARIFICATION]`-Tag-Parsing-Bug — behoben (14.07.). Root Cause: Der `[PROPOSAL]`-Prefill nach Klärungsantworten zwang Gemini in ein Proposal, aber für Routine-Überspringen/-Ändern gab es keinen Schema-Typ — Gemini lieferte erfundene Typen oder einen nackten `[PROPOSAL_DATA]`-Block ohne Beschreibung → `emptyContent`. Fix: neue Typen `skipRoutine`/`updateRoutine` im System-Prompt + `buildCommand`-Mapping (inkl. Fuzzy-Routine-Auflösung „Lernroutine"→„Lernen"), Parser akzeptiert Proposals ohne Beschreibungstext (Fallback-Zeile statt Fehler).
@@ -538,11 +538,11 @@ Bevor ein neues Feature in eine Spec aufgenommen wird, muss es diese Fragen best
 - [x] Datum bei „+" wählt nicht den aktuell angezeigten Kalendertag vor — behoben
 - [x] Keine Warnung bei überschneidenden Terminen (weder manuell noch über DONNA-Chat) — behoben, ConflictDetector wird jetzt bei Erstellung/Änderung konsultiert
 - [x] Alte Routine-Occurrences bleiben im Kalender stehen, wenn die Routine-Zeit geändert wird — behoben (14.07.): `handleUpdateRoutine` verschiebt jetzt alle noch offenen (`scheduled`) Occurrences auf die neue Uhrzeit; manuell verschobene (`rescheduled`) bleiben unangetastet. Frequenz-Änderungen kaskadieren weiterhin nicht.
-- [ ] Sich überschneidende Kalendereinträge werden nicht sauber dargestellt
-- [ ] `RoutineOccurrence`s mit `routine == nil` existieren in der DB — vermutlich Reste gelöschter Routinen; Datenintegritätsfrage, nicht dringend
+- [x] Sich überschneidende Kalendereinträge — behoben (25.11.): `DayTimelineLayout` legt überlappende Termine **und** Routinen nebeneinander in Spalten; ganztägige/jährliche Termine stehen in einer Leiste über dem Raster statt das ganze Raster zu überdecken. *Noch visuell prüfen.*
+- [ ] `RoutineOccurrence`s mit `routine == nil` existieren in der DB — Reste aus der Zeit vor der `.cascade`-Regel. DayView blendet sie seit 25.11. aus; echtes Aufräumen (einmalige Migration) steht noch aus
 
 ### V2-S7 (DONNA-Tab Redesign)
-- [ ] Bearbeiten-Sheet für Routine blockiert den Tab-Wechsel, solange es offen ist
+- [x] Bearbeiten-Sheet / Routine-Detail blockiert den Tab-Wechsel — behoben über `.id(selectedTab)` auf der NavigationSplitView (14.07.); ein offenes Sheet ist auf macOS bewusst modal
 - [ ] Onboarding-Farbschema-Bug
 
 ---
