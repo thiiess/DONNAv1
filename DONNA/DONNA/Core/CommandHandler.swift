@@ -80,6 +80,9 @@ enum DONNACommand {
     case completeOccurrence(id: UUID)
     case skipOccurrence(id: UUID, reason: String?)
     case rescheduleOccurrence(id: UUID, newDate: Date)
+    /// Deletes occurrences whose routine no longer exists (leftovers from before the
+    /// `.cascade` delete rule). Housekeeping, run on app start.
+    case purgeOrphanedOccurrences
 
     // Sleep
     case setSleepWindow(bedtime: Date, wakeTime: Date)
@@ -197,6 +200,8 @@ final class CommandHandler {
             return handleSkipOccurrence(id: id, reason: reason)
         case let .rescheduleOccurrence(id, newDate):
             return handleRescheduleOccurrence(id: id, newDate: newDate)
+        case .purgeOrphanedOccurrences:
+            return handlePurgeOrphanedOccurrences()
 
         case let .setSleepWindow(bedtime, wakeTime):
             return handleSetSleepWindow(bedtime: bedtime, wakeTime: wakeTime)
@@ -481,6 +486,14 @@ final class CommandHandler {
         }
         occ.scheduledDate = newDate
         occ.status = .rescheduled
+        return persist()
+    }
+
+    private func handlePurgeOrphanedOccurrences() -> CommandResult {
+        let all = (try? modelContext.fetch(FetchDescriptor<RoutineOccurrence>())) ?? []
+        let orphans = all.filter { $0.routine == nil }
+        guard !orphans.isEmpty else { return .success() }
+        for occ in orphans { modelContext.delete(occ) }
         return persist()
     }
 

@@ -11,6 +11,7 @@ struct SettingsView: View {
     @State private var showClearChatConfirmation = false
     #if DEBUG
     @State private var briefingKeyCleared = false
+    @State private var weeklySummaryPosted = false
     #endif
 
     @AppStorage("donna_science_sport")    private var scienceSport    = true
@@ -23,6 +24,16 @@ struct SettingsView: View {
         var c = DateComponents(); c.hour = 7; c.minute = 30
         return Calendar.current.date(from: c)?.timeIntervalSinceReferenceDate ?? 0
     }()
+
+    @AppStorage(ProactiveMonitor.weeklySummaryEnabledKey) private var weeklySummaryEnabled = false
+    @AppStorage(ProactiveMonitor.weeklySummaryTimeKey) private var weeklySummaryTimeInterval: Double = ProactiveMonitor.defaultWeeklySummaryTime
+
+    private var weeklySummaryTime: Binding<Date> {
+        Binding(
+            get: { Date(timeIntervalSinceReferenceDate: weeklySummaryTimeInterval) },
+            set: { weeklySummaryTimeInterval = $0.timeIntervalSinceReferenceDate }
+        )
+    }
 
     private var briefingTime: Binding<Date> {
         Binding(
@@ -41,6 +52,7 @@ struct SettingsView: View {
                 kontextmodusSection
                 datenschutzSection
                 morgenbriefingSection
+                wochenrueckblickSection
                 #if DEBUG
                 debugSection
                 #endif
@@ -265,6 +277,50 @@ struct SettingsView: View {
         }
     }
 
+    // MARK: - Wochenrückblick
+
+    private var wochenrueckblickSection: some View {
+        Section {
+            Toggle("Wochenrückblick aktivieren", isOn: $weeklySummaryEnabled)
+                .foregroundStyle(DS.Colors.textPrimary)
+                .tint(DS.Colors.warmAccent)
+                .onChange(of: weeklySummaryEnabled) { _, enabled in handleWeeklySummaryEnabledChange(enabled) }
+                .onChange(of: weeklySummaryTimeInterval) { _, _ in
+                    guard weeklySummaryEnabled else { return }
+                    NotificationScheduler.shared.scheduleWeeklySummary(at: weeklySummaryTime.wrappedValue)
+                }
+            if weeklySummaryEnabled {
+                DatePicker("Sonntags um", selection: weeklySummaryTime, displayedComponents: .hourAndMinute)
+                    .foregroundStyle(DS.Colors.textPrimary)
+            }
+        } header: {
+            Text("Wochenrückblick")
+                .foregroundStyle(DS.Colors.warmAccent)
+                .font(.caption.weight(.semibold))
+                .textCase(nil)
+        } footer: {
+            Text("Sonntagabends ein kurzer Blick auf die Woche und auf die nächste – ohne Bewertung.")
+                .foregroundStyle(DS.Colors.textTertiary)
+        }
+        .listRowBackground(DS.Colors.backgroundSecondary)
+    }
+
+    private func handleWeeklySummaryEnabledChange(_ enabled: Bool) {
+        guard enabled else {
+            NotificationScheduler.shared.cancelWeeklySummary()
+            return
+        }
+        weeklySummaryTimeInterval = weeklySummaryTime.wrappedValue.timeIntervalSinceReferenceDate
+        Swift.Task {
+            // The in-app summary works without permission; only the nudge needs it.
+            if await NotificationScheduler.shared.requestPermission() {
+                await MainActor.run {
+                    NotificationScheduler.shared.scheduleWeeklySummary(at: weeklySummaryTime.wrappedValue)
+                }
+            }
+        }
+    }
+
     private func handleBriefingTimeChange() {
         guard briefingEnabled else { return }
         NotificationScheduler.shared.scheduleMorningBriefing(at: briefingTime.wrappedValue)
@@ -282,6 +338,13 @@ struct SettingsView: View {
                       systemImage: "arrow.counterclockwise")
                     .foregroundStyle(DS.Colors.warmAccent)
             }
+            Button {
+                postWeeklySummaryNow()
+            } label: {
+                Label(weeklySummaryPosted ? "Wochenrückblick gepostet ✓" : "Wochenrückblick jetzt erzeugen",
+                      systemImage: "calendar.badge.clock")
+                    .foregroundStyle(DS.Colors.warmAccent)
+            }
         } header: {
             Text("Debug")
                 .foregroundStyle(DS.Colors.warmAccent)
@@ -292,6 +355,12 @@ struct SettingsView: View {
                 .foregroundStyle(DS.Colors.textTertiary)
         }
         .listRowBackground(DS.Colors.backgroundSecondary)
+    }
+
+    private func postWeeklySummaryNow() {
+        UserDefaults.standard.removeObject(forKey: ProactiveMonitor.weeklySummaryStoreKey(for: Date()))
+        ProactiveMonitor().generateWeeklySummary(modelContext: modelContext)
+        weeklySummaryPosted = true
     }
 
     private func clearTodaysBriefingKey() {

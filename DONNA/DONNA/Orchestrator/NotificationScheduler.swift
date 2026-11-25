@@ -61,6 +61,34 @@ final class NotificationScheduler: @unchecked Sendable {
         center.removePendingNotificationRequests(withIdentifiers: [Self.morningBriefingID])
     }
 
+    // MARK: - Weekly summary (repeating Sunday nudge)
+
+    private static let weeklySummaryID = "weekly_summary"
+
+    /// Schedules (or replaces) a repeating Sunday notification at the given time of day.
+    /// Like the morning briefing it is only a nudge; the summary itself is built in-app.
+    func scheduleWeeklySummary(at time: Date) {
+        let content = UNMutableNotificationContent()
+        content.title = String(localized: "Wochenrückblick")
+        content.body = String(localized: "Deine Woche im Überblick wartet in DONNA.")
+        content.sound = .default
+
+        let cal = Calendar.current
+        var components = DateComponents()
+        components.weekday = 1 // Sunday
+        components.hour = cal.component(.hour, from: time)
+        components.minute = cal.component(.minute, from: time)
+
+        let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: true)
+        let request = UNNotificationRequest(identifier: Self.weeklySummaryID, content: content, trigger: trigger)
+        center.removePendingNotificationRequests(withIdentifiers: [Self.weeklySummaryID])
+        center.add(request, withCompletionHandler: nil)
+    }
+
+    func cancelWeeklySummary() {
+        center.removePendingNotificationRequests(withIdentifiers: [Self.weeklySummaryID])
+    }
+
     // MARK: - Task reminders (30 min before dueDate when dueTimeIncluded)
 
     func scheduleTaskReminder(for task: DONNATask) {

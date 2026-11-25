@@ -73,6 +73,7 @@ struct DONNAApp: App {
                 let monitor = ProactiveMonitor()
                 monitor.run(modelContext: context)
                 monitor.generateMorningBriefingIfDue(modelContext: context)
+                monitor.generateWeeklySummaryIfDue(modelContext: context)
                 ProactiveMonitor.scheduleNextBackgroundRefresh()
                 NotificationScheduler.shared.updateBadgeCount(modelContext: context)
             }
@@ -83,9 +84,11 @@ struct DONNAApp: App {
     @MainActor
     private func runProactiveMonitor() {
         let context = sharedModelContainer.mainContext
+        _ = CommandHandler(modelContext: context).execute(.purgeOrphanedOccurrences)
         let monitor = ProactiveMonitor()
         monitor.run(modelContext: context)
         monitor.generateMorningBriefingIfDue(modelContext: context)
+        monitor.generateWeeklySummaryIfDue(modelContext: context)
         NotificationScheduler.shared.updateBadgeCount(modelContext: context)
         DataLifecycleManager.shared.runIfNeeded(modelContext: context)
         #if os(iOS)
