@@ -555,7 +555,7 @@ Bevor ein neues Feature in eine Spec aufgenommen wird, muss es diese Fragen best
 - [x] V2-S4 Stopp-Knopf (Esc) bricht die laufende Gemini-Anfrage ab
 - [x] V2-S5 Muster: gleicher Termin an 3 verschiedenen Wochen, gleicher Wochentag + Uhrzeit → einmalige Frage nach Serientermin
 - [x] V2-S7 Spät-Hinweis nach 22 Uhr (einmalig)
-- [ ] Offen beobachtet: „Erklär mir meine Woche" beantwortet DONNA mit „nicht unterstützt" — eine Wochenübersicht per Chat wäre naheliegend (Daten dafür liefert `buildWeeklySummaryText` schon)
+- [x] „Was steht heute / diese Woche an?" wird lokal auf dem Gerät beantwortet (vorher „nicht unterstützt"; Gemini sieht bewusst nur ein anonymes 12-Stunden-Fenster)
 - [x] V2-S7 Leere Zustände als Einladung (Kalender heute, Aufgaben, Routinen, Chat)
 - [x] Monatsansicht: Tag antippen öffnet ihn; Wochentage folgen der Regionseinstellung (vorher bei Wochenbeginn Montag verschoben)
 

@@ -7,7 +7,7 @@
 - 2026-07-08 14:29–14:33 — Session #1 — bug fix: routed ProactiveMonitor.createProposalIfNew through CommandHandler instead of writing ChatMessage directly to modelContext; also gate dedup-key storage on successful persistence so a failed proposal insert can retry. Build: verified. Next: continue V2-S1 cleanup — audit ChatView.handleSend + persistAssistantResponse + markAllAssistantMessagesRead, which still bypass CommandHandler.
 - 2026-07-08 14:36–14:41 — Session #2 — bug fix: added .postUserMessage / .markAssistantMessagesRead commands and routed ChatView.handleSend, persistAssistantResponse, markAllAssistantMessagesRead through CommandHandler so no chat mutation writes to modelContext directly anymore. Build: verified. Next: SettingsView.clearChatHistory and DONNAApp.deleteTestMessagesOnce still bypass CommandHandler — route them through a new .clearChatHistory command.
 - 2026-07-08 14:44–14:48 — Session #3 — bug fix: added .clearChatHistory command and routed SettingsView.clearChatHistory + DONNAApp.deleteTestMessagesOnce through CommandHandler. With this, every ChatMessage mutation in the codebase now flows through CommandHandler. Build: verified. Next: V2-S2 weekly summary (Wochenzusammenfassung) — a ProactiveMonitor.generateWeeklySummaryIfDue that fires Sunday evening and posts a briefing-style ChatMessage.
-- 2026-11-25 — Session (Claude, direct on Mac) — V2-S1 finished (persist(), last bypasses, expiring seenKeys), shared undo stack, DayView overlap lanes + all-day banner. Build: verified (xcodebuild, fresh DerivedData). Later the same day: weekly summary, orphan purge, full undo system + toast + ⇧⌘Z menu, onboarding colour fix, inline proposal editing, recurring events, unread-badge fix — each build-verified and tested live in the running app (computer use).
+- 2026-11-25 — Session (Claude, direct on Mac) — V2-S1 finished (persist(), last bypasses, expiring seenKeys), shared undo stack, DayView overlap lanes + all-day banner. Build: verified (xcodebuild, fresh DerivedData). Later the same day: weekly summary, orphan purge, full undo system + toast + ⇧⌘Z menu, onboarding colour fix, inline proposal editing, recurring events, unread-badge fix — each build-verified and tested live in the running app (computer use). Then: recovery day, Someday stack, empty states, themes + design pass, Stopp button, series hint, night note, on-device week overview.
 ⏸ Automation paused — please visually test in Xcode before continuing.
 
 ## What is DONNA
@@ -61,7 +61,7 @@ User input → InteractionOrchestrator → CommandHandler → SwiftData models
 5. **Raw API errors shown to user** — FIXED. 503/429/401 mapped to German strings. Retry logic (3 attempts, 2s delay). Debug labels in DEBUG builds only: `[Debug: 503 Gemini]`, `[Debug: parse error — missingTypeTag]`.
 
 ### ⚠️ Known remaining issues
-- **Calendar navigation**: Too many taps to navigate days/weeks; tapping a day in the month view does not open it. Swipe gesture deferred.
+- **Calendar navigation**: no swipe gesture between days/weeks yet (tapping a day in the month view opens it).
 - **Proposal edit by voice** ("lieber 30 Minuten später" as a chat reply) is not supported — the card's „Ändern" editor covers the manual case.
 
 ---
@@ -70,10 +70,9 @@ User input → InteractionOrchestrator → CommandHandler → SwiftData models
 Source of truth for open bugs: `DONNA_SPEC_V2.md` → „Bekannter Stand". Short version (25.11.):
 - **V2-S1 Code-Cleanup**: ✅ DONE — no ChatMessage/SwiftData write bypasses CommandHandler anymore; every handler saves via `persist()`
 - **V2-S2**: ✅ Morgenbriefing + Wochenrückblick (Sunday, Settings toggle, DEBUG button)
-- **V2-S3**: ✅ Undo (one level, every data command, toast + Bearbeiten → „Rückgängig: …" ⇧⌘Z). Erschöpfungs-Modus + Kontext-Gedächtnis open
+- **V2-S3**: ✅ Undo (one level, every data command, toast + Bearbeiten → „Rückgängig: …" ⇧⌘Z). ✅ Erschöpfungs-Modus (recovery day via chat, `exhaustion_day_<date>` preference — not a ContextMode). Kontext-Gedächtnis (re-ask after 24h) open
 - **V2-S4**: ✅ clarification flow + inline „Ändern" on proposals + Stopp button (Esc). Edit last message / regenerate / dictation open
 - **V2-S5**: repeated one-off event (3 distinct weeks, same weekday+hour) → one-time series hint. Energy profile / sport intelligence open
-- **V2-S3 Erschöpfungs-Modus**: ✅ recovery day via chat (`exhaustion_day_<date>` preference, not a ContextMode)
 - **V2-S6**: ✅ conflict detection, overlap lanes, recurring events (weekly/biweekly), Someday stack. prepTime/dependencies open
 - **V2-S7**: ✅ themes + own visual identity, inviting empty states, night note. Micro-interactions open
 - **V2-S6b EventKit, V2-S12 CloudKit**: not started (reserved for the stronger model)
@@ -177,7 +176,7 @@ The user picks a colour theme in Einstellungen → Erscheinungsbild: `DONNATheme
 | `DesignSystem.swift` | `DONNATheme` + all colour tokens, spacing, typography — use `DS.Colors.*` everywhere |
 | `ContentView.swift` | Root view + macOS sidebar (min 180pt, custom buttons with `.contentShape(Rectangle())`) |
 | `ChatView.swift` | DONNA chat UI — `ChatMessageList` is a separate child view (prevents SwiftData freeze) |
-| `MessageBubble.swift` | Chat bubble — `donnaBubbleBg/Fg` for DONNA, `warmAccent`+white for user |
+| `MessageBubble.swift` | Chat bubble — speech-bubble shape; DONNA: `donnaBubbleBg` + accent rule, user: `warmAccent` + `onAccent` |
 | `CalendarView.swift` | Calendar with Day/Week/Month views |
 | `DayView.swift` | Day view — all-day banner on top; timed events + routines in side-by-side lanes (warmAccent left bar for events) |
 | `DayTimelineLayout.swift` | Pure lane/column layout for overlapping timeline items |
@@ -196,6 +195,7 @@ The user picks a colour theme in Einstellungen → Erscheinungsbild: `DONNATheme
 | `UndoToastView.swift` | „Termin gelöscht · Rückgängig" banner (bottom, 8s) |
 | `WeeklySummary.swift` | `ProactiveMonitor` extension — Sunday Wochenrückblick |
 | `ProposalDraft.swift` | Editable view of `[PROPOSAL_DATA]` for the card's „Ändern" editor |
+| `OverviewAnswers.swift` | On-device answers to „Was steht heute / diese Woche an?" (never sent to Gemini) |
 
 ---
 
