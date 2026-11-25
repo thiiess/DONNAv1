@@ -70,7 +70,7 @@ User input → InteractionOrchestrator → CommandHandler → SwiftData models
 Source of truth for open bugs: `DONNA_SPEC_V2.md` → „Bekannter Stand". Short version (25.11.):
 - **V2-S1 Code-Cleanup**: ✅ DONE — no ChatMessage/SwiftData write bypasses CommandHandler anymore; every handler saves via `persist()`
 - **V2-S2**: ✅ Morgenbriefing + Wochenrückblick (Sunday, Settings toggle, DEBUG button)
-- **V2-S3**: ✅ Undo (one level, every data command, toast + Bearbeiten → „Rückgängig: …" ⇧⌘Z). ✅ Erschöpfungs-Modus (recovery day via chat, `exhaustion_day_<date>` preference — not a ContextMode). Kontext-Gedächtnis (re-ask after 24h) open
+- **V2-S3**: ✅ Undo (one level, every data command, toast + Bearbeiten → „Rückgängig: …" ⇧⌘Z). ✅ Erschöpfungs-Modus (recovery day via chat, `exhaustion_day_<date>` preference — not a ContextMode). ✅ Kontext-Gedächtnis: an unanswered DONNA question is re-asked once after 24h („Kurz nachgefragt: …"). Time-bound contexts („Prüfung am 15. Mai" → reminder) open
 - **V2-S4**: ✅ clarification flow + inline „Ändern" on proposals + Stopp button (Esc). Edit last message / regenerate / dictation open
 - **V2-S5**: repeated one-off event (3 distinct weeks, same weekday+hour) → one-time series hint. Energy profile / sport intelligence open
 - **V2-S6**: ✅ conflict detection, overlap lanes, recurring events (weekly/biweekly), Someday stack. prepTime/dependencies open
