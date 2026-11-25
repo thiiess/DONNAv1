@@ -46,6 +46,7 @@ struct ContentView: View {
                 .tabItem { Label("Settings", systemImage: "gear") }
         }
         .tint(DS.Colors.warmAccent)
+        .overlay(alignment: .top) { UndoToastView().padding(.top, 8) }
         #else
         NavigationSplitView {
             ScrollView {
@@ -102,6 +103,7 @@ struct ContentView: View {
         // split view per tab discards that column state along with it.
         .id(selectedTab)
         .tint(DS.Colors.warmAccent)
+        .overlay(alignment: .top) { UndoToastView().padding(.top, 12) }
         #endif
     }
 }

@@ -147,13 +147,14 @@ enum CommandResult {
 @MainActor
 final class CommandHandler {
     private let modelContext: ModelContext
-    // TODO(V2-S3): capture a snapshot before each mutation and call undoManager.save(_:)
     /// Shared across all CommandHandler instances: views and services create a fresh
     /// handler per call, so a per-instance manager would lose the undo stack immediately.
     let undoManager: DONNAUndoManager
     private let conflictDetector: ConflictDetector
     private let scienceEngine: ScienceEngine
     private let routineScheduler: RoutineScheduler
+    /// Set by create handlers so execute() can register a "delete it again" undo.
+    private var createdObject: (UndoableModel, UUID)?
 
     init(modelContext: ModelContext) {
         self.modelContext = modelContext
@@ -165,7 +166,96 @@ final class CommandHandler {
 
     func execute(_ command: DONNACommand) -> CommandResult {
         if case .undo = command { return handleUndo() }
-        return dispatch(command)
+
+        // Undo: capture the pre-execution state, run, and register the snapshot only if
+        // the command actually changed something. Chat and housekeeping commands are not
+        // undoable and leave the pending undo untouched — otherwise the "Erledigt." message
+        // posted right after a confirmed proposal would wipe that proposal's undo.
+        let label = undoLabel(for: command)
+        let before = label == nil ? nil : captureSnapshot(for: command)
+        createdObject = nil
+
+        let result = dispatch(command)
+
+        if case .success = result, let label {
+            if let (kind, id) = createdObject {
+                undoManager.register(.created(kind, id: id), label: label)
+            } else if let before {
+                undoManager.register(before, label: label)
+            }
+        }
+        return result
+    }
+
+    // MARK: - Undo capture
+
+    /// German label for the undo toast; nil means the command is not undoable.
+    private func undoLabel(for command: DONNACommand) -> String? {
+        switch command {
+        case .createTask:               return "Aufgabe erstellt"
+        case .updateTask:               return "Aufgabe geändert"
+        case .completeTask:             return "Aufgabe erledigt"
+        case .deleteTask:               return "Aufgabe gelöscht"
+        case .createEvent:              return "Termin erstellt"
+        case .updateEvent:              return "Termin geändert"
+        case .deleteEvent:              return "Termin gelöscht"
+        case .createRoutine:            return "Routine erstellt"
+        case .updateRoutine:            return "Routine geändert"
+        case .deleteRoutine:            return "Routine gelöscht"
+        case .completeOccurrence:       return "Routine erledigt"
+        case .skipOccurrence:           return "Routine übersprungen"
+        case .rescheduleOccurrence:     return "Routine verschoben"
+        case .setSleepWindow:           return "Schlaffenster gesetzt"
+        case .confirmPreference,
+             .setExplicitPreference:    return "Präferenz gespeichert"
+        case .deleteLearnedItem:        return "Präferenz gelöscht"
+        case .activateContextMode:      return "Kontextmodus aktiviert"
+        case .deactivateContextMode:    return "Kontextmodus beendet"
+        case .purgeOrphanedOccurrences,
+             .postUserMessage, .postAssistantMessage, .markAssistantMessagesRead,
+             .clearChatHistory, .dismissBriefing, .undo:
+            return nil
+        }
+    }
+
+    /// State the command is about to change. Creates return nil here — their undo is
+    /// "delete the new object", registered from `createdObject` after dispatch.
+    private func captureSnapshot(for command: DONNACommand) -> DONNASnapshot? {
+        switch command {
+        case let .updateTask(id, _), let .completeTask(id), let .deleteTask(id):
+            return fetchAll(DONNATask.self).first { $0.id == id }.map { .task($0.snapshot()) }
+
+        case let .updateEvent(id, _), let .deleteEvent(id):
+            return fetchAll(CalendarEvent.self).first { $0.id == id }.map { .calendarEvent($0.snapshot()) }
+
+        case let .updateRoutine(id, _, _, _, _), let .deleteRoutine(id):
+            guard let routine = fetchAll(Routine.self).first(where: { $0.id == id }) else { return nil }
+            return .routine(routine.snapshot(), occurrences: routine.occurrences.map { $0.snapshot() })
+
+        case let .completeOccurrence(id):
+            // Completing also retires stale siblings — snapshot the whole routine's set.
+            let all = fetchAll(RoutineOccurrence.self)
+            guard let occ = all.first(where: { $0.id == id }) else { return nil }
+            let siblings = occ.routine.map { r in all.filter { $0.routine?.id == r.id } } ?? [occ]
+            return .occurrences(siblings.map { $0.snapshot() })
+
+        case let .skipOccurrence(id, _), let .rescheduleOccurrence(id, _):
+            return fetchAll(RoutineOccurrence.self).first { $0.id == id }.map { .occurrences([$0.snapshot()]) }
+
+        case let .confirmPreference(key, _), let .setExplicitPreference(key, _), let .deleteLearnedItem(key):
+            let previous = fetchAll(Preference.self).first { $0.key == key }
+            return .preference(key: key, previous: previous?.snapshot())
+
+        case .activateContextMode, .deactivateContextMode:
+            return .contextModes(fetchAll(ContextMode.self).map { $0.snapshot() })
+
+        default:
+            return nil
+        }
+    }
+
+    private func fetchAll<T: PersistentModel>(_ type: T.Type) -> [T] {
+        (try? modelContext.fetch(FetchDescriptor<T>())) ?? []
     }
 
     // MARK: - Dispatch
@@ -256,6 +346,7 @@ final class CommandHandler {
     private func handleCreateTask(title: String, dueDate: Date?, priority: Priority, notes: String?) -> CommandResult {
         let task = DONNATask(title: title, notes: notes, dueDate: dueDate, priority: priority)
         modelContext.insert(task)
+        createdObject = (.task, task.id)
         return persist()
     }
 
@@ -332,6 +423,7 @@ final class CommandHandler {
 
         let event = CalendarEvent(title: title, startTime: actualStart, endTime: actualEnd, isLocked: actualLocked, isAnnual: isAnnual, notes: notes)
         modelContext.insert(event)
+        createdObject = (.calendarEvent, event.id)
         return persist(warning: conflicts.overlapWarning)
     }
 
@@ -397,6 +489,7 @@ final class CommandHandler {
             maxSkipsBeforeWarning: definition.maxSkipsBeforeWarning
         )
         modelContext.insert(routine)
+        createdObject = (.routine, routine.id)
         let now = Date()
         let end = Calendar.current.date(byAdding: .day, value: 30, to: now) ?? now
         for occ in routineScheduler.generateOccurrences(for: routine, from: now, to: end) {
@@ -503,6 +596,7 @@ final class CommandHandler {
         let today = Calendar.current.startOfDay(for: Date())
         let window = SleepWindow(date: today, bedtime: bedtime, wakeTime: wakeTime)
         modelContext.insert(window)
+        createdObject = (.sleepWindow, window.id)
         return persist()
     }
 
@@ -614,7 +708,7 @@ final class CommandHandler {
         }
         do {
             try undoManager.undo(context: modelContext)
-            return .success()
+            return persist()
         } catch {
             return .failure(.validationFailed(reason: error.localizedDescription))
         }
