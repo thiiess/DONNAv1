@@ -42,6 +42,41 @@ final class ProactiveMonitor {
         detectSomedayStack(modelContext: modelContext)
         detectRepeatedEvents(modelContext: modelContext)
         postNightNoteIfLate(modelContext: modelContext)
+        reaskUnansweredQuestion(modelContext: modelContext)
+    }
+
+    // MARK: - Context memory: re-ask once (V2-S3)
+
+    private static let reaskedKey = "reasked_question_ids"
+    static let reaskPrefix = "Kurz nachgefragt: "
+
+    /// If the conversation ended on a DONNA question the user never answered, ask it
+    /// once more after 24 hours, lightly reworded — then never again (spec V2-S3).
+    /// Posted as a clarification, so the user's reply flows into the normal
+    /// clarification-answer path of the assistant client.
+    private func reaskUnansweredQuestion(modelContext: ModelContext, now: Date = Date()) {
+        let messages = (try? modelContext.fetch(
+            FetchDescriptor<ChatMessage>(sortBy: [SortDescriptor(\.timestamp)])
+        )) ?? []
+        guard let last = messages.last(where: { !$0.isBriefing }),
+              last.role == .assistant,
+              last.outputType == .clarification,
+              !last.content.hasPrefix(Self.reaskPrefix) else { return }
+
+        let age = now.timeIntervalSince(last.timestamp)
+        guard age >= 24 * 3600, age <= 7 * 24 * 3600 else { return }
+
+        var asked = Set(UserDefaults.standard.stringArray(forKey: Self.reaskedKey) ?? [])
+        guard !asked.contains(last.id.uuidString) else { return }
+
+        let result = CommandHandler(modelContext: modelContext).execute(.postAssistantMessage(
+            content: Self.reaskPrefix + last.content,
+            outputType: .clarification
+        ))
+        if case .success = result {
+            asked.insert(last.id.uuidString)
+            UserDefaults.standard.set(Array(asked), forKey: Self.reaskedKey)
+        }
     }
 
     // MARK: - Repeated one-off events → series (V2-S5)
