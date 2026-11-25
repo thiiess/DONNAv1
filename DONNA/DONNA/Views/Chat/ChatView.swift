@@ -44,9 +44,9 @@ struct ChatView: View {
             // Composer: one soft capsule with the send button inside — DONNA's own, not a
             // stock rounded-border field.
             HStack(spacing: 8) {
-                TextField("Schreib an DONNA …", text: $inputText, axis: .vertical)
+                // Single line on purpose: a vertical-axis field turns Return into a newline.
+                TextField("Schreib an DONNA …", text: $inputText)
                     .textFieldStyle(.plain)
-                    .lineLimit(1...4)
                     .disabled(isSending || orchestrator == nil || orchestrator?.phase == .awaitingConsent)
                     .onSubmit { handleSend() }
                     .padding(.leading, 16)
