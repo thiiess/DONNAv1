@@ -538,12 +538,20 @@ Bevor ein neues Feature in eine Spec aufgenommen wird, muss es diese Fragen best
 - [x] Datum bei „+" wählt nicht den aktuell angezeigten Kalendertag vor — behoben
 - [x] Keine Warnung bei überschneidenden Terminen (weder manuell noch über DONNA-Chat) — behoben, ConflictDetector wird jetzt bei Erstellung/Änderung konsultiert
 - [x] Alte Routine-Occurrences bleiben im Kalender stehen, wenn die Routine-Zeit geändert wird — behoben (14.07.): `handleUpdateRoutine` verschiebt jetzt alle noch offenen (`scheduled`) Occurrences auf die neue Uhrzeit; manuell verschobene (`rescheduled`) bleiben unangetastet. Frequenz-Änderungen kaskadieren weiterhin nicht.
-- [x] Sich überschneidende Kalendereinträge — behoben (25.11.): `DayTimelineLayout` legt überlappende Termine **und** Routinen nebeneinander in Spalten; ganztägige/jährliche Termine stehen in einer Leiste über dem Raster statt das ganze Raster zu überdecken. *Noch visuell prüfen.*
-- [ ] `RoutineOccurrence`s mit `routine == nil` existieren in der DB — Reste aus der Zeit vor der `.cascade`-Regel. DayView blendet sie seit 25.11. aus; echtes Aufräumen (einmalige Migration) steht noch aus
+- [x] Sich überschneidende Kalendereinträge — behoben (25.11.): `DayTimelineLayout` legt überlappende Termine **und** Routinen nebeneinander in Spalten; ganztägige/jährliche Termine stehen in einer Leiste über dem Raster statt das ganze Raster zu überdecken. In der App geprüft.
+- [x] `RoutineOccurrence`s mit `routine == nil` — werden seit 25.11. bei jedem Start per `.purgeOrphanedOccurrences` gelöscht
+
+### Neu umgesetzt (25.11., live in der App getestet)
+- [x] V2-S2 Wochenrückblick (Sonntag, Einstellungen-Schalter + Uhrzeit, Debug-Button)
+- [x] V2-S3 Undo: jede Daten-Aktion einstufig rückgängig — Hinweis unten („Termin gelöscht · Rückgängig", 8 s) und dauerhaft über Bearbeiten → „Rückgängig: …" (⇧⌘Z) bis zur nächsten Aktion
+- [x] V2-S4 „Ändern" auf Vorschlagskarten: Titel, Tag, Uhrzeiten, Dauer inline anpassen, danach weiterhin explizit bestätigen
+- [x] V2-S6 Wiederkehrende Termine (wöchentlich / alle 2 Wochen) per Chat und „+"-Sheet; Löschen: „Nur diesen" oder „Diesen und alle folgenden"
+- [x] Ungelesen-Zähler zählte hoch, während der Chat offen war — behoben
+- [x] Verwaiste Routine-Occurrences werden beim Start gelöscht
 
 ### V2-S7 (DONNA-Tab Redesign)
 - [x] Bearbeiten-Sheet / Routine-Detail blockiert den Tab-Wechsel — behoben über `.id(selectedTab)` auf der NavigationSplitView (14.07.); ein offenes Sheet ist auf macOS bewusst modal
-- [ ] Onboarding-Farbschema-Bug
+- [x] Onboarding-Farbschema-Bug — behoben (25.11.): `DS.Colors.accent` zeigte auf das alte blaue `AccentColor`-Asset aus V1; jetzt Alias auf `warmAccent`, Asset ebenfalls auf #C4783C/#E8A06A
 
 ---
 

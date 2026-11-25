@@ -7,7 +7,7 @@
 - 2026-07-08 14:29–14:33 — Session #1 — bug fix: routed ProactiveMonitor.createProposalIfNew through CommandHandler instead of writing ChatMessage directly to modelContext; also gate dedup-key storage on successful persistence so a failed proposal insert can retry. Build: verified. Next: continue V2-S1 cleanup — audit ChatView.handleSend + persistAssistantResponse + markAllAssistantMessagesRead, which still bypass CommandHandler.
 - 2026-07-08 14:36–14:41 — Session #2 — bug fix: added .postUserMessage / .markAssistantMessagesRead commands and routed ChatView.handleSend, persistAssistantResponse, markAllAssistantMessagesRead through CommandHandler so no chat mutation writes to modelContext directly anymore. Build: verified. Next: SettingsView.clearChatHistory and DONNAApp.deleteTestMessagesOnce still bypass CommandHandler — route them through a new .clearChatHistory command.
 - 2026-07-08 14:44–14:48 — Session #3 — bug fix: added .clearChatHistory command and routed SettingsView.clearChatHistory + DONNAApp.deleteTestMessagesOnce through CommandHandler. With this, every ChatMessage mutation in the codebase now flows through CommandHandler. Build: verified. Next: V2-S2 weekly summary (Wochenzusammenfassung) — a ProactiveMonitor.generateWeeklySummaryIfDue that fires Sunday evening and posts a briefing-style ChatMessage.
-- 2026-11-25 — Session (Claude, direct on Mac) — V2-S1 finished (persist(), last bypasses, expiring seenKeys), shared undo stack, DayView overlap lanes + all-day banner. Build: verified (xcodebuild, fresh DerivedData). Next: visual test of DayView; then orphan-occurrence migration, onboarding color bug, weekly summary (V2-S2).
+- 2026-11-25 — Session (Claude, direct on Mac) — V2-S1 finished (persist(), last bypasses, expiring seenKeys), shared undo stack, DayView overlap lanes + all-day banner. Build: verified (xcodebuild, fresh DerivedData). Later the same day: weekly summary, orphan purge, full undo system + toast + ⇧⌘Z menu, onboarding colour fix, inline proposal editing, recurring events, unread-badge fix — each build-verified and tested live in the running app (computer use).
 ⏸ Automation paused — please visually test in Xcode before continuing.
 
 ## What is DONNA
@@ -60,21 +60,19 @@ User input → InteractionOrchestrator → CommandHandler → SwiftData models
 4. **No edit/delete UI for calendar events and tasks** — FIXED. `EventDetailView` and `TaskDetailView` fully rewritten as sheets with edit/save/delete. Week view tap → EventDetailView.
 5. **Raw API errors shown to user** — FIXED. 503/429/401 mapped to German strings. Retry logic (3 attempts, 2s delay). Debug labels in DEBUG builds only: `[Debug: 503 Gemini]`, `[Debug: parse error — missingTypeTag]`.
 
-### ⚠️ Known remaining issues (deferred to V2)
-- **UndoManager**: 9 restore stubs are empty bodies + snapshots never captured in CommandHandler. Full undo system deferred to V2.
-- **Proposal edit**: User cannot say "lieber 30 Minuten später" to adjust a proposal inline. Deferred to V2-S4.
-- **Recurring events**: "Jeden Dienstag Fußball" not yet supported. Deferred to V2-S6.
-- **Calendar navigation**: Too many taps to navigate days/weeks. Swipe gesture deferred to V2.
+### ⚠️ Known remaining issues
+- **Calendar navigation**: Too many taps to navigate days/weeks; tapping a day in the month view does not open it. Swipe gesture deferred.
+- **Proposal edit by voice** ("lieber 30 Minuten später" as a chat reply) is not supported — the card's „Ändern" editor covers the manual case.
 
 ---
 
 ## V2 Status
 Source of truth for open bugs: `DONNA_SPEC_V2.md` → „Bekannter Stand". Short version (25.11.):
 - **V2-S1 Code-Cleanup**: ✅ DONE — no ChatMessage/SwiftData write bypasses CommandHandler anymore; every handler saves via `persist()`
-- **V2-S2 Morgenbriefing**: ✅ built (weekly summary still open)
-- **V2-S3**: unblocked — shared undo stack in place, snapshot capture + restore stubs still need their dedicated session
-- **V2-S4**: clarification flow incl. `skipRoutine`/`updateRoutine` done; inline proposal editing open
-- **V2-S6**: conflict detection + overlap layout in DayView done; prepTime/Someday/dependencies/recurring events open
+- **V2-S2**: ✅ Morgenbriefing + Wochenrückblick (Sunday, Settings toggle, DEBUG button)
+- **V2-S3**: ✅ Undo (one level, every data command, toast + Bearbeiten → „Rückgängig: …" ⇧⌘Z). Erschöpfungs-Modus + Kontext-Gedächtnis open
+- **V2-S4**: ✅ clarification flow + inline „Ändern" on proposals. Stop button / edit last message / regenerate / dictation open
+- **V2-S6**: ✅ conflict detection, overlap lanes, recurring events (weekly/biweekly). prepTime/Someday/dependencies open
 - **V2-S6b EventKit, V2-S12 CloudKit**: not started (reserved for the stronger model)
 
 ---
@@ -110,6 +108,8 @@ Check every file you touch — missing guards cause build failures on macOS.
 ### Persistence & undo
 - Every CommandHandler mutation ends with `return persist()` — never `try? modelContext.save()` + `.success()`. `persist()` reports `.failure` and rolls back on a failed save.
 - `CommandHandler.undoManager` is `DONNAUndoManager.shared`. Never create a `DONNAUndoManager()` per handler — handlers are created per call, the undo stack must outlive them.
+- Undo is registered in `CommandHandler.execute`: every new **data** command needs an `undoLabel` and a `captureSnapshot` case (or sets `createdObject`/`createdSeries`). Chat and housekeeping commands return `nil` from `undoLabel` so they never overwrite the pending undo.
+- Recurring events are materialised (one `CalendarEvent` per instance, shared `seriesID`, 12 weeks ahead) — views need no recurrence logic. `recurrenceRaw == nil` on an instance with a `seriesID` means the series has ended.
 
 ### Navigation (macOS)
 - `NavigationSplitView` keeps the detail column's NavigationStack state across content swaps. Per-case `.id()` does not reset it, and driving the inner stack with an explicit `path` crashes (`AnyNavigationPath.Error.comparisonTypeMismatch`) when the column switches to a view without a matching `navigationDestination`. The split view is therefore re-created per tab via `.id(selectedTab)` in `ContentView` — keep it, and keep each tab's NavigationStack nested inside its own tab view.
@@ -180,7 +180,10 @@ Fix all errors before reporting done.
 | `ConflictDetector.swift` | Checks overlaps and sleep window violations |
 | `ScienceEngine.swift` | Science rules (sport, sleep, learning, general) |
 | `RoutineScheduler.swift` | Generates RoutineOccurrences |
-| `UndoManager.swift` | Undo system — stubs not yet implemented (V2) |
+| `UndoManager.swift` | One-level undo: snapshots, restore incl. re-insert of deleted objects; `@Observable` for the toast |
+| `UndoToastView.swift` | „Termin gelöscht · Rückgängig" banner (bottom, 8s) |
+| `WeeklySummary.swift` | `ProactiveMonitor` extension — Sunday Wochenrückblick |
+| `ProposalDraft.swift` | Editable view of `[PROPOSAL_DATA]` for the card's „Ändern" editor |
 
 ---
 
@@ -193,6 +196,7 @@ Fix all errors before reporting done.
 - "ganztägig" / "den ganzen Tag" → `allDay: true`
 - "gesperrt" / "nicht verschiebbar" / "fix" → `isLocked: true`
 - "Geburtstag" / "Jahrestag" / "jedes Jahr" → `isAnnual: true` (auto-sets allDay + locked)
+- "jeden Dienstag" / "wöchentlich" → `recurrence: "weekly"`, "alle zwei Wochen" → `"biweekly"` → `.createEventSeries`
 - Notes/context provided → passed as `notes` field
 
 ---
@@ -215,4 +219,3 @@ Fix all errors before reporting done.
 - Do not add `SWIFT_DEFAULT_ACTOR_ISOLATION` to build settings
 - Do not hardcode or log the Gemini API key
 - Do not use `Form`, `Section`, or `List` in sheets — plain VStack only
-- Do not implement UndoManager restore stubs without a dedicated session for it
