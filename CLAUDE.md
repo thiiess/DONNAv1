@@ -113,6 +113,9 @@ Check every file you touch — missing guards cause build failures on macOS.
 - Undo is registered in `CommandHandler.execute`: every new **data** command needs an `undoLabel` and a `captureSnapshot` case (or sets `createdObject`/`createdSeries`). Chat and housekeeping commands return `nil` from `undoLabel` so they never overwrite the pending undo.
 - Recurring events are materialised (one `CalendarEvent` per instance, shared `seriesID`, 12 weeks ahead) — views need no recurrence logic. `recurrenceRaw == nil` on an instance with a `seriesID` means the series has ended.
 
+### Reminders
+- `NotificationScheduler.rescheduleAll(modelContext:)` is the only place that schedules task/routine/event reminders. It runs after every successful data command (inside `CommandHandler.execute`), after undo and on app start — never schedule a reminder from a view.
+
 ### Navigation (macOS)
 - `NavigationSplitView` keeps the detail column's NavigationStack state across content swaps. Per-case `.id()` does not reset it, and driving the inner stack with an explicit `path` crashes (`AnyNavigationPath.Error.comparisonTypeMismatch`) when the column switches to a view without a matching `navigationDestination`. The split view is therefore re-created per tab via `.id(selectedTab)` in `ContentView` — keep it, and keep each tab's NavigationStack nested inside its own tab view.
 

@@ -566,7 +566,7 @@ Bevor ein neues Feature in eine Spec aufgenommen wird, muss es diese Fragen best
 - [x] Routinen endeten nach 30 Tagen (Occurrences nur beim Anlegen erzeugt) — `.extendRoutineOccurrences` beim App-Start hält 30 Tage vorrätig
 - [x] Proaktive Konflikt-Hinweise fluteten den Chat (ganztägige Termine überschnitten sich mit allem, Serien je Instanz) — nur noch zeitgebundene Termine der nächsten 7 Tage, eine Nachricht pro Durchlauf
 - [x] Streak-Zähler in der Routinenliste widersprach dem Fundament — entfernt
-- [ ] **Keine einzige Erinnerung:** `scheduleTaskReminder`/`scheduleRoutineReminder`/`scheduleSleepWarning` werden nirgends aufgerufen. Für die Zielgruppe die wichtigste Lücke; lokale Notifications brauchen keinen bezahlten Account
+- [x] Keine einzige Erinnerung wurde je geplant — behoben: `NotificationScheduler.rescheduleAll` gleicht nach jeder Daten-Aktion, nach Undo und beim Start ab (Aufgaben 30 Min, Routinen 15 Min, Termine 15 Min bzw. zu Beginn der Vorbereitung; nächste 7 Tage, max. 50). Noch nicht auf einem Gerät mit echter Benachrichtigung beobachtet
 - [ ] Proaktive Vorschläge sind reiner Text ohne Knöpfe — „nachholen / überspringen / neu planen" muss getippt werden, Gemini kennt die Routine dabei nicht
 - [ ] „Maximal 1 Vorschlag gleichzeitig" wird von ProactiveMonitor insgesamt nicht durchgesetzt (mehrere Detektoren pro Scan)
 - [ ] V2-S11-Tonregeln (max. 2 Sätze, keine Ausrufezeichen) fehlen im System-Prompt
