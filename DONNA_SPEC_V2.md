@@ -575,6 +575,15 @@ Bevor ein neues Feature in eine Spec aufgenommen wird, muss es diese Fragen best
 - [ ] Spec-Widerspruch: Morgenbriefing soll „Schlafqualität letzte Nacht" nennen — messbar erst mit Apple Health (V2-S10)
 - [ ] In keiner Spec: Datensicherung/Export (ohne CloudKit nur lokal), Verhalten ohne Gemini-Schlüssel/offline, Barrierefreiheit (VoiceOver, Dynamic Type)
 
+### Design-Feedback Thies 25.11. — Auftrag für die nächste Session
+- [ ] **Farbschema nicht konsequent:** Teile der App folgen dem Thema nicht. Auf dem iPhone weiße Ränder links/rechts im Routinen-Tab (Hintergrund nicht randlos), Navigationstitel kaum lesbar. Ursache vermutlich: Asset-Farben (`TextPrimary` usw.) und System-Komponenten (List, NavigationBar, TabBar) nicht an `DONNATheme` gebunden → einmal systematisch alle Flächen durchgehen, iPhone zuerst
+- [ ] **Leerzustand im Kalender raus:** „Kein Termin heute. Schreib mir, was du planst." gehört nicht groß in den Kalender — ein leerer Kalender ist einfach leer. Leerzustände nur dort, wo sie wirklich helfen
+- [ ] **Tab-Struktur neu denken:** DONNA ist das Verbindungsstück, nicht ein Tab unter vielen.
+  - Vorschlag: Kalender · Aufgaben · **DONNA (Mitte, hervorgehoben)** · Routinen · Mehr
+  - DONNA zusätzlich **kontextbezogen** aufrufbar: in Termin-, Aufgaben- und Routinen-Details ein „DONNA fragen"-Einstieg, der den Chat mit genau diesem Objekt als Kontext öffnet (z. B. „verschieb das auf morgen")
+  - Mac-Seitenleiste analog: DONNA oben/prominent, nicht zwischen den Listen
+- [ ] Zuerst im iPhone-Simulator prüfen (Simulator läuft inzwischen), dann Mac
+
 ### V2-S7 (DONNA-Tab Redesign)
 - [x] Bearbeiten-Sheet / Routine-Detail blockiert den Tab-Wechsel — behoben über `.id(selectedTab)` auf der NavigationSplitView (14.07.); ein offenes Sheet ist auf macOS bewusst modal
 - [x] Onboarding-Farbschema-Bug — behoben (25.11.): `DS.Colors.accent` zeigte auf das alte blaue `AccentColor`-Asset aus V1; jetzt Alias auf `warmAccent`, Asset ebenfalls auf #C4783C/#E8A06A
