@@ -26,6 +26,7 @@ struct EventChanges {
     var isLocked: FieldChange<Bool> = .unchanged
     var isAnnual: FieldChange<Bool> = .unchanged
     var notes: FieldChange<String> = .unchanged
+    var prepTimeMinutes: FieldChange<Int> = .unchanged
 }
 
 struct RoutineDefinition {
@@ -69,7 +70,7 @@ enum DONNACommand {
     case deleteTask(id: UUID)
 
     // Calendar
-    case createEvent(title: String, start: Date, end: Date, locked: Bool, notes: String?, isAnnual: Bool = false)
+    case createEvent(title: String, start: Date, end: Date, locked: Bool, notes: String?, isAnnual: Bool = false, prepMinutes: Int? = nil)
     case updateEvent(id: UUID, changes: EventChanges)
     case deleteEvent(id: UUID)
     /// Creates a recurring series: one CalendarEvent per occurrence, `eventSeriesHorizonWeeks` ahead.
@@ -306,8 +307,8 @@ final class CommandHandler {
         case let .deleteTask(id):
             return handleDeleteTask(id: id)
 
-        case let .createEvent(title, start, end, locked, notes, isAnnual):
-            return handleCreateEvent(title: title, start: start, end: end, locked: locked, notes: notes, isAnnual: isAnnual)
+        case let .createEvent(title, start, end, locked, notes, isAnnual, prepMinutes):
+            return handleCreateEvent(title: title, start: start, end: end, locked: locked, notes: notes, isAnnual: isAnnual, prepMinutes: prepMinutes)
         case let .updateEvent(id, changes):
             return handleUpdateEvent(id: id, changes: changes)
         case let .deleteEvent(id):
@@ -444,7 +445,7 @@ final class CommandHandler {
         (try? modelContext.fetch(FetchDescriptor<SleepWindow>())) ?? []
     }
 
-    private func handleCreateEvent(title: String, start: Date, end: Date, locked: Bool, notes: String?, isAnnual: Bool = false) -> CommandResult {
+    private func handleCreateEvent(title: String, start: Date, end: Date, locked: Bool, notes: String?, isAnnual: Bool = false, prepMinutes: Int? = nil) -> CommandResult {
         let cal = Calendar.current
         let actualLocked = locked || isAnnual
         let actualStart: Date
@@ -465,6 +466,7 @@ final class CommandHandler {
         if let reason = conflicts.blockReason { return .blocked(reason: reason) }
 
         let event = CalendarEvent(title: title, startTime: actualStart, endTime: actualEnd, isLocked: actualLocked, isAnnual: isAnnual, notes: notes)
+        if let prepMinutes, prepMinutes > 0, !isAnnual { event.prepTimeMinutes = prepMinutes }
         modelContext.insert(event)
         createdObject = (.calendarEvent, event.id)
         return persist(warning: conflicts.overlapWarning)
@@ -501,6 +503,11 @@ final class CommandHandler {
         if case .set(let v) = changes.endTime { event.endTime = v }
         if case .set(let v) = changes.isLocked { event.isLocked = v }
         if case .set(let v) = changes.isAnnual { event.isAnnual = v }
+        switch changes.prepTimeMinutes {
+        case .set(let v): event.prepTimeMinutes = v > 0 ? v : nil
+        case .clear:      event.prepTimeMinutes = nil
+        case .unchanged:  break
+        }
         switch changes.notes {
         case .set(let v): event.notes = v
         case .clear:      event.notes = nil

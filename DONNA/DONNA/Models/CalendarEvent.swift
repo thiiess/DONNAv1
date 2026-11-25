@@ -16,6 +16,8 @@ import SwiftData
     /// `EventRecurrence` raw value while the series is running. Cleared on the instances
     /// that remain when the rest of a series is deleted, which ends the series.
     var recurrenceRaw: String?
+    /// Minutes kept free before the event (V2-S6 Vorbereitungszeit); nil/0 = none.
+    var prepTimeMinutes: Int?
 
     init(id: UUID = UUID(), title: String, startTime: Date, endTime: Date, isLocked: Bool = false, isAnnual: Bool = false, notes: String? = nil, createdAt: Date = Date(), dataLayer: DataLayer = .hot) {
         self.id = id

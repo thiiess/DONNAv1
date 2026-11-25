@@ -26,6 +26,8 @@ struct ProposalDraft {
     private(set) var isWholeDay: Bool
     /// Routines: length in minutes.
     var durationMinutes: Int
+    /// Timed events: preparation time before the event (0 = none).
+    var prepMinutes: Int = 0
 
     private let raw: [String: Any]
 
@@ -54,6 +56,7 @@ struct ProposalDraft {
             start = time("startHour", "startMinute", default: 9, on: day)
             end = time("endHour", "endMinute", default: 10, on: day)
             isWholeDay = (dict["isAllDay"] as? Bool ?? false) || (dict["isAnnual"] as? Bool ?? false)
+            prepMinutes = dict["prepMinutes"] as? Int ?? 0
 
         case "createTask":
             kind = .task
@@ -108,6 +111,7 @@ struct ProposalDraft {
                 let (s, e) = normalizedEventTimes
                 put(s, hour: "startHour", minute: "startMinute")
                 put(e, hour: "endHour", minute: "endMinute")
+                out["prepMinutes"] = prepMinutes > 0 ? prepMinutes : NSNull()
             }
         case .task:
             if !trimmed.isEmpty { out["title"] = trimmed }
@@ -169,7 +173,8 @@ struct ProposalDraft {
             if let rec = (raw["recurrence"] as? String).flatMap(EventRecurrence.init(rawValue:)) {
                 return "Serientermin „\(name)“ \(rec.label) ab \(day), \(Self.clock(s))–\(Self.clock(e)) Uhr."
             }
-            return "Termin „\(name)“ am \(day) von \(Self.clock(s)) bis \(Self.clock(e)) Uhr."
+            let prep = prepMinutes > 0 ? " Davor \(prepMinutes) Minuten Vorbereitung." : ""
+            return "Termin „\(name)“ am \(day) von \(Self.clock(s)) bis \(Self.clock(e)) Uhr.\(prep)"
         case .task:
             return hasDate
                 ? "Aufgabe „\(name)“, fällig am \(Self.dayFormatter.string(from: date))."

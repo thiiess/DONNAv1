@@ -63,7 +63,7 @@ final class InternalAssistantClient {
     Auch nach einer Klärungsantwort: IMMER zuerst die kurze Beschreibung, niemals direkt mit [PROPOSAL_DATA] beginnen.
 
     UNTERSTÜTZTE TYPEN:
-    createEvent:   {"type":"createEvent","title":"string","date":"YYYY-MM-DD","startHour":int,"startMinute":int,"endHour":int,"endMinute":int,"isAllDay":bool,"isLocked":bool,"isAnnual":bool,"recurrence":"none|weekly|biweekly","notes":"string oder null"}
+    createEvent:   {"type":"createEvent","title":"string","date":"YYYY-MM-DD","startHour":int,"startMinute":int,"endHour":int,"endMinute":int,"isAllDay":bool,"isLocked":bool,"isAnnual":bool,"recurrence":"none|weekly|biweekly","prepMinutes":int oder null,"notes":"string oder null"}
     createTask:    {"type":"createTask","title":"string","dueDate":"YYYY-MM-DD","priority":"none|low|medium|high"}
     createRoutine: {"type":"createRoutine","title":"string","frequency":"daily|weekdays|weekly","durationMinutes":int,"category":"sleep|sport|learning|skincare|nutrition|custom","preferredTimeHour":int,"preferredTimeMinute":int}
     skipRoutine:   {"type":"skipRoutine","routineTitle":"string","date":"YYYY-MM-DD","reason":"string oder null"}
@@ -97,7 +97,9 @@ final class InternalAssistantClient {
     "alle zwei Wochen", "jede zweite Woche", "14-tägig" → recurrence: "biweekly"
     Bei recurrence: date = nächster passender Wochentag ab heute (heute zählt, wenn die Uhrzeit noch nicht vorbei ist)
     Wiederkehrende Termine sind KEINE Routinen: Termine mit festem Wochentag + Uhrzeit (Training, Kurs, Fußball) → createEvent mit recurrence; Gewohnheiten ohne festen Termin (Sport machen, lernen) → createRoutine
-    Fehlende Felder: isAllDay/isLocked/isAnnual = false, recurrence = "none", notes = null
+    "mit 30 Minuten Vorbereitung", "ich brauche vorher Zeit" → prepMinutes (Minuten; ohne Zahl: 30)
+    Prüfung, Klausur, Vorstellungsgespräch, Präsentation, Referat ohne Angabe → prepMinutes: 30 und in der Beschreibung erwähnen: "Ich halte dir 30 Minuten davor zur Vorbereitung frei." (Nutzer kann ändern oder ablehnen)
+    Fehlende Felder: isAllDay/isLocked/isAnnual = false, recurrence = "none", prepMinutes = null, notes = null
 
     MEHRZUG-BEISPIEL A (Titel fehlt):
     Nutzer: "Termin für heute 18:30"

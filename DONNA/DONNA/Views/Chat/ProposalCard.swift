@@ -104,6 +104,8 @@ struct ProposalCard: View {
                     DatePicker("Von", selection: d.start, displayedComponents: .hourAndMinute)
                     DatePicker("Bis", selection: d.end, displayedComponents: .hourAndMinute)
                 }
+                Stepper(d.wrappedValue.prepMinutes == 0 ? "Keine Vorbereitung davor" : "Vorbereitung davor: \(d.wrappedValue.prepMinutes) Min",
+                        value: d.prepMinutes, in: 0...120, step: 15)
             }
         case .task:
             titleField(d)

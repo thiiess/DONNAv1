@@ -258,7 +258,8 @@ final class InteractionOrchestrator {
                let recurrence = (data["recurrence"] as? String).flatMap(EventRecurrence.init(rawValue:)) {
                 return .createEventSeries(title: title, start: start, end: end, locked: isLocked, notes: notes, recurrence: recurrence)
             }
-            return .createEvent(title: title, start: start, end: end, locked: isLocked, notes: notes, isAnnual: isAnnual)
+            let prep = (data["prepMinutes"] as? Int).flatMap { $0 > 0 ? $0 : nil }
+            return .createEvent(title: title, start: start, end: end, locked: isLocked, notes: notes, isAnnual: isAnnual, prepMinutes: prep)
 
         case "createTask":
             let title      = data["title"]    as? String ?? "Aufgabe"

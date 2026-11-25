@@ -194,6 +194,26 @@ struct DayView: View {
             let yOff = yOffset(for: event.startTime)
             let h = max(24, eventHeight(start: event.startTime, end: event.endTime))
             let lane = laneFrame(slots[.event(event.id)], width: width)
+            if let prep = event.prepTimeMinutes, prep > 0 {
+                // Preparation time: a quiet dashed block right above the event.
+                let prepStart = event.startTime.addingTimeInterval(TimeInterval(-prep * 60))
+                let prepHeight = CGFloat(prep) / 60.0 * hourHeight
+                RoundedRectangle(cornerRadius: DS.Radius.chip)
+                    .strokeBorder(DS.Colors.warmAccent.opacity(0.45), style: StrokeStyle(lineWidth: 1, dash: [4, 3]))
+                    .background(DS.Colors.warmAccent.opacity(0.06), in: RoundedRectangle(cornerRadius: DS.Radius.chip))
+                    .overlay(alignment: .topLeading) {
+                        if prepHeight >= 18 {
+                            Text("Vorbereitung")
+                                .font(.caption2)
+                                .foregroundStyle(DS.Colors.warmAccent.opacity(0.8))
+                                .padding(.horizontal, 8)
+                                .padding(.top, 3)
+                        }
+                    }
+                    .frame(width: lane.width, height: max(8, prepHeight - 2))
+                    .offset(x: lane.x, y: yOffset(for: prepStart))
+                    .allowsHitTesting(false)
+            }
             ZStack(alignment: .topLeading) {
                 RoundedRectangle(cornerRadius: DS.Radius.chip)
                     .fill(DS.Colors.backgroundSecondary)

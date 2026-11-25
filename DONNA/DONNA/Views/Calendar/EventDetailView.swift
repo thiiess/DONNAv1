@@ -18,6 +18,7 @@ struct EventDetailView: View {
     @State private var isAllDay: Bool
     @State private var isLocked: Bool
     @State private var isAnnual: Bool
+    @State private var prepMinutes: Int
     @State private var showingDatePicker = false
     @State private var showingTimePicker = false
     @State private var showingDeleteConfirmation = false
@@ -32,6 +33,7 @@ struct EventDetailView: View {
         _endTime     = State(initialValue: event.endTime)
         _isLocked    = State(initialValue: event.isLocked)
         _isAnnual    = State(initialValue: event.isAnnual)
+        _prepMinutes = State(initialValue: event.prepTimeMinutes ?? 0)
         let cal = Calendar.current
         let startIsDay = cal.startOfDay(for: event.startTime) == event.startTime
         let endComps = cal.dateComponents([.hour, .minute], from: event.endTime)
@@ -279,6 +281,25 @@ struct EventDetailView: View {
                     .padding(.bottom, 12)
                     .opacity(isAnnual ? 1 : 0)
             }
+            if !isAllDay && !isAnnual {
+                Divider()
+                HStack {
+                    Text("Vorbereitung davor")
+                        .foregroundStyle(DS.Colors.textPrimary)
+                    Spacer()
+                    Picker("Vorbereitung davor", selection: $prepMinutes) {
+                        Text("Keine").tag(0)
+                        ForEach([15, 30, 45, 60, 90], id: \.self) { m in
+                            Text("\(m) Min").tag(m)
+                        }
+                    }
+                    .labelsHidden()
+                    .pickerStyle(.menu)
+                    .tint(DS.Colors.warmAccent)
+                    .fixedSize()
+                }
+                .padding(.vertical, 12)
+            }
         }
     }
 
@@ -368,6 +389,7 @@ struct EventDetailView: View {
         changes.endTime   = .set(actualEnd)
         changes.isLocked  = .set(isLocked)
         changes.isAnnual  = .set(isAnnual)
+        changes.prepTimeMinutes = (isAllDay || isAnnual || prepMinutes == 0) ? .clear : .set(prepMinutes)
         changes.notes     = notes.isEmpty ? .clear : .set(notes)
         let result = CommandHandler(modelContext: modelContext).execute(.updateEvent(id: event.id, changes: changes))
         // A block leaves the sheet open so the edit isn't silently dropped — the banner

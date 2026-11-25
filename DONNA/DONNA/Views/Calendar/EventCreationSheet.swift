@@ -17,6 +17,7 @@ struct EventCreationSheet: View {
     @State private var isAnnual = false
     /// nil = einmalig.
     @State private var recurrence: EventRecurrence? = nil
+    @State private var prepMinutes = 0
     @State private var notes = ""
     @State private var showingDatePicker = false
     @State private var showingTimePicker = false
@@ -276,6 +277,25 @@ struct EventCreationSheet: View {
                 }
                 .padding(.vertical, 12)
             }
+            if !isAllDay && !isAnnual {
+                Divider()
+                HStack {
+                    Text("Vorbereitung davor")
+                        .foregroundStyle(DS.Colors.textPrimary)
+                    Spacer()
+                    Picker("Vorbereitung davor", selection: $prepMinutes) {
+                        Text("Keine").tag(0)
+                        ForEach([15, 30, 45, 60, 90], id: \.self) { m in
+                            Text("\(m) Min").tag(m)
+                        }
+                    }
+                    .labelsHidden()
+                    .pickerStyle(.menu)
+                    .tint(DS.Colors.warmAccent)
+                    .fixedSize()
+                }
+                .padding(.vertical, 12)
+            }
         }
     }
 
@@ -358,7 +378,8 @@ struct EventCreationSheet: View {
                 end:      actualEnd,
                 locked:   isLocked,
                 notes:    notes.isEmpty ? nil : notes,
-                isAnnual: isAnnual
+                isAnnual: isAnnual,
+                prepMinutes: isAllDay || isAnnual ? nil : prepMinutes
             )
         )
     }

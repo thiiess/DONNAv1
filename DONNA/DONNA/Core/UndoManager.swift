@@ -32,6 +32,7 @@ struct CalendarEventSnapshot {
     let dataLayer: DataLayer
     let seriesID: UUID?
     let recurrenceRaw: String?
+    let prepTimeMinutes: Int?
 }
 
 struct RoutineSnapshot {
@@ -245,6 +246,7 @@ final class DONNAUndoManager {
         event.dataLayer = s.dataLayer
         event.seriesID = s.seriesID
         event.recurrenceRaw = s.recurrenceRaw
+        event.prepTimeMinutes = s.prepTimeMinutes
     }
 
     private func restoreRoutine(_ s: RoutineSnapshot, context: ModelContext) -> Routine {
@@ -343,7 +345,8 @@ extension CalendarEvent {
             id: id, title: title, startTime: startTime, endTime: endTime,
             isLocked: isLocked, isAnnual: isAnnual, notes: notes,
             createdAt: createdAt, dataLayer: dataLayer,
-            seriesID: seriesID, recurrenceRaw: recurrenceRaw
+            seriesID: seriesID, recurrenceRaw: recurrenceRaw,
+            prepTimeMinutes: prepTimeMinutes
         )
     }
 }
