@@ -15,7 +15,9 @@ struct ChatView: View {
 
             if let orchestrator {
                 ProposalFeedView(orchestrator: orchestrator)
-                    .frame(maxHeight: orchestrator.phase == .awaitingConsent ? 180 : 44)
+                    .frame(maxHeight: orchestrator.phase == .awaitingConsent
+                        ? (orchestrator.isEditingProposal ? 380 : 200)
+                        : 44)
 
                 Divider()
 

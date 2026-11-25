@@ -35,6 +35,9 @@ final class InteractionOrchestrator {
     /// Raw JSON string from the AI's [PROPOSAL_DATA] block.
     var pendingProposalJSON: String?
 
+    /// True while the proposal card shows its inline „Ändern" editor.
+    var isEditingProposal = false
+
     /// Human-readable error for the last failed operation.
     var lastError: String?
 
@@ -123,6 +126,7 @@ final class InteractionOrchestrator {
     /// User confirmed a proposal — parse the JSON, build DONNACommand, execute.
     func confirm() {
         guard phase == .awaitingConsent else { return }
+        isEditingProposal = false
         phase = .executing
 
         guard let jsonStr = pendingProposalJSON else {
@@ -170,6 +174,25 @@ final class InteractionOrchestrator {
     func reject() {
         clearTransientState()
         phase = .idle
+    }
+
+    // MARK: - Proposal editing (V2-S4)
+
+    /// Editable draft of the pending proposal, or nil if this proposal type has nothing
+    /// the user can adjust (e.g. skipping a routine).
+    func makeProposalDraft() -> ProposalDraft? {
+        guard phase == .awaitingConsent, let json = pendingProposalJSON else { return nil }
+        return ProposalDraft(json: json)
+    }
+
+    /// Replaces the pending proposal with the user's edit. Nothing is executed — the user
+    /// still confirms the adjusted proposal explicitly.
+    func applyProposalEdit(_ draft: ProposalDraft) {
+        guard phase == .awaitingConsent, let json = draft.json() else { return }
+        pendingProposalJSON = json
+        currentProposal = draft.summary
+        isEditingProposal = false
+        persistSystemMessage("Angepasst: \(draft.summary) Soll ich das so eintragen?")
     }
 
     // MARK: - External research
@@ -356,6 +379,7 @@ final class InteractionOrchestrator {
     }
 
     private func clearTransientState() {
+        isEditingProposal   = false
         currentProposal     = nil
         currentClarification = nil
         currentExplanation  = nil
