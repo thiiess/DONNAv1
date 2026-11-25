@@ -95,10 +95,12 @@ final class ConflictDetector {
             }
         }
 
-        for window in sleepWindows where window.isProtected {
-            if intersectsSleepWindow(start: start, end: end, window: window) {
-                found.append(.sleepWindowBlocked(window))
-            }
+        // The sleep window is a daily rhythm: the most recently set protected window
+        // applies to every night (it used to be compared with its absolute dates, so it
+        // only ever protected the one night it was created on).
+        if let window = sleepWindows.filter({ $0.isProtected }).max(by: { $0.date < $1.date }),
+           intersectsDailySleepWindow(start: start, end: end, window: window) {
+            found.append(.sleepWindowBlocked(window))
         }
 
         return ConflictResult(conflicts: found)
@@ -131,13 +133,26 @@ final class ConflictDetector {
         start < otherEnd && otherStart < end
     }
 
-    /// Sleep windows can span midnight (bedtime later in the day than wakeTime).
-    /// Handles this by advancing wakeTime by 24 h when it precedes bedtime.
-    private func intersectsSleepWindow(start: Date, end: Date, window: SleepWindow) -> Bool {
-        let bedtime = window.bedtime
-        let wakeTime = window.wakeTime <= bedtime
-            ? window.wakeTime.addingTimeInterval(86400)
-            : window.wakeTime
-        return overlaps(start: start, end: end, otherStart: bedtime, otherEnd: wakeTime)
+    /// Projects the window's clock times onto every night the interval could touch
+    /// (the night before its start through the night of its end) and checks each.
+    /// Windows may span midnight: then wake time is on the following day.
+    func intersectsDailySleepWindow(start: Date, end: Date, window: SleepWindow, calendar: Calendar = .current) -> Bool {
+        let bed = calendar.dateComponents([.hour, .minute], from: window.bedtime)
+        let wake = calendar.dateComponents([.hour, .minute], from: window.wakeTime)
+        let bedMin = (bed.hour ?? 0) * 60 + (bed.minute ?? 0)
+        let wakeMin = (wake.hour ?? 0) * 60 + (wake.minute ?? 0)
+        guard bedMin != wakeMin else { return false }
+        let spansMidnight = wakeMin <= bedMin
+
+        var day = calendar.date(byAdding: .day, value: -1, to: calendar.startOfDay(for: start)) ?? start
+        let lastDay = calendar.startOfDay(for: end)
+        while day <= lastDay {
+            let nightStart = day.addingTimeInterval(TimeInterval(bedMin * 60))
+            let nightEnd = day.addingTimeInterval(TimeInterval((spansMidnight ? wakeMin + 24 * 60 : wakeMin) * 60))
+            if overlaps(start: start, end: end, otherStart: nightStart, otherEnd: nightEnd) { return true }
+            guard let next = calendar.date(byAdding: .day, value: 1, to: day) else { break }
+            day = next
+        }
+        return false
     }
 }

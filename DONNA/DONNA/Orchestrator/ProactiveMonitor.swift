@@ -200,56 +200,36 @@ final class ProactiveMonitor {
 
     // MARK: - Calendar conflict detection
 
-    private func detectCalendarConflicts(modelContext: ModelContext) {
-        let events = (try? modelContext.fetch(
+    /// One calm message per scan at most (Fundament: max. 1 Vorschlag gleichzeitig).
+    /// Only timed events in the next 7 days count — all-day entries are day markers, and
+    /// a weekly series must not produce one warning per instance.
+    private func detectCalendarConflicts(modelContext: ModelContext, now: Date = Date()) {
+        let horizon = Calendar.current.date(byAdding: .day, value: 7, to: now) ?? now
+        let events = ((try? modelContext.fetch(
             FetchDescriptor<CalendarEvent>(sortBy: [SortDescriptor(\.startTime)])
-        )) ?? []
-        let sleepWindows = (try? modelContext.fetch(FetchDescriptor<SleepWindow>())) ?? []
+        )) ?? []).filter { $0.startTime > now && $0.startTime < horizon && !$0.isAnnual && !$0.spansWholeDay }
 
-        let now = Date()
-        let futureEvents = events.filter { $0.startTime > now }
-
-        // Avoid O(n²) duplicate pairs by only checking each pair once
-        for i in 0..<futureEvents.count {
-            for j in (i + 1)..<futureEvents.count {
-                let a = futureEvents[i]
-                let b = futureEvents[j]
-                let result = conflictDetector.check(
-                    start: a.startTime,
-                    end: a.endTime,
-                    against: [b],
-                    sleepWindows: [],
-                    excludingEventId: nil
-                )
-                if result.hasConflicts {
-                    let ids = [a.id.uuidString, b.id.uuidString].sorted()
-                    let key = "conflict_overlap_\(ids[0])_\(ids[1])"
-                    createProposalIfNew(
-                        key: key,
-                        content: "Ich habe einen Terminkonflikt bemerkt: Zwei geplante Ereignisse überschneiden sich zeitlich. Möchtest du einen der Termine verschieben?",
-                        modelContext: modelContext
-                    )
-                }
-            }
-
-            // Check each event against sleep windows separately
-            let a = futureEvents[i]
-            let sleepResult = conflictDetector.check(
-                start: a.startTime,
-                end: a.endTime,
-                against: [],
-                sleepWindows: sleepWindows,
-                excludingEventId: nil
-            )
-            for window in sleepResult.blockedBySleepWindows {
-                let key = "conflict_sleep_\(a.id.uuidString)_\(window.id.uuidString)"
-                createProposalIfNew(
-                    key: key,
-                    content: "Ein geplanter Termin liegt in deinem Schlafschutzfenster. Soll ich einen anderen Zeitslot vorschlagen?",
-                    modelContext: modelContext
-                )
+        var pairs: [(CalendarEvent, CalendarEvent)] = []
+        for i in 0..<events.count {
+            for j in (i + 1)..<events.count {
+                let a = events[i], b = events[j]
+                if a.startTime < b.endTime && b.startTime < a.endTime { pairs.append((a, b)) }
             }
         }
+        guard let (a, b) = pairs.first else { return }
+
+        let keys = pairs.map { pair in
+            "conflict_overlap_" + [pair.0.id.uuidString, pair.1.id.uuidString].sorted().joined(separator: "_")
+        }.sorted()
+        let fmt = DateFormatter()
+        fmt.locale = Locale(identifier: "de_DE")
+        fmt.dateFormat = "EEE HH:mm"
+        let extra = pairs.count > 1 ? " (und \(pairs.count - 1) weitere Überschneidungen diese Woche)" : ""
+        createProposalIfNew(
+            key: keys.joined(separator: "|"),
+            content: "„\(a.title)“ und „\(b.title)“ überschneiden sich am \(fmt.string(from: a.startTime))\(extra). Soll ich einen davon verschieben?",
+            modelContext: modelContext
+        )
     }
 
     // MARK: - Sleep deficit streak detection

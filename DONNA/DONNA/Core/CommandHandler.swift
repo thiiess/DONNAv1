@@ -79,6 +79,9 @@ enum DONNACommand {
     case deleteEventSeries(seriesID: UUID, from: Date)
     /// Housekeeping on app start: tops running series up to the horizon. Not undoable.
     case extendEventSeries
+    /// Housekeeping on app start: keeps every active routine scheduled 30 days ahead
+    /// (occurrences used to be generated only once, at creation). Not undoable.
+    case extendRoutineOccurrences
 
     // Routines
     case createRoutine(definition: RoutineDefinition)
@@ -234,7 +237,7 @@ final class CommandHandler {
         case .deleteLearnedItem:        return "Präferenz gelöscht"
         case .activateContextMode:      return "Kontextmodus aktiviert"
         case .deactivateContextMode:    return "Kontextmodus beendet"
-        case .purgeOrphanedOccurrences, .extendEventSeries,
+        case .purgeOrphanedOccurrences, .extendEventSeries, .extendRoutineOccurrences,
              .postUserMessage, .postAssistantMessage, .markAssistantMessagesRead,
              .clearChatHistory, .dismissBriefing, .undo:
             return nil
@@ -319,6 +322,8 @@ final class CommandHandler {
             return handleDeleteEventSeries(seriesID: seriesID, from: from)
         case .extendEventSeries:
             return handleExtendEventSeries()
+        case .extendRoutineOccurrences:
+            return handleExtendRoutineOccurrences()
 
         case let .createRoutine(definition):
             return handleCreateRoutine(definition: definition)
@@ -635,6 +640,26 @@ final class CommandHandler {
             changed = changed || result.created > 0
         }
         return changed ? persist() : .success()
+    }
+
+    private func handleExtendRoutineOccurrences(now: Date = Date()) -> CommandResult {
+        let cal = Calendar.current
+        let today = cal.startOfDay(for: now)
+        guard let horizon = cal.date(byAdding: .day, value: 30, to: today) else { return .success() }
+        var inserted = 0
+        for routine in fetchAll(Routine.self) where routine.isActive {
+            let existing = Set(routine.occurrences.map { cal.startOfDay(for: $0.scheduledDate) })
+            // Only fill forward from the last generated day, so skipped/deleted past days
+            // are not resurrected.
+            let last = routine.occurrences.map(\.scheduledDate).max() ?? now
+            let from = max(today, cal.date(byAdding: .day, value: 1, to: cal.startOfDay(for: last)) ?? today)
+            guard from <= horizon else { continue }
+            for occ in routineScheduler.generateOccurrences(for: routine, from: from, to: horizon, skipping: existing) {
+                modelContext.insert(occ)
+                inserted += 1
+            }
+        }
+        return inserted > 0 ? persist() : .success()
     }
 
     // MARK: - Routine Handlers

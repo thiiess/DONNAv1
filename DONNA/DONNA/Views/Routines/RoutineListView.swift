@@ -202,11 +202,7 @@ private struct OccurrenceRowContent: View {
                             .font(DS.Typography.caption)
                             .foregroundStyle(DS.Colors.textTertiary)
                     }
-                    if streak > 0 {
-                        Text("\(streak)")
-                            .font(.caption.monospacedDigit())
-                            .foregroundStyle(DS.Colors.textTertiary)
-                    }
+                    // No streak count here on purpose — Fundament: streaks create guilt.
                 }
             }
 
