@@ -145,6 +145,8 @@ enum CommandResult {
 final class CommandHandler {
     private let modelContext: ModelContext
     // TODO(V2-S3): capture a snapshot before each mutation and call undoManager.save(_:)
+    /// Shared across all CommandHandler instances: views and services create a fresh
+    /// handler per call, so a per-instance manager would lose the undo stack immediately.
     let undoManager: DONNAUndoManager
     private let conflictDetector: ConflictDetector
     private let scienceEngine: ScienceEngine
@@ -152,7 +154,7 @@ final class CommandHandler {
 
     init(modelContext: ModelContext) {
         self.modelContext = modelContext
-        self.undoManager = DONNAUndoManager()
+        self.undoManager = DONNAUndoManager.shared
         self.conflictDetector = ConflictDetector()
         self.scienceEngine = ScienceEngine()
         self.routineScheduler = RoutineScheduler()
@@ -227,13 +229,29 @@ final class CommandHandler {
         }
     }
 
+    // MARK: - Persistence
+
+    /// Saves pending changes and reports the outcome honestly. On failure the context is
+    /// rolled back so a half-applied mutation cannot be picked up by a later save.
+    private func persist(warning: String? = nil) -> CommandResult {
+        do {
+            try modelContext.save()
+            return .success(warning: warning)
+        } catch {
+            modelContext.rollback()
+            #if DEBUG
+            print("[DEBUG] CommandHandler: save failed — \(error)")
+            #endif
+            return .failure(.validationFailed(reason: "Änderung konnte nicht gespeichert werden."))
+        }
+    }
+
     // MARK: - Task Handlers
 
     private func handleCreateTask(title: String, dueDate: Date?, priority: Priority, notes: String?) -> CommandResult {
         let task = DONNATask(title: title, notes: notes, dueDate: dueDate, priority: priority)
         modelContext.insert(task)
-        try? modelContext.save()
-        return .success()
+        return persist()
     }
 
     private func handleUpdateTask(id: UUID, changes: TaskChanges) -> CommandResult {
@@ -255,8 +273,7 @@ final class CommandHandler {
         }
         if case .set(let v) = changes.dueTimeIncluded { task.dueTimeIncluded = v }
         if case .set(let v) = changes.priority { task.priority = v }
-        try? modelContext.save()
-        return .success()
+        return persist()
     }
 
     private func handleCompleteTask(id: UUID) -> CommandResult {
@@ -266,8 +283,7 @@ final class CommandHandler {
         }
         task.status = .completed
         task.completedAt = Date()
-        try? modelContext.save()
-        return .success()
+        return persist()
     }
 
     private func handleDeleteTask(id: UUID) -> CommandResult {
@@ -276,8 +292,7 @@ final class CommandHandler {
             return .failure(.notFound(id: id))
         }
         modelContext.delete(task)
-        try? modelContext.save()
-        return .success()
+        return persist()
     }
 
     // MARK: - Calendar Handlers
@@ -312,8 +327,7 @@ final class CommandHandler {
 
         let event = CalendarEvent(title: title, startTime: actualStart, endTime: actualEnd, isLocked: actualLocked, isAnnual: isAnnual, notes: notes)
         modelContext.insert(event)
-        try? modelContext.save()
-        return .success(warning: conflicts.overlapWarning)
+        return persist(warning: conflicts.overlapWarning)
     }
 
     private func handleUpdateEvent(id: UUID, changes: EventChanges) -> CommandResult {
@@ -352,8 +366,7 @@ final class CommandHandler {
         case .clear:      event.notes = nil
         case .unchanged:  break
         }
-        try? modelContext.save()
-        return .success(warning: conflicts.overlapWarning)
+        return persist(warning: conflicts.overlapWarning)
     }
 
     private func handleDeleteEvent(id: UUID) -> CommandResult {
@@ -362,8 +375,7 @@ final class CommandHandler {
             return .failure(.notFound(id: id))
         }
         modelContext.delete(event)
-        try? modelContext.save()
-        return .success()
+        return persist()
     }
 
     // MARK: - Routine Handlers
@@ -385,8 +397,7 @@ final class CommandHandler {
         for occ in routineScheduler.generateOccurrences(for: routine, from: now, to: end) {
             modelContext.insert(occ)
         }
-        try? modelContext.save()
-        return .success()
+        return persist()
     }
 
     private func handleUpdateRoutine(id: UUID, title: String, frequency: RoutineFrequency, preferredTimeOfDay: Date?, durationMinutes: Int? = nil) -> CommandResult {
@@ -412,8 +423,7 @@ final class CommandHandler {
                 }
             }
         }
-        try? modelContext.save()
-        return .success()
+        return persist()
     }
 
     private func handleDeleteRoutine(id: UUID) -> CommandResult {
@@ -422,8 +432,7 @@ final class CommandHandler {
             return .failure(.notFound(id: id))
         }
         modelContext.delete(routine)
-        try? modelContext.save()
-        return .success()
+        return persist()
     }
 
     private func handleCompleteOccurrence(id: UUID) -> CommandResult {
@@ -452,8 +461,7 @@ final class CommandHandler {
             }
         }
 
-        try? modelContext.save()
-        return .success()
+        return persist()
     }
 
     private func handleSkipOccurrence(id: UUID, reason: String?) -> CommandResult {
@@ -463,8 +471,7 @@ final class CommandHandler {
         }
         occ.status = .skipped
         occ.skippedReason = reason
-        try? modelContext.save()
-        return .success()
+        return persist()
     }
 
     private func handleRescheduleOccurrence(id: UUID, newDate: Date) -> CommandResult {
@@ -474,8 +481,7 @@ final class CommandHandler {
         }
         occ.scheduledDate = newDate
         occ.status = .rescheduled
-        try? modelContext.save()
-        return .success()
+        return persist()
     }
 
     // MARK: - Sleep Handler
@@ -484,8 +490,7 @@ final class CommandHandler {
         let today = Calendar.current.startOfDay(for: Date())
         let window = SleepWindow(date: today, bedtime: bedtime, wakeTime: wakeTime)
         modelContext.insert(window)
-        try? modelContext.save()
-        return .success()
+        return persist()
     }
 
     // MARK: - Preference & Profile Handlers
@@ -517,8 +522,7 @@ final class CommandHandler {
                 confirmedAt: Date()
             ))
         }
-        try? modelContext.save()
-        return .success()
+        return persist()
     }
 
     private func handleDeleteLearnedItem(key: String) -> CommandResult {
@@ -528,8 +532,7 @@ final class CommandHandler {
             return .failure(.validationFailed(reason: "Präferenz nicht gefunden: \(key)"))
         }
         modelContext.delete(pref)
-        try? modelContext.save()
-        return .success()
+        return persist()
     }
 
     // MARK: - Context Mode Handlers
@@ -544,15 +547,13 @@ final class CommandHandler {
         } else {
             modelContext.insert(ContextMode(name: name, isActive: true, startDate: Date(), endDate: until))
         }
-        try? modelContext.save()
-        return .success()
+        return persist()
     }
 
     private func handleDeactivateContextMode() -> CommandResult {
         let allModes = (try? modelContext.fetch(FetchDescriptor<ContextMode>())) ?? []
         for mode in allModes { mode.isActive = false }
-        try? modelContext.save()
-        return .success()
+        return persist()
     }
 
     // MARK: - Chat Handler
@@ -560,15 +561,13 @@ final class CommandHandler {
     private func handlePostUserMessage(content: String) -> CommandResult {
         let message = ChatMessage(role: .user, content: content)
         modelContext.insert(message)
-        try? modelContext.save()
-        return .success()
+        return persist()
     }
 
     private func handlePostAssistantMessage(content: String, outputType: AIOutputType, isBriefing: Bool) -> CommandResult {
         let message = ChatMessage(role: .assistant, content: content, outputType: outputType, isRead: false, isBriefing: isBriefing)
         modelContext.insert(message)
-        try? modelContext.save()
-        return .success()
+        return persist()
     }
 
     private func handleMarkAssistantMessagesRead() -> CommandResult {
@@ -576,15 +575,13 @@ final class CommandHandler {
         let unread = all.filter { $0.role == .assistant && !$0.isRead }
         guard !unread.isEmpty else { return .success() }
         for msg in unread { msg.isRead = true }
-        try? modelContext.save()
-        return .success()
+        return persist()
     }
 
     private func handleClearChatHistory() -> CommandResult {
         let all = (try? modelContext.fetch(FetchDescriptor<ChatMessage>())) ?? []
         for message in all { modelContext.delete(message) }
-        try? modelContext.save()
-        return .success()
+        return persist()
     }
 
     private func handleDismissBriefing(id: UUID) -> CommandResult {
@@ -593,8 +590,7 @@ final class CommandHandler {
             return .failure(.notFound(id: id))
         }
         message.isBriefingDismissed = true
-        try? modelContext.save()
-        return .success()
+        return persist()
     }
 
     // MARK: - Undo

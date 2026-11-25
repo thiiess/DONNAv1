@@ -373,22 +373,44 @@ final class ProactiveMonitor {
 
     // MARK: - Deduplication
 
-    /// Seen keys are stored in UserDefaults as a flat array of strings.
-    /// Each entry is retained for 7 days to allow re-surfacing recurring issues.
-    private var seenKeys: Set<String> {
-        get { Set(UserDefaults.standard.stringArray(forKey: "proactive_seen_keys") ?? []) }
-        set { UserDefaults.standard.set(Array(newValue), forKey: "proactive_seen_keys") }
+    /// Seen keys are stored in UserDefaults as `[key: firstSeen]` (seconds since 1970).
+    /// Each entry is retained for `seenKeyRetention`; after that the key is pruned, so an
+    /// issue that is *still* present (e.g. a routine left undone, a conflict nobody moved)
+    /// is surfaced again instead of being silenced forever — and the store stops growing.
+    private static let seenKeysStoreKey = "proactive_seen_keys_v2"
+    private static let legacySeenKeysStoreKey = "proactive_seen_keys"
+    private static let seenKeyRetention: TimeInterval = 7 * 24 * 3600
+
+    /// Loads the seen-key map, migrating the legacy flat array (no timestamps) on first
+    /// use and dropping entries older than the retention window.
+    private func loadSeenKeys(now: Date = Date()) -> [String: Double] {
+        let defaults = UserDefaults.standard
+        var map = (defaults.dictionary(forKey: Self.seenKeysStoreKey) as? [String: Double]) ?? [:]
+
+        if let legacy = defaults.stringArray(forKey: Self.legacySeenKeysStoreKey) {
+            // Legacy entries have no timestamp; start their clock now so nothing that was
+            // already shown re-fires immediately after the update.
+            for key in legacy where map[key] == nil {
+                map[key] = now.timeIntervalSince1970
+            }
+            defaults.removeObject(forKey: Self.legacySeenKeysStoreKey)
+        }
+
+        let cutoff = now.timeIntervalSince1970 - Self.seenKeyRetention
+        map = map.filter { $0.value >= cutoff }
+        defaults.set(map, forKey: Self.seenKeysStoreKey)
+        return map
     }
 
     private func createProposalIfNew(key: String, content: String, modelContext: ModelContext) {
-        var keys = seenKeys
-        guard !keys.contains(key) else { return }
+        var keys = loadSeenKeys()
+        guard keys[key] == nil else { return }
 
         let result = CommandHandler(modelContext: modelContext)
             .execute(.postAssistantMessage(content: content, outputType: .proposal))
         guard case .success = result else { return }
 
-        keys.insert(key)
-        seenKeys = keys
+        keys[key] = Date().timeIntervalSince1970
+        UserDefaults.standard.set(keys, forKey: Self.seenKeysStoreKey)
     }
 }

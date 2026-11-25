@@ -80,12 +80,11 @@ final class ProfileUpdater {
         guard !hasConfirmedPreference(key: key) else { return }
         guard !isOnCooldown(key: key) else { return }
 
-        let msg = ChatMessage(
-            role: .assistant,
-            content: message,
-            outputType: .clarification
-        )
-        context.insert(msg)
+        let result = CommandHandler(modelContext: context)
+            .execute(.postAssistantMessage(content: message, outputType: .clarification))
+        // Only start the cooldown if the question actually reached the chat — otherwise
+        // a failed save would silence this pattern for 30 days without ever asking.
+        guard case .success = result else { return }
 
         // Record ask timestamp as a cooldown marker
         let cooldownKey = "cooldown_\(key)"

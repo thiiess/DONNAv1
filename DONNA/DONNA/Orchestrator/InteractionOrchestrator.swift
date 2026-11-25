@@ -159,9 +159,12 @@ final class InteractionOrchestrator {
     }
 
     private func persistSystemMessage(_ text: String) {
-        let msg = ChatMessage(role: .assistant, content: text)
-        modelContext.insert(msg)
-        try? modelContext.save()
+        let result = CommandHandler(modelContext: modelContext)
+            .execute(.postAssistantMessage(content: text, outputType: .interpretation))
+        if case .failure(let error) = result {
+            // The chat can't carry the message — surface it through the error banner instead.
+            lastError = error.localizedDescription
+        }
     }
 
     func reject() {

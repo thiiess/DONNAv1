@@ -121,6 +121,9 @@ enum UndoError: Error, LocalizedError {
 /// Stores exactly one pre-execution snapshot and can restore it.
 /// Only one level of undo is supported (spec requirement).
 final class DONNAUndoManager {
+    /// Single app-wide undo stack (see CommandHandler.init).
+    @MainActor static let shared = DONNAUndoManager()
+
     private(set) var pendingSnapshot: DONNASnapshot?
 
     var canUndo: Bool { pendingSnapshot != nil }
