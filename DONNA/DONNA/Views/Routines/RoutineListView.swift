@@ -74,7 +74,7 @@ struct RoutineListView: View {
                     .background(DS.Colors.appBackground)
                 }
             }
-            .navigationTitle("Routines")
+            .navigationTitle("Routinen")
             .background(DS.Colors.appBackground)
             #if os(iOS)
             .toolbarBackground(DS.Colors.appBackground, for: .navigationBar)
@@ -122,7 +122,7 @@ struct RoutineListView: View {
                                 .execute(.completeOccurrence(id: occ.id))
                         }
                     } label: {
-                        Label("Complete", systemImage: "checkmark")
+                        Label("Erledigt", systemImage: "checkmark")
                     }
                     .tint(DS.Colors.success)
                 }
@@ -135,7 +135,7 @@ struct RoutineListView: View {
                                 .execute(.skipOccurrence(id: occ.id, reason: nil))
                         }
                     } label: {
-                        Label("Skip", systemImage: "xmark")
+                        Label("Überspringen", systemImage: "xmark")
                     }
                     .tint(DS.Colors.textTertiary)
                 }

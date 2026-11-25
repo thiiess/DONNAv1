@@ -112,7 +112,7 @@ struct TaskListView: View {
                     .background(DS.Colors.appBackground)
                 }
             }
-            .navigationTitle("Tasks")
+            .navigationTitle("Aufgaben")
             .background(DS.Colors.appBackground)
             #if os(iOS)
             .toolbarBackground(DS.Colors.appBackground, for: .navigationBar)

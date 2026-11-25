@@ -60,11 +60,11 @@ struct SettingsView: View {
                 #endif
                 apiKeySection
             }
+            // Grouped cards: clear sections on the Mac (the default macOS form packs labels
+            // into a column and slid under the toolbar) and on the iPhone alike.
+            .formStyle(.grouped)
             .scrollContentBackground(.hidden)
             .background(DS.Colors.appBackground)
-            #if os(macOS)
-            .padding(.trailing, DS.Spacing.horizontal)
-            #endif
             .navigationTitle("Einstellungen")
             #if os(iOS)
             .toolbarBackground(DS.Colors.appBackground, for: .navigationBar)

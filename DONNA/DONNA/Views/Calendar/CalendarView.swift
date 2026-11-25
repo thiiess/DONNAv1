@@ -4,9 +4,9 @@ import SwiftData
 // MARK: - Calendar Mode
 
 private enum CalendarMode: String, CaseIterable {
-    case day   = "Day"
-    case week  = "Week"
-    case month = "Month"
+    case day   = "Tag"
+    case week  = "Woche"
+    case month = "Monat"
 }
 
 // MARK: - CalendarView
@@ -19,12 +19,13 @@ struct CalendarView: View {
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
-                Picker("View", selection: $calendarMode) {
+                Picker("Ansicht", selection: $calendarMode) {
                     ForEach(CalendarMode.allCases, id: \.self) { mode in
                         Text(mode.rawValue).tag(mode)
                     }
                 }
                 .pickerStyle(.segmented)
+                .labelsHidden()
                 .padding(.horizontal, DS.Spacing.horizontal)
                 .padding(.vertical, 8)
                 .background(DS.Colors.appBackground)
@@ -54,7 +55,7 @@ struct CalendarView: View {
                 }
             }
             .background(DS.Colors.appBackground)
-            .navigationTitle("Calendar")
+            .navigationTitle("Kalender")
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(DS.Colors.appBackground, for: .navigationBar)
@@ -68,7 +69,7 @@ struct CalendarView: View {
                     }
                 }
                 ToolbarItem(placement: .secondaryAction) {
-                    Button("Today") {
+                    Button("Heute") {
                         withAnimation(DS.animation) { selectedDate = .now }
                     }
                     .foregroundStyle(DS.Colors.warmAccent)
