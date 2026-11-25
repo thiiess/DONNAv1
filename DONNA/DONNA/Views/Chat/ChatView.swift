@@ -124,6 +124,7 @@ struct ChatView: View {
 // MARK: - ChatMessageList
 
 private struct ChatMessageList: View {
+    @Environment(\.modelContext) private var modelContext
     // Briefing messages are surfaced as a pinned card (BriefingCardView), so they are
     // excluded from the chronological feed to avoid a duplicate bubble.
     @Query(
@@ -144,7 +145,13 @@ private struct ChatMessageList: View {
                 .padding()
                 Color.clear.frame(height: 1).id("bottom")
             }
-            .onChange(of: messages.count) { _, _ in scrollToBottom(proxy: proxy) }
+            .onChange(of: messages.count) { _, _ in
+                scrollToBottom(proxy: proxy)
+                // The chat is on screen, so anything DONNA posts now has been seen —
+                // otherwise the sidebar badge counts up while the user is reading.
+                _ = CommandHandler(modelContext: modelContext).execute(.markAssistantMessagesRead)
+                NotificationScheduler.shared.updateBadgeCount(modelContext: modelContext)
+            }
             .onAppear { scrollToBottom(proxy: proxy) }
             // Bounded viewport: without this the ScrollView can report its full
             // content height and drive the window to grow with the chat history.
