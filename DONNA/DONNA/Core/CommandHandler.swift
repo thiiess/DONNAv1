@@ -198,6 +198,11 @@ final class CommandHandler {
 
         let result = dispatch(command)
 
+        if case .success = result, label != nil {
+            // Reminders always mirror the data (V2 Spec-Analyse: none were ever scheduled).
+            NotificationScheduler.shared.rescheduleAll(modelContext: modelContext)
+        }
+
         if case .success = result, let label {
             if let seriesID = createdSeries {
                 undoManager.register(.createdSeries(seriesID), label: label)
@@ -928,7 +933,9 @@ final class CommandHandler {
         }
         do {
             try undoManager.undo(context: modelContext)
-            return persist()
+            let result = persist()
+            NotificationScheduler.shared.rescheduleAll(modelContext: modelContext)
+            return result
         } catch {
             return .failure(.validationFailed(reason: error.localizedDescription))
         }

@@ -89,6 +89,72 @@ final class NotificationScheduler: @unchecked Sendable {
         center.removePendingNotificationRequests(withIdentifiers: [Self.weeklySummaryID])
     }
 
+    // MARK: - Central reminder sync
+
+    private static let reminderIDsKey = "donna_reminder_ids"
+    /// iOS keeps at most 64 pending local notifications per app; leave room for the
+    /// briefing/summary nudges.
+    private static let maxReminders = 50
+
+    /// Replaces every DONNA reminder with a fresh set built from the current data:
+    /// open tasks with a due time, scheduled routine occurrences, and timed events
+    /// (at the start of their preparation time if they have one) in the next 7 days.
+    /// Called on app start and after every data command, so reminders can never drift
+    /// from what is in the calendar. Wording invites, never alarms (Fundament).
+    @MainActor
+    func rescheduleAll(modelContext: ModelContext, now: Date = Date()) {
+        let defaults = UserDefaults.standard
+        let old = defaults.stringArray(forKey: Self.reminderIDsKey) ?? []
+        center.removePendingNotificationRequests(withIdentifiers: old)
+
+        guard let horizon = Calendar.current.date(byAdding: .day, value: 7, to: now) else { return }
+        let clock = DateFormatter()
+        clock.locale = Locale(identifier: "de_DE")
+        clock.dateFormat = "HH:mm"
+
+        var planned: [(id: String, date: Date, title: String, body: String)] = []
+
+        for task in (try? modelContext.fetch(FetchDescriptor<DONNATask>())) ?? []
+        where task.status == .open && task.dueTimeIncluded {
+            guard let due = task.dueDate else { continue }
+            let fire = due.addingTimeInterval(-30 * 60)
+            if fire > now && fire < horizon {
+                planned.append(("task_reminder_\(task.id.uuidString)", fire, "In 30 Minuten fällig", task.title))
+            }
+        }
+
+        for occ in (try? modelContext.fetch(FetchDescriptor<RoutineOccurrence>())) ?? []
+        where occ.status == .scheduled {
+            guard let routine = occ.routine, routine.isActive else { continue }
+            let fire = occ.scheduledDate.addingTimeInterval(-15 * 60)
+            if fire > now && fire < horizon {
+                planned.append(("routine_reminder_\(occ.id.uuidString)", fire, routine.title,
+                                "Um \(clock.string(from: occ.scheduledDate)) – wenn es heute passt."))
+            }
+        }
+
+        for event in (try? modelContext.fetch(FetchDescriptor<CalendarEvent>())) ?? []
+        where !event.isAnnual && !event.spansWholeDay {
+            let prep = event.prepTimeMinutes ?? 0
+            let fire = event.startTime.addingTimeInterval(TimeInterval(-(prep > 0 ? prep : 15) * 60))
+            guard fire > now && fire < horizon else { continue }
+            let body = prep > 0
+                ? "Zeit zur Vorbereitung – los geht's um \(clock.string(from: event.startTime))."
+                : "Beginnt um \(clock.string(from: event.startTime))."
+            planned.append(("event_reminder_\(event.id.uuidString)", fire, event.title, body))
+        }
+
+        let chosen = planned.sorted { $0.date < $1.date }.prefix(Self.maxReminders)
+        for item in chosen {
+            let content = UNMutableNotificationContent()
+            content.title = item.title
+            content.body = item.body
+            content.sound = .default
+            schedule(identifier: item.id, content: content, at: item.date)
+        }
+        defaults.set(chosen.map(\.id), forKey: Self.reminderIDsKey)
+    }
+
     // MARK: - Task reminders (30 min before dueDate when dueTimeIncluded)
 
     func scheduleTaskReminder(for task: DONNATask) {
