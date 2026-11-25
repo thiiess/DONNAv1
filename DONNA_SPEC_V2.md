@@ -549,6 +549,12 @@ Bevor ein neues Feature in eine Spec aufgenommen wird, muss es diese Fragen best
 - [x] Ungelesen-Zähler zählte hoch, während der Chat offen war — behoben
 - [x] Verwaiste Routine-Occurrences werden beim Start gelöscht
 
+- [x] Design-Durchgang: wählbare Farbthemen (6), eigene Optik (Serifen-Überschriften, „Donna."-Schriftzug, getönte Flächen, Sprechblasen-Formen, eigenes Eingabefeld), Einstellungen als gruppierte Karten, deutsche Beschriftungen, iPhone-Tabs mit DONNA zuerst
+- [x] V2-S3 Erschöpfungs-Modus (Erholungstag per Chat, Langzeit-Hinweis) — bewusst ohne `ContextMode .recovery`, weil das den Lebensphasen-Modus überschreiben würde
+- [x] V2-S6 Someday-Stapel („Irgendwann" + wöchentliche Nachfrage)
+- [x] V2-S7 Leere Zustände als Einladung (Kalender heute, Aufgaben, Routinen, Chat)
+- [x] Monatsansicht: Tag antippen öffnet ihn; Wochentage folgen der Regionseinstellung (vorher bei Wochenbeginn Montag verschoben)
+
 ### V2-S7 (DONNA-Tab Redesign)
 - [x] Bearbeiten-Sheet / Routine-Detail blockiert den Tab-Wechsel — behoben über `.id(selectedTab)` auf der NavigationSplitView (14.07.); ein offenes Sheet ist auf macOS bewusst modal
 - [x] Onboarding-Farbschema-Bug — behoben (25.11.): `DS.Colors.accent` zeigte auf das alte blaue `AccentColor`-Asset aus V1; jetzt Alias auf `warmAccent`, Asset ebenfalls auf #C4783C/#E8A06A

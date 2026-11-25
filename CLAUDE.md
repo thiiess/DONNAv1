@@ -125,24 +125,33 @@ Fix all errors before reporting done.
 
 ## Design System (`DesignSystem.swift` — `DS` namespace)
 
+### Themes (since 25.11.)
+The user picks a colour theme in Einstellungen → Erscheinungsbild: `DONNATheme` = Bernstein (default), Salbei, Ozean, Lavendel, Koralle, Graphit. Each theme defines accent + background + surface + elevated + bubble (dark mode only — the app forces `.dark`). `DONNAApp` rebuilds the view tree via `.id(themeRaw)` when the theme changes; the macOS sidebar tab survives through `@SceneStorage`.
+
 ### Colors
-| Token | Light | Dark | Usage |
-|-------|-------|------|-------|
-| `DS.Colors.warmAccent` | `#C4783C` | `#E8A06A` | Buttons, active chips, sidebar active state, toggles |
-| `DS.Colors.warmLight` | `#F5E6D8` | (dark bubble bg) | DONNA bubble background (light mode) |
-| `DS.Colors.warmDark` | `#6B3410` | fixed | Text on warm light backgrounds |
-| `DS.Colors.appBackground` | `NSColor.windowBackgroundColor` | system | All tab backgrounds — use everywhere |
-| `DS.Colors.donnaBubbleBg` | `#F5E6D8` | `#2E2420` | DONNA chat bubble background |
-| `DS.Colors.donnaBubbleFg` | `#6B3410` | `#E8A06A` | DONNA chat bubble text |
+| Token | Source | Usage |
+|-------|--------|-------|
+| `DS.Colors.warmAccent` (alias `accent`) | theme accent | Buttons, active chips, sidebar active state, toggles, links |
+| `DS.Colors.onAccent` | fixed `#15110E` | Text/icons on accent fills — never `.white` |
+| `DS.Colors.appBackground` / `backgroundPrimary` | theme background | Tab backgrounds |
+| `DS.Colors.backgroundSecondary` | theme surface | Cards, sidebar |
+| `DS.Colors.backgroundTertiary` | theme elevated | Proposal card, composer |
+| `DS.Colors.donnaBubbleBg` | theme bubble | DONNA chat bubble |
+| `textPrimary/Secondary/Tertiary`, `destructive`, `success`, `separator` | asset catalog | unchanged |
+
+### Identity rules
+- Headings (`DS.Typography.title/heading/subheading`) are **serif**; body stays sans
+- Sidebar shows the „Donna." wordmark (serif + accent dot), German tab names
+- Chat bubbles: speech-bubble corners (tight corner on the speaker's side); DONNA's bubbles carry a thin accent rule; badges are small caps in accent
+- Composer is a themed capsule with the send button inside
+- iPhone tab order: DONNA, Kalender, Aufgaben, Routinen, Mehr
 
 ### Rules
-- All sheets: plain `VStack`, no `Form`/`Section`/`List`
+- All sheets: plain `VStack`, no `Form`/`Section`/`List` (Settings itself is a `.formStyle(.grouped)` Form)
 - Title fields: `.title2.weight(.semibold)` + bottom divider
-- Date/time chips: active = `warmAccent` fill + white text, inactive = `warmAccent.opacity(0.15)` + `warmAccent` text
+- Date/time chips: active = `warmAccent` fill + `onAccent` text, inactive = `warmAccent.opacity(0.15)` + `warmAccent` text
 - Toggles: always `.tint(DS.Colors.warmAccent)`
-- Sidebar active item: `warmAccent.opacity(0.15)` background + `warmAccent` text + `.medium` weight
-- All tab backgrounds: `DS.Colors.appBackground`
-- TextField focus ring: `.tint(DS.Colors.warmAccent)`
+- Never hard-code a brand colour — always `DS.Colors.*`, so themes keep working
 
 ---
 
@@ -162,7 +171,7 @@ Fix all errors before reporting done.
 | `Routine.swift` | Routine model |
 | `RoutineOccurrence.swift` | Individual routine occurrence |
 | `ChatMessage.swift` | Persisted chat message model |
-| `DesignSystem.swift` | All color tokens, spacing, typography — use `DS.Colors.*` everywhere |
+| `DesignSystem.swift` | `DONNATheme` + all colour tokens, spacing, typography — use `DS.Colors.*` everywhere |
 | `ContentView.swift` | Root view + macOS sidebar (min 180pt, custom buttons with `.contentShape(Rectangle())`) |
 | `ChatView.swift` | DONNA chat UI — `ChatMessageList` is a separate child view (prevents SwiftData freeze) |
 | `MessageBubble.swift` | Chat bubble — `donnaBubbleBg/Fg` for DONNA, `warmAccent`+white for user |
